@@ -21,7 +21,9 @@
     "underscore": "^1.8.3",
     "mustache.js": "mustache#^2.2.1",
     "jsdiff": "^2.2.2",
-    "components-font-awesome": "^4.6.3"
+    "components-font-awesome": "^4.6.3",
+    "oauth-js": "oauthio-web#^0.5.2",
+    "tether-drop": "^1.4.2"
   },
   "resolutions": {
     "jquery": "1.9.1 - 2",

@@ -14,7 +14,7 @@ function GithubApi(username, repoName) {
 
     this.getDiffBySha = function (sha, cb) {
         var msg = $("<span>Getting </span>");
-        msg.append($("<a>diff of sha" + sha + "</a>").attr("href", commitBase + "/" + sha).attr("target", "_blank"));
+        msg.append($("<a>diff of sha " + sha + "</a>").attr("href", commitBase + "/" + sha).attr("target", "_blank"));
         notify(msg.html());
         this.request(commitBase + "/" + sha, cb);
     };
@@ -76,17 +76,19 @@ function GithubApi(username, repoName) {
     };
 
     this.request = function (url, cb, options) {
+        var headers = {
+            "Accept": "application/vnd.github.diff"
+        };
         var config = _.extend({
             url: url,
             method: "GET",
-            headers: {
-                "Accept": "application/vnd.github.diff"
-            },
+            headers: headers,
             params: {},
             data: {},
             responseType: 'text',
             success: cb
         }, options || {});
+        window.auth.addHeader(config);
         $.ajax(config);
     };
     return this;

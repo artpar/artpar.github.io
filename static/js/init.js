@@ -117,7 +117,6 @@ function notify(msg) {
     $("#notifications").prepend($("<div class='list-group-item'></div>").append(small))
 }
 
-var store = window.localStorage;
 var stored = store.getItem("speed");
 function updateSize() {
     var newHeight = $(window).height() - 100;
@@ -161,3 +160,25 @@ if (stored) {
 $("#random").on("click", function () {
     random();
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
