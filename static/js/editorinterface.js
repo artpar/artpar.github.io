@@ -151,6 +151,7 @@ function EditorInterface(editor, ga, speed) {
     this.editor = editor;
     this.github = ga;
     this.runAllChanges = function (files, parent) {
+        notify("Showing rewrite all changes in following files: \n" + files.join("\n"));
         that.showEditFile(files, 0, parent, function () {
             notify("completed show edit for all files")
         });
@@ -269,7 +270,7 @@ function EditorInterface(editor, ga, speed) {
             var extension = split[split.length - 1].toLowerCase();
             mode = modeMap[extension];
             if (mode && mode.name) {
-                notify("file type " + mode.name);
+                notify(mode.name + " file");
                 editor.getSession().setMode("ace/mode/" + mode.value);
             }
             setTimeout(function () {

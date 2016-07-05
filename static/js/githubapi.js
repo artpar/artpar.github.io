@@ -40,7 +40,7 @@ function GithubApi(username, repoName) {
 
 
     this.getFile = function (filePath, cb) {
-        notify("Get file " + filePath);
+        notify("Get file " + filePath.split("?")[0]);
 
         var config = {
             url: fileBase + "/" + filePath,
@@ -64,7 +64,7 @@ function GithubApi(username, repoName) {
     };
 
     this.getCommits = function (cb) {
-        notify("Get list of commits");
+        notify("Get list of commits for " + repoFullName);
         this.request(commitBase, cb)
     };
 

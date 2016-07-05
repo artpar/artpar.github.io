@@ -101,8 +101,6 @@ function App(defaultUrl) {
         $('#commitListContainer').html(rendered);
 
         if (that.sha) {
-            console.log("get commit completed later");
-
             if (that.sha == "random") {
                 var item = list[Math.floor(Math.random() * list.length)];
                 that.sha = item.sha;
