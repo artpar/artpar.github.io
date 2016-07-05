@@ -135,7 +135,7 @@ updateSize();
 var slider = document.getElementById('slider');
 
 noUiSlider.create(slider, {
-    start: 35, // Handle start position
+    start: 20, // Handle start position
     connect: false, // Display a colored bar between the handles
     orientation: 'horizontal', // Orient the slider vertically
     range: { // Slider can select '0' to '100'

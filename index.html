@@ -26,11 +26,14 @@
 </head>
 <body>
 <script id="commitListTemplate" type="x-tmpl-mustache">
+                <h3>Commit list</h3>
                 <ul class="list-group" id="commitList">
                 {{#commits}}
                     <li class="list-group-item">
-                        <a class="text-muted" href="#!{{html_url}}">{{commit.message}}</a>
+                    <small>
+                                            <a class="text-muted" href="#!{{html_url}}">{{commit.message}}</a>
                         <a target="_blank" href="{{html_url}}"><span class="fa fa-github"></span> </a>
+                        </small>
                     </li>
                 {{/commits}}
                 </ul>
@@ -50,7 +53,7 @@
                     <button id="loadRepo" class="btn btn-success-outline">Load</button>
                     <button id="random" class="btn btn-primary-outline">Random</button>
                     <a class="btn btn-primary"
-                       href='javascript:if (window.location.href.indexOf("github.com") > -1) { window.location = "http://http://git-rewrite.review/?#!" + window.location}'>
+                       href='javascript:if (window.location.href.indexOf("github.com") > -1) { window.location = "http://git-rewrite.review/?#!" + window.location}'>
                         Bookmark
                     </a>
                 </form>
