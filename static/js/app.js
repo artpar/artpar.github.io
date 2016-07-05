@@ -100,10 +100,13 @@ function App(defaultUrl) {
             that.commitMap[list[i].sha] = list[i];
         }
         that.canStart = true;
-        var template = $('#commitListTemplate').html();
-        Mustache.parse(template);   // optional, speeds up future uses
-        var rendered = Mustache.render(template, {commits: list});
-        $('#commitListContainer').html(rendered);
+
+        $.get('static/templates/commit_list.mustache', function (template) {
+            Mustache.parse(template);   // optional, speeds up future uses
+            var rendered = Mustache.render(template, {commits: list});
+            $('#commitListContainer').html(rendered);
+            stroll.bind( '#commitList' );
+        });
 
         if (that.sha) {
             if (that.sha == "random") {
