@@ -143,9 +143,13 @@ for (var i = 0; i < modes.length; i++) {
 }
 
 function EditorInterface(editor, ga, speed) {
-    editor.setBehavioursEnabled(false)
-    editor.setOption("wrap", 80);
-    editor.setOptions({enableLiveAutocompletion: false})
+    editor.setBehavioursEnabled(false);
+    editor.setOptions({
+        enableBasicAutocompletion: false,
+        enableLiveAutocompletion: false,
+        wrap: 80,
+        readOnly: true
+    });
     var that = this;
     that.speed = speed;
     this.editor = editor;
