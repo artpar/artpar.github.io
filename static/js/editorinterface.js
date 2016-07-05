@@ -143,6 +143,7 @@ for (var i = 0; i < modes.length; i++) {
 }
 
 function EditorInterface(editor, ga, speed) {
+    editor.setBehavioursEnabled(false)
     var that = this;
     that.speed = speed;
     this.editor = editor;
