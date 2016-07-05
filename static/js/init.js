@@ -46,21 +46,22 @@ DelayedLoop.forEach = function (collection, delay, callback, completedCallback) 
 
 var editor = undefined;
 
-function initEditor() {
+function initEditor(name) {
     var theme = 'ace/theme/solarized_dark';
-    editor = ace.edit('ace-editorid');
+    var editor = ace.edit(name);
+
     editor.$blockScrolling = Infinity;
     editor.setTheme(theme);
+    editor.setBehavioursEnabled(false);
+    editor.setOptions({
+        enableBasicAutocompletion: false,
+        enableLiveAutocompletion: false,
+        wrap: 80,
+        readOnly: true
+    });
 
-    $('#ace-mode').on('change', function () {
-        editor.getSession().setMode('ace/mode/' + $(this).val().toLowerCase());
-    });
-    $('#ace-theme').on('change', function () {
-        editor.setTheme('ace/theme/' + $(this).val().toLowerCase());
-    });
+    return editor;
 }
-
-initEditor();
 
 window.app = {};
 var githubUrl = "https://github.com/";
@@ -112,19 +113,48 @@ function once() {
 once();
 
 
+function addTab(name) {
+    var nextTab = $('#fileTabs li').size() + 1;
+
+    // create the tab
+
+    var tabName = name;
+    if (name.length > 10) {
+        var parts = tabName.split("\/");
+        tabName = "...";
+        if (parts.length > 2) {
+            tabName += "/" + parts[parts.length - 2]
+        }
+        tabName = tabName + "/" + parts[parts.length - 1];
+    }
+    $('<li class="nav-item"><a class="nav-link" href="#fileTabs' + nextTab + '" data-toggle="tab">' + tabName + '</a></li>').appendTo('#fileTabs');
+
+
+    name = "ace-editorid-" + name.replace("\.", "-").replace("\/", "-");
+    // create the tab content
+    $('<div class="tab-pane" id="fileTabs' + nextTab + '"><div id="' + name + '" class="ace-editor-all"></div></div>').appendTo('.files-content');
+
+    var editor = initEditor(name);
+    // make the new tab active
+    $('#fileTabs a:last').tab('show');
+    updateSize();
+    return editor;
+}
+
+
 function notify(msg) {
-    var small = $("<small></small>").html(msg);
-    $("#notifications").prepend($("<div class='list-group-item'></div>").append(small))
+    var small = $("<p class='well'></p>").html(msg);
+    $("#notifications").prepend($("<li class='list-group-item'></li>").append(small))
 }
 
 var stored = store.getItem("speed");
 function updateSize() {
-    var newHeight = $(window).height() - 100;
+    var newHeight = $(window).height() - 150;
 //        console.log("resize to ", newHeight);
-    $('#ace-editorid').css("height", newHeight + "px");
+    $('.ace-editor-all').css("height", newHeight + "px");
     $('#commitListContainer').css("height", newHeight + "px");
     $('#third').css("height", newHeight + "px");
-    editor.resize();
+
 }
 $(window).on("resize", function () {
     updateSize();

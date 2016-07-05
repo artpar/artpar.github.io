@@ -3,3 +3,24 @@
     font-size: .9em;
     font-family: "Courier New", Courier, "Lucida Sans Typewriter", "Lucida Typewriter", monospace;
 }
+
+.list-group-item {
+    border-radius: 0;
+    border-left: 0;
+    border-right: 0;
+    border-top: 0;
+}
+
+.nav>li>a {
+    position: relative;
+    display: block;
+    padding: 10px 15px;
+}
+a.list-group-item {
+    color: #555;
+}
+
+#commitListContainer a {
+    color: black;
+    font-family: 'Ubuntu Mono', monospace;
+}

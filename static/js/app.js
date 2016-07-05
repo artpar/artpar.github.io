@@ -50,7 +50,7 @@ function App(defaultUrl) {
     $("#githubUrl").val(githubUrl + username + "/" + repoName);
 
     that.ga = new GithubApi(username, repoName);
-    that.ed = new EditorInterface(editor, this.ga, speed);
+    that.ed = new EditorInterface(this.ga, speed);
     var state = 0;
     that.sha = undefined;
     that.canStart = false;
@@ -82,8 +82,19 @@ function App(defaultUrl) {
         mixpanel.track("load sha for diff", {
             sha1: sha
         });
+        $("#commitList").find(".active").removeClass("active");
         that.ga.getDiffBySha(sha, function (text) {
-            window.diff = text;
+            var scrollTo = $("#commit-sha-" + sha);
+            scrollTo.addClass("active");
+            var container = scrollTo.parent();
+
+
+
+            container.animate({
+                scrollTop: scrollTo.offset().top - container.offset().top + container.scrollTop()
+            });
+
+
             var changes = fpp(text);
             //var diff = JsDiff.di
             that.ed.runAllChanges(changes, parent);
@@ -105,7 +116,10 @@ function App(defaultUrl) {
             Mustache.parse(template);   // optional, speeds up future uses
             var rendered = Mustache.render(template, {commits: list});
             $('#commitListContainer').html(rendered);
-            stroll.bind( '#commitList' );
+            stroll.bind("body ul");
+            var userList = new List('commitListContainer', {
+                valueNames: ["message"]
+            });
         });
 
         if (that.sha) {

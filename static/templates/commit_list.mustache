@@ -1,11 +1,9 @@
-<h3>Commit list</h3>
-<ul class="list-group" id="commitList">
+<input class="search form-control" placeholder="Search" />
+<div class="list list-group" id="commitList">
     {{#commits}}
-    <li class="list-group-item">
-        <small>
-            <a class="text-muted" href="#!{{html_url}}">{{commit.message}}</a>
+        <div class="list-group-item" id="commit-sha-{{sha}}">
             <a target="_blank" href="{{html_url}}"><span class="nav-link fa fa-github"></span> </a>
-        </small>
-    </li>
+            <a class="message" href="#!{{html_url}}">{{commit.message}}</a>
+        </div>
     {{/commits}}
-</ul>
+</div>

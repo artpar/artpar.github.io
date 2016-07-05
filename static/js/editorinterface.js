@@ -142,17 +142,8 @@ for (var i = 0; i < modes.length; i++) {
     modeMap[modes[i].extension] = modes[i];
 }
 
-function EditorInterface(editor, ga, speed) {
-    editor.setBehavioursEnabled(false);
-    editor.setOptions({
-        enableBasicAutocompletion: false,
-        enableLiveAutocompletion: false,
-        wrap: 80,
-        readOnly: true
-    });
+function EditorInterface(ga, speed) {
     var that = this;
-    that.speed = speed;
-    this.editor = editor;
     this.github = ga;
     this.runAllChanges = function (files, parent) {
         notify("Showing rewrite all changes in following files: \n" + files.map(function (e) {
@@ -164,7 +155,7 @@ function EditorInterface(editor, ga, speed) {
     };
 
 
-    that.navigate = function (toLineNumber, callback, speed) {
+    that.navigate = function (toLineNumber, callback, speed, editor) {
         if (toLineNumber < 1) {
             callback();
             return;
@@ -192,7 +183,7 @@ function EditorInterface(editor, ga, speed) {
                 editor.navigateDown()
             }
             setTimeout(function () {
-                that.navigate(toLineNumber, callback, speed);
+                that.navigate(toLineNumber, callback, speed, editor);
             }, speed.getSpeed() / 10);
         } else {
             callback();
@@ -202,7 +193,7 @@ function EditorInterface(editor, ga, speed) {
     that.rel = 0;
     that.at = 0;
 
-    this.showSingleChange = function (change, callback) {
+    this.showSingleChange = function (change, callback, editor) {
         //console.log("delay for ", change);
         //editor.gotoLine(change.ln1 || change.ln);
 
@@ -215,7 +206,7 @@ function EditorInterface(editor, ga, speed) {
         that.navigate(lnNo - 1, function () {
             editor.gotoLine(lnNo);
             if (change.type == "del") {
-                notify("delete line " + lnNo);
+                //notify("delete line " + lnNo);
                 that.rel = that.rel - 1;
                 that.at = lnNo;
                 editor.removeLines();
@@ -242,20 +233,20 @@ function EditorInterface(editor, ga, speed) {
                     });
                 }, 80);
             }
-        }, speed);
+        }, speed, editor);
     };
 
-    this.showChangeEdit = function (changes, index, callback) {
+    this.showChangeEdit = function (changes, index, callback, editor) {
         if (index >= changes.length) {
             callback();
             return;
         }
         that.showSingleChange(changes[index], function () {
-            that.showChangeEdit(changes, index + 1, callback);
-        });
+            that.showChangeEdit(changes, index + 1, callback, editor);
+        }, editor);
     };
 
-    this.showChunkEdit = function (chunks, index, callback) {
+    this.showChunkEdit = function (chunks, index, callback, editor) {
         if (index >= chunks.length) {
             callback();
             return;
@@ -264,8 +255,8 @@ function EditorInterface(editor, ga, speed) {
         var changes = chunk.changes;
         that.showChangeEdit(changes, 0, function () {
             //console.log("completed all changes in the chunk ", changes);
-            that.showChunkEdit(chunks, index + 1, callback);
-        });
+            that.showChunkEdit(chunks, index + 1, callback, editor);
+        }, editor);
     };
 
     this.showEditFile = function (files, index, parent, callback) {
@@ -276,6 +267,10 @@ function EditorInterface(editor, ga, speed) {
         }
         var file = files[index];
         var filePath = file.from;
+        var filename = file.from;
+
+        var editor = addTab(filename);
+
         that.github.getFile(filePath + "?ref=" + parent, function (contents) {
             //editor.getSession().setMode("ace/mode/dockerfile");
             editor.setValue(contents);
@@ -292,8 +287,8 @@ function EditorInterface(editor, ga, speed) {
                 var chunks = file.chunks;
                 that.showChunkEdit(chunks, 0, function () {
                     //console.log("completed all chunks");
-                    that.showEditFile(files, index + 1, parent, callback)
-                })
+                    that.showEditFile(files, index + 1, parent, callback, editor)
+                }, editor)
             }, 300);
         });
     };
