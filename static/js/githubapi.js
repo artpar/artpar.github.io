@@ -40,6 +40,7 @@ function GithubApi(username, repoName) {
 
 
     this.getFile = function (filePath, cb) {
+        mixpanel.track("get single file", {filePath: filePath});
         notify("Get file " + filePath.split("?")[0]);
 
         var config = {
@@ -59,11 +60,17 @@ function GithubApi(username, repoName) {
     };
 
     this.getFileList = function (cb) {
+        mixpanel.track("get list of files", {
+            repoName: fileBase
+        });
         notify("Get list of files in root ");
         this.request(fileBase, cb);
     };
 
     this.getCommits = function (cb) {
+        mixpanel.track("get commits", {
+            repoName: repoFullName
+        });
         notify("Get list of commits for " + repoFullName);
         this.request(commitBase, cb)
     };

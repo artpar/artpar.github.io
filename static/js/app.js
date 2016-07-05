@@ -69,6 +69,9 @@ function App(defaultUrl) {
 
 
     this.update = function (sha) {
+        mixpanel.track("load sha for diff", {
+            sha: sha
+        });
         if (!sha) {
             return;
         }
@@ -90,6 +93,7 @@ function App(defaultUrl) {
 
 
     that.ga.getCommits(function (list) {
+
         that.commits = list;
         for (var i = 0; i < list.length; i++) {
             that.commitMap[list[i].sha] = list[i];
