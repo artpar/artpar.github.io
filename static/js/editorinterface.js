@@ -175,7 +175,7 @@ function EditorInterface(editor, ga, speed) {
                 editor.navigateDown()
             }
             setTimeout(function () {
-                that.navigate(toLineNumber, callback);
+                that.navigate(toLineNumber, callback, speed);
             }, speed.getSpeed() / 10);
         } else {
             callback();
