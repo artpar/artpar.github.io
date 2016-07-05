@@ -113,7 +113,7 @@ once();
 
 
 function notify(msg) {
-    $("#notifications").append($("<div class='list-group-item'></div>").html(msg))
+    $("#notifications").prepend($("<div class='list-group-item'></div>").html(msg))
 }
 
 var store = window.localStorage;
