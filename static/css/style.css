@@ -19,8 +19,8 @@
 a.list-group-item {
     color: #555;
 }
-
-#commitListContainer a {
+a {
     color: black;
     font-family: 'Ubuntu Mono', monospace;
 }
+

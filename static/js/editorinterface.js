@@ -12,7 +12,7 @@ var modes = [{"value": "abap", "name": "ABAP"},
     {"value": "assembly_x86", "name": "Assembly x86"},
     {"value": "autohotkey", "name": "AutoHotKey"},
     {"value": "batchfile", "name": "BatchFile"},
-    {"value": "c_cpp", "name": "C and C++", "extension": ["c", "cpp"]},
+    {"value": "c_cpp", "name": "C and C++", "extension": ["c", "h", "hpp", "cpp"]},
     {"value": "c9search", "name": "C9Search"},
     {"value": "cirru", "name": "Cirru"},
     {"value": "clojure", "name": "Clojure", "extension": ["clj", "cljs", "cljc", "edn"]},
@@ -133,13 +133,24 @@ var modes = [{"value": "abap", "name": "ABAP"},
     {"value": "xml", "name": "XML", "extension": "xml"},
     {"value": "xquery", "name": "XQuery"},
     {"value": "yaml", "name": "YAML", "extension": "yaml"},
-    {"value": "django", "name": "Django", "extension": "py"}
+    {"value": "django", "name": "Django"}
 ];
 
 
 var modeMap = {};
 for (var i = 0; i < modes.length; i++) {
-    modeMap[modes[i].extension] = modes[i];
+    var extension = modes[i].extension;
+    if (extension) {
+
+
+        if (extension instanceof Array) {
+            extension.map(function (e) {
+                modeMap[e] = modes[i];
+            })
+        } else {
+            modeMap[extension] = modes[i];
+        }
+    }
 }
 
 function EditorInterface(ga, speed) {

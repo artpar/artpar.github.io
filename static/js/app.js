@@ -50,6 +50,8 @@ function App(defaultUrl) {
     $("#githubUrl").val(githubUrl + username + "/" + repoName);
 
     that.ga = new GithubApi(username, repoName);
+
+
     that.ed = new EditorInterface(this.ga, speed);
     var state = 0;
     that.sha = undefined;
@@ -67,8 +69,23 @@ function App(defaultUrl) {
         that.sha = "random";
     };
 
+    this.reload = function () {
+        that.canStart = false;
+    };
 
     this.update = function (sha) {
+
+
+        if (sha.length < 6) {
+            that.sha = undefined;
+            var number = sha;
+            this.ga.getPullCommits(number, function (commitList) {
+                $("#commitTabHeader").text("Commits (pull/" + number + ")");
+                updateCommitList(commitList);
+                $("#commitTabHeader").tab("show");
+            });
+            return;
+        }
 
         if (!sha) {
             return;
@@ -88,12 +105,9 @@ function App(defaultUrl) {
             scrollTo.addClass("active");
             var container = scrollTo.parent();
 
-
-
             container.animate({
                 scrollTop: scrollTo.offset().top - container.offset().top + container.scrollTop()
             });
-
 
             var changes = fpp(text);
             //var diff = JsDiff.di
@@ -103,8 +117,31 @@ function App(defaultUrl) {
 
     that.commitMap = {};
 
+    that.ga.getPulls(function (list) {
+        console.log("pull requests", list);
+        that.pulls = list;
+        that.pullMap = {};
 
-    that.ga.getCommits(function (list) {
+        if (list.length > 0) {
+
+
+            for (var i = 0; i < that.pulls.length; i++) {
+                that.pullMap[that.pulls[i].number] = that.pulls[i];
+            }
+            $.get('static/templates/pull_list.mustache', function (template) {
+                Mustache.parse(template);   // optional, speeds up future uses
+                var rendered = Mustache.render(template, {commits: list});
+                $('#pullListContainer').html(rendered);
+                stroll.bind("body ul");
+                var userList = new List('pullListContainer', {
+                    valueNames: ["message"]
+                });
+            });
+        }
+    });
+
+
+    var updateCommitList = function (list) {
 
         that.commits = list;
         for (var i = 0; i < list.length; i++) {
@@ -132,7 +169,9 @@ function App(defaultUrl) {
         }
 
 
-    });
+    };
+    $("#commitTabHeader").text("(branch/master)");
+    that.ga.getCommits(updateCommitList);
 
 
     return this;

@@ -56,7 +56,7 @@ function initEditor(name) {
     editor.setOptions({
         enableBasicAutocompletion: false,
         enableLiveAutocompletion: false,
-        wrap: 80,
+        wrap: 120,
         readOnly: true
     });
 
@@ -95,14 +95,24 @@ function loadUrl(newHash) {
 
     console.log("load ", newHash);
 
+    if (newHash.indexOf("\/pull\/") > -1) {
+        console.log("pull url")
+    }
+
     if (newHash.substr(0, githubUrl.length) == githubUrl) {
         console.log("url has github");
         newHash = newHash.substr(githubUrl.length);
     }
 
+
     var defaultUrl = githubUrl + newHash;
-    window.app = new App(defaultUrl);
-    window.app.update(window.app.getSha());
+    if (!window.app.update) {
+        window.app = new App(defaultUrl);
+    } else {
+        var config = defaultUrl.split("/");
+        window.app.update(config[config.length - 1]);
+    }
+
 }
 
 function once() {
@@ -112,11 +122,9 @@ function once() {
 
 once();
 
-
-function addTab(name) {
-    var nextTab = $('#fileTabs li').size() + 1;
-
-    // create the tab
+function addTabCore(to, name) {
+    var $fileTabs = $('#' + to + 'Tabs');
+    var nextTab = $fileTabs.find('li').size() + 1;
 
     var tabName = name;
     if (name.length > 10) {
@@ -127,16 +135,25 @@ function addTab(name) {
         }
         tabName = tabName + "/" + parts[parts.length - 1];
     }
-    $('<li class="nav-item"><a class="nav-link" href="#fileTabs' + nextTab + '" data-toggle="tab">' + tabName + '</a></li>').appendTo('#fileTabs');
+    $('<li class="nav-item"><a class="nav-link" href="#' + to + 'Tabs' + nextTab + '" data-toggle="tab">' + tabName + '</a></li>').appendTo('#' + to + 'Tabs');
 
+    name = to + "-container-" + name.replace("\.", "-").replace("\/", "-");
+    var container = $('<div class="tab-pane" id="' + to + 'Tabs' + nextTab + '"></div>');
+    container.appendTo('.' + to + '-content');
+    return container;
+}
 
-    name = "ace-editorid-" + name.replace("\.", "-").replace("\/", "-");
-    // create the tab content
-    $('<div class="tab-pane" id="fileTabs' + nextTab + '"><div id="' + name + '" class="ace-editor-all"></div></div>').appendTo('.files-content');
+function addTab(name) {
+    var className = "ace-editor-all";
+    var to = "file";
+    var container = addTabCore(to, name);
+    var $fileTabs = $('#' + to + 'Tabs');
+    name = "ace-editorid-" + name.replace("\.", "-").replace("/", "-");
 
+    container.append($('<div id="' + name + '" class="' + className + '"></div>'));
     var editor = initEditor(name);
     // make the new tab active
-    $('#fileTabs a:last').tab('show');
+    $fileTabs.find('a:last').tab('show');
     updateSize();
     return editor;
 }

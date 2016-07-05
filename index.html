@@ -11,6 +11,13 @@
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/noUiSlider/8.5.1/nouislider.min.css">
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/stroll.js/1.0/css/stroll.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tether/1.3.2/css/tether.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tether/1.3.2/css/tether-theme-basic.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tether/1.3.2/css/tether-theme-arrows.min.css">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/tether-drop/1.4.2/css/drop-theme-arrows.min.css">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/tether-drop/1.4.2/css/extras/drop-twitter-bootstrap.min.css">
     <link rel="stylesheet" href="static/css/style.css">
 
 
@@ -40,6 +47,9 @@
         <div class="col-md-2">
             <nav class="navbar navbar-light">
                 <button id="loginButton" style="display: none" class="btn btn-warning">Login via Github</button>
+                <button id="profileButton" style="display: none" class=" drop-target btn btn-primary-outline">My
+                    Repositories
+                </button>
             </nav>
         </div>
     </div>
@@ -50,7 +60,8 @@
 
             <ul id="tabs" class="nav nav-tabs">
                 <li class="nav-item">
-                    <a class="nav-link active" href="#commits" data-toggle="tab">Commits</a>
+                    <a id="commitTabHeader" class="nav-link active" href="#commits"
+                       data-toggle="tab">Commits(master)</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="#pulls" data-toggle="tab">Pulls</a>
@@ -65,6 +76,7 @@
                 </div>
                 <div class="tab-pane" id="pulls">
                     <div class="row" id="pullListContainer">
+                        Not implemented yet.
                     </div>
                 </div>
             </div>
@@ -80,6 +92,7 @@
             <div class="tab-content files-content clearfix">
             </div>
 
+
         </div>
         <div class="col-md-3">
             <div class="row" id="third" style="overflow-y: auto;">
@@ -92,6 +105,15 @@
                 src="//cdn.mxpnl.com/site_media/images/partner/badge_light.png" alt="Mobile Analytics"/></a>
     </div>
 
+</div>
+<div id="repoTabContent">
+    <div class="row">
+        <div class="col-md-12">
+            <ul id="repoTabs" class="nav nav-tabs"></ul>
+            <div class="tab-content repo-content clearfix">
+            </div>
+        </div>
+    </div>
 </div>
 </body>
 
@@ -168,13 +190,11 @@ mixpanel.init("e2c295cea04ef4b7ff65ba2bde24ff35");</script><!-- end Mixpanel -->
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.2.0/list.min.js"></script>
 <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
 <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mustache.js/2.2.1/mustache.min.js"></script>
-<script type="text/javascript"
-        src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/7.1.0/bootstrap-slider.min.js"></script>
 <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/noUiSlider/8.5.1/nouislider.min.js"></script>
 <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jsdiff/2.2.3/diff.min.js"></script>
 <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/oauth-io/0.5.2/oauth.min.js"></script>
 <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/tether/1.3.2/js/tether.min.js"></script>
-<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/tether-drop/1.4.2/js/drop.min.js"></script>
+<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/tether-drop/1.4.2/js/drop.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.theme.min.css">
 <!--<script src="output.min.js"></script>-->

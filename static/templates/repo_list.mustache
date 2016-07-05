@@ -1,11 +1,11 @@
 <input class="search form-control" placeholder="Search" />
-<div class="list list-group" id="commitList">
-    {{#commits}}
-        <div class="list-group-item" id="pull-id-{{id}}">
+<div class="list list-group" id="repoList">
+    {{#list}}
+        <div class="list-group-item" id="repo-id-{{id}}">
             <a target="_blank" href="{{html_url}}"><span class="nav-link fa fa-github"></span> </a>
             <a class="message" href="#!{{html_url}}">
-                <small>{{title}}</small>
+                <small>{{full_name}}</small>
             </a>
         </div>
-    {{/commits}}
+    {{/list}}
 </div>

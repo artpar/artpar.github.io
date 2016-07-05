@@ -6,17 +6,27 @@ function GithubApi(username, repoName) {
     var github = "https://api.github.com";
     var githubHtml = "https://github.com";
     var repoFullName = username + "/" + repoName;
-    var commitBase = github + "/repos/" + repoFullName + "/commits";
+    var apiRepoBase = github + "/repos/" + repoFullName;
+
+    var commitBase = apiRepoBase + "/commits";
+    var fileBase = apiRepoBase + "/contents";
+    var pullBase = apiRepoBase + "/pulls";
     var commitBaseHtml = githubHtml + "/" + repoFullName + "/commits";
-    var fileBase = github + "/repos/" + repoFullName + "/contents";
     var fileBaseHtml = githubHtml + "/" + repoFullName + "/contents";
 
 
+    this.getPullCommits = function (number, cb) {
+        var msg = $("Getting ");
+        msg.append($("<a>commits of pull " + number + "</a>").attr("href", pullBase + "/" + number).attr("target", "_blank"));
+        notify(msg.html());
+        request(pullBase + "/" + number + "/commits", cb);
+    };
+
     this.getDiffBySha = function (sha, cb) {
-        var msg = $("<span>Getting </span>");
+        var msg = $("Getting ");
         msg.append($("<a>diff of sha " + sha + "</a>").attr("href", commitBase + "/" + sha).attr("target", "_blank"));
         notify(msg.html());
-        this.request(commitBase + "/" + sha, cb);
+        request(commitBase + "/" + sha, cb);
     };
 
     this.getDiff = function (url, cb) {
@@ -52,7 +62,7 @@ function GithubApi(username, repoName) {
             responseType: 'text'
         };
         config.success = cb;
-        this.request(fileBase + "/" + filePath, cb, {
+        request(fileBase + "/" + filePath, cb, {
             headers: {
                 "Accept": "application/vnd.github.raw"
             }
@@ -63,33 +73,25 @@ function GithubApi(username, repoName) {
         mixpanel.track("get list of files", {
             repoName: fileBase
         });
-        notify("Get list of files in root ");
-        this.request(fileBase, cb);
+        notify("Getting list of files in root ");
+        request(fileBase, cb);
     };
 
     this.getCommits = function (cb) {
         mixpanel.track("get commits", {
             repoName: repoFullName
         });
-        notify("Get list of commits for " + repoFullName);
-        this.request(commitBase, cb)
+        notify("Getting list of commits for " + repoFullName);
+        request(commitBase, cb)
     };
 
-    this.request = function (url, cb, options) {
-        var headers = {
-            "Accept": "application/vnd.github.diff"
-        };
-        var config = _.extend({
-            url: url,
-            method: "GET",
-            headers: headers,
-            params: {},
-            data: {},
-            responseType: 'text',
-            success: cb
-        }, options || {});
-        window.auth.addHeader(config);
-        $.ajax(config);
+    this.getPulls = function (cb) {
+        mixpanel.track("get pulls", {
+            repoName: repoFullName
+        });
+        notify("Getting list of pull requests for " + repoFullName);
+        request(pullBase, cb)
     };
+
     return this;
 }
