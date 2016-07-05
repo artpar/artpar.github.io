@@ -35,11 +35,14 @@ window.auth = (function () {
 
 
 if (!window.auth_result) {
+    mixpanel.track("not logged in");
     $("#loginButton").css("display", "");
     $("#loginButton").on("click", function () {
+        mixpanel.track("login init");
         OAuth.initialize('CT4CkS8URTCXsiVQDU0egRsM4No');
         OAuth.popup('github')
             .done(function (result) {
+                mixpanel.track("login success");
                 window.auth_result = result;
                 store.setItem("auth", JSON.stringify(result));
                 notify("You are logged in");
@@ -47,6 +50,7 @@ if (!window.auth_result) {
                 //or use result.get|post|put|del|patch|me methods (see below)
             })
             .fail(function (err) {
+                mixpanel.track("login fail", err);
                 console.log("github login error", err);
                 notify("user not logged in. Github will limit number of API requests for guests.");
                 //handle error with err
@@ -54,5 +58,6 @@ if (!window.auth_result) {
     });
 
 } else {
+    mixpanel.track("logged in user");
     $("#loginButton").remove();
 }
