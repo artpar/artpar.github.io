@@ -155,7 +155,9 @@ function EditorInterface(editor, ga, speed) {
     this.editor = editor;
     this.github = ga;
     this.runAllChanges = function (files, parent) {
-        notify("Showing rewrite all changes in following files: \n" + files.join("\n"));
+        notify("Showing rewrite all changes in following files: \n" + files.map(function (e) {
+                return e.from
+            }).join("<br />"));
         that.showEditFile(files, 0, parent, function () {
             notify("completed show edit for all files")
         });

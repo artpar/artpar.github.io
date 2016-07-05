@@ -31,7 +31,7 @@
                 {{#commits}}
                     <li class="list-group-item">
                     <small>
-                                            <a class="text-muted" href="#!{{html_url}}">{{commit.message}}</a>
+                        <a class="text-muted" href="#!{{html_url}}">{{commit.message}}</a>
                         <a target="_blank" href="{{html_url}}"><span class="fa fa-github"></span> </a>
                         </small>
                     </li>
@@ -42,7 +42,6 @@
 <div class="container-fluid">
     <div class="row">
         <div class="col-md-6">
-
             <nav class="navbar navbar-light">
                 <form class="form-inline pull-md-left">
                     <input style="width: 500px" class="form-control" type="text" placeholder="Girhub url"
@@ -65,7 +64,7 @@
 
     </div>
     <div class="row">
-        <div class="col-md-3" style="overflow-y: auto">
+        <div class="col-md-2" style="overflow-y: auto">
             <div class="row" id="commitListContainer">
 
             </div>
@@ -73,7 +72,7 @@
         <div class="col-md-6" id="editorContainer">
             <div id="ace-editorid" class="row"></div>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-4">
             <div class="row" id="third" style="overflow-y: auto;">
                 <ul class="list-group" id="notifications"></ul>
             </div>
