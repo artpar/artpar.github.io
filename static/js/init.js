@@ -104,19 +104,24 @@ function loadUrl(newHash) {
         newHash = newHash.substr(githubUrl.length);
     }
 
-
     var defaultUrl = githubUrl + newHash;
-    if (!window.app.update) {
+    var config = defaultUrl.split("/");
+    if (!window.app.update || config.length < 6) {
         window.app = new App(defaultUrl);
-    } else {
-        var config = defaultUrl.split("/");
-        window.app.update(config[config.length - 1]);
     }
+
+    if (config.length > 5) {
+        window.app.update(config[config.length - 1], defaultUrl);
+    }
+
 
 }
 
 function once() {
     var newHash = window.location.hash.substring(2);
+    if (dropInstance) {
+        dropInstance.close();
+    }
     loadUrl(newHash)
 }
 
@@ -126,7 +131,7 @@ function addTabCore(to, name) {
     var $fileTabs = $('#' + to + 'Tabs');
     var nextTab = $fileTabs.find('li').size() + 1;
 
-    var tabName = name;
+    var tabName = name.replace("\/", "-").replace("\.", "-");
     if (name.length > 10) {
         var parts = tabName.split("\/");
         tabName = "...";
@@ -135,10 +140,14 @@ function addTabCore(to, name) {
         }
         tabName = tabName + "/" + parts[parts.length - 1];
     }
-    $('<li class="nav-item"><a class="nav-link" href="#' + to + 'Tabs' + nextTab + '" data-toggle="tab">' + tabName + '</a></li>').appendTo('#' + to + 'Tabs');
+    var active = " active ";
+    if (nextTab > 1) {
+        active = "";
+    }
+    $('<li class="nav-item"><a class="nav-link' + active + '" href="#' + to + 'Tabs' + nextTab + '" data-toggle="tab">' + tabName + '</a></li>').appendTo('#' + to + 'Tabs');
 
     name = to + "-container-" + name.replace("\.", "-").replace("\/", "-");
-    var container = $('<div class="tab-pane" id="' + to + 'Tabs' + nextTab + '"></div>');
+    var container = $('<div class="tab-pane' + active + '" id="' + to + 'Tabs' + nextTab + '"></div>');
     container.appendTo('.' + to + '-content');
     return container;
 }

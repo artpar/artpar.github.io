@@ -157,10 +157,13 @@ function EditorInterface(ga, speed) {
     var that = this;
     this.github = ga;
     this.runAllChanges = function (files, parent) {
-        notify("Showing rewrite all changes in following files: \n" + files.map(function (e) {
+        var filtered = files.filter(function (e) {
+            return e.from.indexOf("dev/null") == -1;
+        });
+        notify("Showing rewrite all changes in following files: \n" + filtered.map(function (e) {
                 return e.from
             }).join("<br />"));
-        that.showEditFile(files, 0, parent, function () {
+        that.showEditFile(filtered, 0, parent, function () {
             notify("completed show edit for all files")
         });
     };

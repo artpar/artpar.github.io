@@ -65,19 +65,17 @@ function initProfileButton() {
 
     button.css("display", "");
 
-    var dropInstance = new Drop({
-        target: document.querySelector('#profileButton'),
-        content: $("#repoTabContent")[0],
-        classes: 'drop-theme-arrows',
-        position: 'bottom',
-        openOn: 'click'
-    });
 
     request("https://api.github.com/user/orgs", function (orgs) {
         console.log("orgs", orgs);
+        var count = orgs.length;
         _.each(orgs, function (org) {
             request("https://api.github.com/users/" + org.login + "/repos", function (repos) {
                 addRepos(org.login, repos);
+                count = count - 1;
+                if (count == 0) {
+                    initDropPage();
+                }
             });
         })
     });
@@ -86,6 +84,18 @@ function initProfileButton() {
         console.log("repos", repos);
         addRepos("mine", repos);
     });
+}
+
+var dropInstance;
+function initDropPage() {
+    dropInstance = new Drop({
+        target: document.querySelector('#profileButton'),
+        content: $("#repoTabContent")[0],
+        classes: 'drop-theme-arrows',
+        position: 'left',
+        openOn: 'click'
+    });
+
 }
 
 window.repoTemplate = undefined;
@@ -100,8 +110,18 @@ $.ajax({
 function addRepos(name, list) {
     console.log("add repo", name, list);
     var tab = addTabCore("repo", name);
-    var rendered = Mustache.render(window.repoTemplate, {list: list});
-    tab.html(rendered);
+    if (window.repoTemplate) {
+        var rendered = Mustache.render(window.repoTemplate, {list: list});
+        tab.html(rendered);
+    } else {
+        $.ajax({
+            url: "static/templates/repo_list.mustache",
+            success: function (template) {
+                var rendered = Mustache.render(template, {list: list});
+                tab.html(rendered);
+            }
+        });
+    }
 }
 
 

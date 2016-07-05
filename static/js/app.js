@@ -30,7 +30,8 @@ var Speed = function () {
 var speed = new Speed();
 
 $("#loadRepo").on("click", function () {
-    $("#editorContainer").html('<div id="ace-editorid" class="row"></div>');
+    $("#editorContainer").html('<ul id="fileTabs" class="nav nav-tabs"></ul>' +
+        '<div class="tab-content file-content clearfix"></div>');
     initEditor();
     loadUrl($("#githubUrl").val());
 });
@@ -73,7 +74,7 @@ function App(defaultUrl) {
         that.canStart = false;
     };
 
-    this.update = function (sha) {
+    this.update = function (sha, fullUrl) {
 
 
         if (sha.length < 6) {
@@ -93,6 +94,10 @@ function App(defaultUrl) {
         that.sha = sha;
         if (!that.canStart) {
             console.log("that cannot start now", sha);
+            return;
+        }
+        if (!that.commitMap[sha]) {
+            notify("Sha " + sha + " is not in commits yet.")
             return;
         }
         var parent = that.commitMap[sha].parents[0].sha;
