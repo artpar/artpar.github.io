@@ -68,7 +68,7 @@ var githubUrl = "https://github.com/";
 $(window).on('hashchange', once);
 
 function random() {
-    window.location.hash = "#!" + "https://github.com/kennyledet/Algorithm-Implementations";
+    window.location.hash = "#!" + "https://github.com/atomix/copycat";
     window.location.reload(true);
     return;
     $.ajax({
