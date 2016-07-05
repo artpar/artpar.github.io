@@ -206,7 +206,7 @@ function EditorInterface(editor, ga, speed) {
         that.navigate(lnNo - 1, function () {
             editor.gotoLine(lnNo);
             if (change.type == "del") {
-                notify("delete the at line ", lnNo)
+                notify("delete the at line " + lnNo);
                 that.rel = that.rel - 1;
                 that.at = lnNo;
                 editor.removeLines();
@@ -217,7 +217,7 @@ function EditorInterface(editor, ga, speed) {
                 callback();
             } else if (change.type == "add") {
                 //editor.gotoLine(lnNo - 1);
-                notify("add at line " + lnNo + ": " + change.content.substring(1))
+                notify("add at line " + lnNo + ": " + change.content.substring(1));
                 editor.navigateLineStart();
                 editor.insert("\n");
                 editor.gotoLine(lnNo);
