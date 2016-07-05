@@ -222,8 +222,7 @@ function EditorInterface(editor, ga, speed) {
                 notify("add at line " + lnNo + ": " + change.content.substring(1));
                 editor.navigateLineStart();
                 editor.insert("\n");
-                editor.gotoLine(lnNo);
-                editor.navigateLineStart();
+                editor.gotoLine(lnNo, 0);
                 setTimeout(function () {
                     that.rel = that.rel + 1;
                     var str = change.content.trim().substring(1);
