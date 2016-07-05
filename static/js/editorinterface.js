@@ -171,9 +171,16 @@ function EditorInterface(editor, ga, speed) {
         }
         var currentLine = editor.getCursorPosition().row;
 
-        //if (currentLine > 25) {
-        editor.scrollToLine(currentLine - 25);
-        //}
+
+        if (Math.abs(currentLine - toLineNumber) > 50) {
+            if (toLineNumber > currentLine) {
+                editor.gotoLine(toLineNumber + 49);
+            } else {
+                editor.gotoLine(toLineNumber - 49);
+            }
+            currentLine = editor.getCursorPosition().row;
+        }
+        editor.scrollToLine(currentLine - 10);
 
         if (currentLine != toLineNumber) {
             if (toLineNumber < currentLine) {
@@ -208,7 +215,7 @@ function EditorInterface(editor, ga, speed) {
         that.navigate(lnNo - 1, function () {
             editor.gotoLine(lnNo);
             if (change.type == "del") {
-                notify("delete the at line " + lnNo);
+                notify("delete line " + lnNo);
                 that.rel = that.rel - 1;
                 that.at = lnNo;
                 editor.removeLines();
@@ -219,7 +226,10 @@ function EditorInterface(editor, ga, speed) {
                 callback();
             } else if (change.type == "add") {
                 //editor.gotoLine(lnNo - 1);
-                notify("add at line " + lnNo + ": " + change.content.substring(1));
+                var actualContent = change.content.trim().substring(1).trim();
+                if (actualContent.length > 2) {
+                    notify("add at line " + lnNo + ": <pre>" + actualContent + "</pre>");
+                }
                 editor.navigateLineStart();
                 editor.insert("\n");
                 editor.gotoLine(lnNo, 0);
@@ -275,7 +285,7 @@ function EditorInterface(editor, ga, speed) {
             var extension = split[split.length - 1].toLowerCase();
             mode = modeMap[extension];
             if (mode && mode.name) {
-                notify(mode.name + " file");
+                notify(file.from + " is a " + mode.name + " file");
                 editor.getSession().setMode("ace/mode/" + mode.value);
             }
             setTimeout(function () {

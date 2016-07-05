@@ -113,7 +113,7 @@ once();
 
 
 function notify(msg) {
-    var small = $("<pre></pre>").html(msg);
+    var small = $("<small></small>").html(msg);
     $("#notifications").prepend($("<div class='list-group-item'></div>").append(small))
 }
 
