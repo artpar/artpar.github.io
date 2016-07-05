@@ -119,7 +119,7 @@ function notify(msg) {
 var store = window.localStorage;
 var stored = store.getItem("speed");
 function updateSize() {
-    var newHeight = $(window).height() - 62;
+    var newHeight = $(window).height() - 100;
 //        console.log("resize to ", newHeight);
     $('#ace-editorid').css("height", newHeight + "px");
     $('#commitListContainer').css("height", newHeight + "px");
