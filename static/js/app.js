@@ -69,9 +69,7 @@ function App(defaultUrl) {
 
 
     this.update = function (sha) {
-        mixpanel.track("load sha for diff", {
-            sha: sha
-        });
+
         if (!sha) {
             return;
         }
@@ -81,6 +79,9 @@ function App(defaultUrl) {
             return;
         }
         var parent = that.commitMap[sha].parents[0].sha;
+        mixpanel.track("load sha for diff", {
+            sha1: sha
+        });
         that.ga.getDiffBySha(sha, function (text) {
             window.diff = text;
             var changes = fpp(text);
