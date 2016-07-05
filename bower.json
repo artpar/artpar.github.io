@@ -1,0 +1,31 @@
+{
+  "name": "gitwatch",
+  "authors": [
+    "artpar <artpar@gmail.com>"
+  ],
+  "description": "",
+  "main": "",
+  "license": "MIT",
+  "homepage": "",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "bootstrap": "v4.0.0-alpha.2",
+    "jquery": "^3.0.0",
+    "ace": "^1.2.3",
+    "underscore": "^1.8.3",
+    "mustache.js": "mustache#^2.2.1",
+    "jsdiff": "^2.2.2",
+    "components-font-awesome": "^4.6.3"
+  },
+  "resolutions": {
+    "jquery": "1.9.1 - 2",
+    "underscore": "1.6.0",
+    "bootstrap": "v4.0.0-alpha.2"
+  }
+}

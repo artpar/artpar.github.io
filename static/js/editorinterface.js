@@ -154,7 +154,7 @@ function EditorInterface(editor, ga, speed) {
     };
 
 
-    that.navigate = function (toLineNumber, callback) {
+    that.navigate = function (toLineNumber, callback, speed) {
         if (toLineNumber < 1) {
             callback();
             return;
@@ -176,7 +176,7 @@ function EditorInterface(editor, ga, speed) {
             }
             setTimeout(function () {
                 that.navigate(toLineNumber, callback);
-            }, 50);
+            }, speed.getSpeed() / 10);
         } else {
             callback();
         }
@@ -221,7 +221,7 @@ function EditorInterface(editor, ga, speed) {
                     });
                 }, 80);
             }
-        });
+        }, speed);
     };
 
     this.showChangeEdit = function (changes, index, callback) {
