@@ -164,9 +164,9 @@ function App(defaultUrl) {
             });
         });
 
-        if (that.sha) {
+        if (!that.sha || that.sha == "random") {
             if (that.sha == "random") {
-                var item = list[Math.floor(Math.random() * list.length)];
+                var item = list[list.length - 1];
                 that.sha = item.sha;
             }
 
