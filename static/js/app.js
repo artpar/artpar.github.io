@@ -165,7 +165,7 @@ function App(defaultUrl) {
         });
 
         if (!that.sha || that.sha == "random") {
-            var item = list[list.length - 1];
+            var item = list[0];
             that.sha = item.sha;
         }
 
