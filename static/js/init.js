@@ -107,7 +107,8 @@ function loadUrl(newHash) {
     var defaultUrl = githubUrl + newHash;
     var config = defaultUrl.split("/");
     if (!window.app.update || config.length < 6) {
-        window.app = new App(defaultUrl);
+        var p = defaultUrl.split("?");
+        window.app = new App(p[0]);
     }
 
     if (config.length > 5) {

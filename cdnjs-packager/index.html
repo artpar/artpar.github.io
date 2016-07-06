@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Cdnjs Packager</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link rel="stylesheet" type="text/css"
+          href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0-alpha.2/css/bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.12/css/dataTables.bootstrap4.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css">
+
+    <script type="text/javascript" src='//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js'></script>
+    <script type="text/javascript"
+            src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0-alpha/js/bootstrap.min.js"></script>
+    <script type="text/javascript" language="javascript"
+            src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js">
+    </script>
+    <script type="text/javascript" language="javascript"
+            src="https://cdn.datatables.net/1.10.12/js/dataTables.bootstrap4.min.js">
+    </script>
+    <script type="text/javascript" src='//cdnjs.cloudflare.com/ajax/libs/ace/1.2.3/ace.js'></script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mustache.js/2.2.1/mustache.min.js"></script>
+
+    <style>
+        #editor-container {
+            height: 400px;
+        }
+    </style>
+
+</head>
+<body>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-8">
+            <div id="appContainer">
+                <table id="bigList" class="table table-striped table-bordered">
+                    <thead>
+                    <tr>
+                        <th></th>
+                        <th>Name</th>
+                        <th>Version</th>
+                        <th>Link</th>
+                        <th>Url</th>
+                    </tr>
+                    </thead>
+                    <tfoot>
+                    <tr>
+                        <th></th>
+                        <th>Name</th>
+                        <th>Version</th>
+                        <th>Link</th>
+                        <th>Url</th>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="editorContainer">
+                <div id="editor-container">
+                    <html lang="en">
+                    <head>
+                        <meta charset="UTF-8">
+                        <title>Cdnjs Packager</title>
+                    </head>
+                    <body>
+                        <div class="container">
+                            Hello
+                        </div>
+                    </body>
+                    </html>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+
+<script>
+
+    var App = function (list, el, ed) {
+        var that = this;
+        that.list = list;
+        that.el = el;
+        that.editor = ed;
+        that.editor.getSession().setMode("ace/mode/" + "html");
+        that.grid = $("#bigList");
+        that.dataTable = that.grid.DataTable({
+            "data": list,
+            "columns": [
+                {
+                    "className": 'details-control',
+                    "orderable": false,
+                    "data": "<span class='fa fa-github'></span>",
+                    "defaultContent": ''
+                },
+                {"data": "name"},
+                {"data": "version"},
+                {"data": "link"},
+                {"data": "url"}
+            ]
+        });
+
+        /* Formatting function for row details - modify as you need */
+        this.format = function (d) {
+            var pack = that.getPackage(d.name);
+            // `d` is the original data object for the row
+            var s = '<table cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">' +
+                    '<tr>' +
+                    '<td>Full name:</td>' +
+                    '<td>' + d.name + '</td>' +
+                    '</tr>' +
+                    '<tr>' +
+                    '<td>Version :</td>' +
+
+                    '<td>';
+
+            s = s + "<select>";
+
+            for (var i = 0; i < pack.versions.length; i++) {
+                s = s + "<option value='" + pack.versions[i].value + "'>" + pack.versions[i].content + "</option>";
+            }
+
+            s = s + "</select>";
+
+            s = s + '</td>' +
+
+
+
+                    '<td>';
+
+            for (var i = 0; i < pack.files.length; i++) {
+                s = s + "<input type='checkbox'>";
+                s = s + "<span>" + pack.files[i] + "</span><br />";
+            }
+
+//            s = s + "</select>";
+
+            s = s + '</td>' +
+
+
+
+                    '</tr>' +
+                    '</table>';
+            return s;
+        };
+
+        that.base = "https://cdnjs.com/libraries/";
+
+        function processJson(json, name) {
+            var $html = json;
+            window.data = json;
+            var url = window.data.query.results.p[0].a.href;
+            var description = window.data.query.results.p[2];
+            var versions = window.data.query.results.select[0].option;
+            var files = window.data.query.results.p.map(function (e, i) {
+                if (e && e.class && e.class == "library-url") {
+                    return e.content;
+                }
+            }).filter(function (e, i) {
+                console.log("include", e, !!e);
+                return !!e;
+            });
+
+            var data = {
+                name: name,
+                versions: versions,
+                files: files,
+                url: url,
+                description: description
+            };
+            localStorage.setItem("package-" + name, JSON.stringify(data))
+        }
+
+        this.fetch = function (names) {
+            names.map(function (i, name) {
+                var encoded = encodeURIComponent(that.base + name);
+                var cached = localStorage.getItem("raw-" + encoded);
+                if (!cached) {
+                    console.log("gettiing " + name + " from live");
+//                    console.log('endoded', encoded);
+                    $.ajax({
+                        url: "https://query.yahooapis.com/v1/public/yql?q=SELECT%20*%20FROM%20html%20WHERE%20url%3D'" + encoded + "'%20AND%20xpath%3D'%2F%2Fp'%20or%20url%3D'https%3A%2F%2Fcdnjs.com%2Flibraries%2Ftether'%20AND%20xpath%3D'%2F%2Fselect'&format=json&diagnostics=true&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys",
+                        success: function (json) {
+                            localStorage.setItem("raw-" + encoded, JSON.stringify(json));
+                            processJson(json, name);
+                        }
+                    });
+                } else {
+                    console.log("gettiing " + name + " from cache");
+                    processJson(JSON.parse(cached), name);
+                }
+            })
+        };
+
+        this.getPackage = function (name) {
+            var s = localStorage.getItem("package-" + name.trim());
+            return JSON.parse(s);
+        };
+
+
+        that.grid.find("tbody").on('click', 'td.details-control', function () {
+            var tr = $(this).closest('tr');
+            var row = that.dataTable.row(tr);
+
+            if (row.child.isShown()) {
+                // This row is already open - close it
+                row.child.hide();
+                tr.removeClass('shown');
+            }
+            else {
+                // Open this row
+                row.child(that.format(row.data())).show();
+                tr.addClass('shown');
+            }
+        });
+
+        var reloadLibs = function () {
+            var names = $("table").find("tr").map(function (i, e) {
+                return $(e).find("td")[1]
+            }).filter(function (i, e) {
+                return e !== undefined
+            }).map(function (i, e) {
+                return $(e).text().trim()
+            });
+
+            that.fetch(names);
+        };
+        reloadLibs();
+        that.dataTable.on('draw.dt', reloadLibs);
+
+
+        this.get = function () {
+            return this;
+        };
+        return this;
+    };
+
+    var d = localStorage.getItem("data");
+    if (!d) {
+        $.ajax({
+            url: "libraries",
+            success: function (html) {
+                console.log(arguments);
+                var $html = $(html);
+                var tr = $html.find("tr");
+                console.log("we have ", tr.length);
+                var data = tr.map(function (i, e) {
+                    return $(e).find("td");
+                });
+
+                var list = data.map(function (i, e) {
+                    var lib = $(e[0]);
+                    var link = $(e[1]);
+                    if (!lib) {
+                        return {};
+                    }
+                    return {
+                        name: lib.find("a").text(),
+                        url: lib.find('[itemprop="url"]').attr("content"),
+                        version: lib.find('[itemprop="version"]').attr("content"),
+                        link: link.find("p").text()
+                    }
+                });
+                list = list.splice(1);
+                localStorage.setItem("data", JSON.stringify(list));
+                start(list)
+            }
+        })
+
+    } else {
+        start(JSON.parse(d))
+    }
+
+    function start(list) {
+        window.app = new App(list, $("#appContainer"), ace.edit("editor-container"))
+    }
+
+</script>
+</html>

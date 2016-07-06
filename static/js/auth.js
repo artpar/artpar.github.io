@@ -60,6 +60,7 @@ window.auth = (function () {
 
 function initProfileButton() {
 
+    $("#loginButton").remove();
     var button = $('#profileButton');
 
 
@@ -129,9 +130,10 @@ var $loginButton = $("#loginButton");
 if (!window.auth_result) {
     mixpanel.track("not logged in");
     $loginButton.css("display", "");
+    OAuth.initialize('CT4CkS8URTCXsiVQDU0egRsM4No');
     $loginButton.on("click", function () {
         mixpanel.track("login init");
-        OAuth.initialize('CT4CkS8URTCXsiVQDU0egRsM4No');
+
         OAuth.popup('github')
             .done(function (result) {
                 mixpanel.track("login success");
