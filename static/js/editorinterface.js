@@ -153,11 +153,31 @@ for (var i = 0; i < modes.length; i++) {
     }
 }
 
+
 function EditorInterface(ga, speed) {
+    var skipExtensions = ["class", "jar", "exe", "o", "a", "zip", "rar", "gz"];
+
     var that = this;
+    that.skipList = skipExtensions;
+
+
+    that.updateBinaryExtension = function () {
+        $.ajax({
+            url: 'static/js/binary_extensions.json',
+            success: function (d) {
+                that.skipList = d;
+            }
+        })
+    };
+    that.updateBinaryExtension();
+
     this.github = ga;
     this.runAllChanges = function (files, parent) {
         var filtered = files.filter(function (e) {
+            var extension = e.from.substring(e.from.lastIndexOf(".") + 1);
+            if (that.skipList.indexOf(extension) > -1) {
+                return false;
+            }
             return e.from.indexOf("dev/null") == -1 && e.from.indexOf(".min.") == -1;
         });
         notify("Showing rewrite all changes in following files: \n" + filtered.map(function (e) {
