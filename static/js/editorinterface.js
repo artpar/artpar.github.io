@@ -158,7 +158,7 @@ function EditorInterface(ga, speed) {
     this.github = ga;
     this.runAllChanges = function (files, parent) {
         var filtered = files.filter(function (e) {
-            return e.from.indexOf("dev/null") == -1;
+            return e.from.indexOf("dev/null") == -1 && e.from.indexOf(".min.") == -1;
         });
         notify("Showing rewrite all changes in following files: \n" + filtered.map(function (e) {
                 return e.from
