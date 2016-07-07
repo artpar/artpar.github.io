@@ -36,7 +36,7 @@ $(document).on("ready", function () {
 
         tour.addStep("example", {
             title: "Add Files",
-            text: "Click on any file to add it",
+            text: "Click on any file to add it. You can continue adding files and it will be updated on the right.",
             attachTo: ".container-inside top",
             advanceOn: "td click"
         });
