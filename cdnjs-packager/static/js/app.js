@@ -4,6 +4,61 @@
 
 $(document).on("ready", function () {
 
+
+    setTimeout(function () {
+
+        var doneTour = localStorage.getItem("tour_done");
+        if (!doneTour) {
+            localStorage.setItem("tour_done", "true");
+        } else {
+            return;
+        }
+
+        var tour = new Shepherd.Tour({
+            defaults: {
+                classes: 'shepherd-theme-dark'
+            }
+        });
+
+        tour.addStep('example', {
+            title: 'Search',
+            text: 'Search any library on cdnjs by name/url. Type in for example "bootstrap"',
+            attachTo: 'input[type=search] left',
+            advanceOn: 'input[type=search] change'
+        });
+
+        tour.addStep('example', {
+            title: 'Libraries',
+            text: 'Click on any library to checkout the files you can use. Click anyone to move on  ',
+            attachTo: 'table right',
+            advanceOn: 'td click'
+        });
+
+        tour.addStep("example", {
+            title: "Add Files",
+            text: "Click on any file to add it",
+            attachTo: ".container-inside top",
+            advanceOn: "td click"
+        });
+
+        tour.addStep("example", {
+            title: "Remove File",
+            text: "Click on any file again to remove it",
+            attachTo: ".container-inside top",
+            advanceOn: "td click"
+        });
+
+        tour.addStep("example", {
+            title: "Version",
+            text: "Choose the version",
+            attachTo: ".selectize-input top",
+            advanceOn: ".selectize-input click"
+        });
+
+
+        tour.start();
+    }, 1000);
+
     var App = function (list, el, ed) {
         var that = this;
 
@@ -248,7 +303,7 @@ $(document).on("ready", function () {
                 }, 150);
             });
 
-            return "<div class='container' id='container-" + id + "'>" + Mustache.render(that.detailFormat, {
+            return "<div class='container container-inside' id='container-" + id + "'>" + Mustache.render(that.detailFormat, {
                     row: d,
                     pack: {versions: []}
                 }) + "</div>";
