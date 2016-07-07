@@ -13,18 +13,25 @@
           href="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.2/css/selectize.min.css">
     <link type="text/css" rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.2/css/selectize.bootstrap3.min.css">
-    <link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/titatoggle/1.2.9/titatoggle-dist-min.css">
+    <link type="text/css" rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/titatoggle/1.2.9/titatoggle-dist-min.css">
 
     <style>
         #editor-container {
             height: 600px;
         }
+
         a {
             color: black;
         }
+
         a:hover {
             color: coral;
             text-decoration: none;
+        }
+
+        .form-inline .radio label, .form-inline .checkbox label {
+            padding-left: 15px;
         }
     </style>
 
@@ -63,10 +70,16 @@
             </div>
         </div>
         <div class="col-md-6">
-            <div class="editorContainer">
-                <div id="editor-container">
+            <div class="row">
+                <button class="btn btn-success-outline">clear</button>
+            </div>
+            <div class="row">
+                <div class="editorContainer">
+                    <div id="editor-container">
 
+                    </div>
                 </div>
+
             </div>
         </div>
     </div>
@@ -87,7 +100,8 @@
 
 <script type="text/javascript"
         src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.2/js/standalone/selectize.min.js"></script>
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.12/js/dataTables.bootstrap4.min.js"></script>
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.12/js/dataTables.bootstrap4.min.js"></script>
 
 <script type="text/javascript"
         src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/2.2.1/mustache.min.js"></script>

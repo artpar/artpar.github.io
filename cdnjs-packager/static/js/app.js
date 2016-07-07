@@ -18,6 +18,7 @@ $(document).on("ready", function () {
         that.editor = ed;
         that.editor.getSession().setMode("ace/mode/" + "html");
         that.editor.setTheme("ace/theme/twilight");
+        that.editor.setOption("wrap", 80);
         document.getElementById('editor-container').style.fontSize = '20px';
 
         that.grid = $("#bigList");
@@ -182,12 +183,16 @@ $(document).on("ready", function () {
                         var $e = jqCheckBox;
                         targetCheckbox.checked = !targetCheckbox.checked;
 
+                        var version = container.find(".version-select").val();
+                        var lastVersion = pack.versions[0].value;
+                        var file = $e.val();
+                        file = file.replace(lastVersion, version);
                         if (targetCheckbox.checked) {
                             $(targetCheckbox).closest("tr").addClass("table-success");
-                            that.addFile($e.val());
+                            that.addFile(file);
                         } else {
                             $(targetCheckbox).closest("tr").removeClass("table-success");
-                            that.removeFile($e.val());
+                            that.removeFile(file);
                         }
                         console.log("changes", arguments);
                     });
