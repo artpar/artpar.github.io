@@ -33,6 +33,9 @@
         .form-inline .radio label, .form-inline .checkbox label {
             padding-left: 15px;
         }
+        body {
+            background-image: url("static/img/background.png");
+        }
     </style>
 
 </head>
@@ -71,10 +74,13 @@
         </div>
         <div class="col-md-6">
             <div class="row">
-                <button class="btn btn-success-outline">clear</button>
+                <div class="col-md-4">
+                    <button class="btn btn-success-outline">clear</button>
+                </div>
             </div>
+            <div class="row">&nbsp;</div>
             <div class="row">
-                <div class="editorContainer">
+                <div class="editorContainer col-md-12">
                     <div id="editor-container">
 
                     </div>
