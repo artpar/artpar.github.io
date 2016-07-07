@@ -170,17 +170,23 @@ $(document).on("ready", function () {
                         if (!that.fileTypes[extension]) {
                             continue;
                         }
-                        fileSplit.push({file: files[i], parts: files[i].split("/"), info: fileInfo(files[i])})
+                        var parts = files[i].split("/");
+                        parts.splice(0, parts.length - 2);
+                        fileSplit.push({file: files[i], parts: parts, info: fileInfo(files[i])})
                     }
                     pack.fileSplit = fileSplit;
                     container.html(Mustache.render(that.detailFormat, {row: d, pack: pack}));
-                    container.find(".file-table input[type=checkbox]").on("change", function (e) {
-                        var $e = $(e.target);
-                        if (e.target.checked) {
-                            $(e.target).closest("tr").addClass("table-success");
+                    container.find(".file-table tr").on("click", function (e) {
+                        var jqCheckBox = $(e.target).parent().find("input[type=checkbox]");
+                        var targetCheckbox = jqCheckBox[0];
+                        var $e = jqCheckBox;
+                        targetCheckbox.checked = !targetCheckbox.checked;
+
+                        if (targetCheckbox.checked) {
+                            $(targetCheckbox).closest("tr").addClass("table-success");
                             that.addFile($e.val());
                         } else {
-                            $(e.target).closest("tr").removeClass("table-success");
+                            $(targetCheckbox).closest("tr").removeClass("table-success");
                             that.removeFile($e.val());
                         }
                         console.log("changes", arguments);
