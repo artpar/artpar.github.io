@@ -257,7 +257,11 @@ $(document).on("ready", function () {
                         var version = container.find(".version-select").val();
                         var lastVersion;
                         if (pack.versions instanceof Array) {
-                            lastVersion = pack.versions[0].value;
+                            lastVersion = pack.versions.map(function (e) {
+                                return e.selected ? e.value : undefined;
+                            }).filter(function (e) {
+                                return !!e;
+                            })[0];
                         } else {
                             lastVersion = pack.versions.value;
                         }
