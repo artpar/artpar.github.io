@@ -1,7 +1,7 @@
 <div class="row-fluid">
     <div class="col-md-12">
         <div class="row">
-            <div class="col-md-4">
+            <div class="col-md-2">
                 <select title="version" class="version-select">
                     {{#pack.versions}}
                     <option value="{{value}}">{{value}}
@@ -23,6 +23,10 @@
                     </label>
                 </div>
             </div>
+            <div class="col-md-2">
+                <i class='fa fa-arrow-down' aria-hidden='true'> </i>
+                <small>Click to add</small>
+            </div>
         </div>
     </div>
 
@@ -40,7 +44,7 @@
                         <td>{{info.extension}}</td>
                         <td>{{info.minified}}</td>
                         <td style="display: none">
-                            <input type="checkbox" value="{{file}}">
+                            <input data-toggle="toggle" type="checkbox" value="{{file}}">
                         </td>
                     </tr>
                 {{/pack.fileSplit}}

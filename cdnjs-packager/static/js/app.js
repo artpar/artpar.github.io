@@ -200,7 +200,12 @@ $(document).on("ready", function () {
                         targetCheckbox.checked = !targetCheckbox.checked;
 
                         var version = container.find(".version-select").val();
-                        var lastVersion = pack.versions[0].value;
+                        var lastVersion;
+                        if (pack.versions instanceof Array) {
+                            lastVersion = pack.versions[0].value;
+                        } else {
+                            lastVersion = pack.versions.value;
+                        }
                         var file = $e.val();
                         file = file.replace(lastVersion, version);
                         if (targetCheckbox.checked) {
@@ -217,7 +222,6 @@ $(document).on("ready", function () {
                         create: true,
                         sortField: 'text'
                     });
-
 
                     container.find(".show-non-minified").on("change", function (e) {
                         console.log("show non minified", e.target.checked);
