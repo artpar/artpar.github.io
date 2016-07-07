@@ -18,7 +18,7 @@ $(document).on("ready", function () {
         that.editor = ed;
         that.editor.getSession().setMode("ace/mode/" + "html");
         that.editor.setTheme("ace/theme/twilight");
-        document.getElementById('editor-container').style.fontSize='20px';
+        document.getElementById('editor-container').style.fontSize = '20px';
 
         that.grid = $("#bigList");
         that.dataTable = that.grid.DataTable({
@@ -43,7 +43,7 @@ $(document).on("ready", function () {
                     "orderable": false,
                     "data": function (r) {
                         //console.log("data for", arguments);
-                        return "<a target='_blank' href='" + r.url + "'>" + r.name + "</a>";
+                        return "<a target='_blank' href='" + r.url + "'>" + r.name + "<i class='fa fa-external-link' aria-hidden='true'></i></a>";
                     },
                     "defaultContent": ''
                 }
@@ -177,8 +177,10 @@ $(document).on("ready", function () {
                     container.find(".file-table input[type=checkbox]").on("change", function (e) {
                         var $e = $(e.target);
                         if (e.target.checked) {
+                            $(e.target).closest("tr").addClass("table-success");
                             that.addFile($e.val());
                         } else {
+                            $(e.target).closest("tr").removeClass("table-success");
                             that.removeFile($e.val());
                         }
                         console.log("changes", arguments);

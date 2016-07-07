@@ -10,7 +10,7 @@
         <div class="row">
             <div class="checkbox checkbox-slider--default  checkbox-slider--c-weight">
                 <label>
-                    <input type="checkbox" class="show-non-minified"><span>Show dev build</span>
+                    <input type="checkbox" class="show-non-minified"><span> Show dev build</span>
                 </label>
             </div>
         </div>
@@ -18,14 +18,15 @@
         <div class="row">
             <div class="checkbox checkbox-slider--default  checkbox-slider--c-weight">
                 <label>
-                    <input type="checkbox" class="show-all"><span>Show all files</span>
+                    <input type="checkbox" class="show-all"><span> Show all files</span>
                 </label>
             </div>
         </div>
     </div>
 
     <div class="col-md-9">
-        <table class="file-table" style="text-align: right">
+        <table class="file-table table " style="text-align: right">
+            <tbody>
             {{#pack.fileSplit}}
                 <tr class="{{info.extension}} {{info.minified}} {{info.mapFile}}">
                     {{#parts}}
@@ -40,6 +41,7 @@
                     </td>
                 </tr>
             {{/pack.fileSplit}}
+            </tbody>
         </table>
     </div>
 </div>
