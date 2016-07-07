@@ -9,27 +9,15 @@
           href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0-alpha.2/css/bootstrap.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.12/css/dataTables.bootstrap4.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css">
-
-    <script type="text/javascript" src='//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js'></script>
-    <script type="text/javascript"
-            src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0-alpha/js/bootstrap.min.js"></script>
-    <script type="text/javascript" language="javascript"
-            src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js">
-    </script>
-    <script type="text/javascript" language="javascript"
-            src="https://cdn.datatables.net/1.10.12/js/dataTables.bootstrap4.min.js">
-    </script>
-    <script type="text/javascript"
-            src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/2.2.1/mustache.min.js"></script>
-    <script type="text/javascript" src='//cdnjs.cloudflare.com/ajax/libs/ace/1.2.3/ace.js'></script>
-    <script type="text/javascript"
-            src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
-    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mustache.js/2.2.1/mustache.min.js"></script>
-    <script type="text/javascript" src="beautify_html.js"></script>
+    <link type="text/css" rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.2/css/selectize.min.css">
+    <link type="text/css" rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.2/css/selectize.bootstrap3.min.css">
+    <link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/titatoggle/1.2.9/titatoggle-dist-min.css">
 
     <style>
         #editor-container {
-            height: 400px;
+            height: 600px;
         }
     </style>
 
@@ -38,6 +26,9 @@
 
 <div class="container-fluid">
     <div class="row">
+        &nbsp;
+    </div>
+    <div class="row-fluid">
         <div class="col-md-6">
             <div id="appContainer">
                 <table id="bigList" class="table table-striped table-bordered">
@@ -48,6 +39,7 @@
                         <!--<th>Version</th>-->
                         <!--<th>Link</th>-->
                         <th>Url</th>
+                        <th></th>
                     </tr>
                     </thead>
                     <tfoot>
@@ -57,6 +49,7 @@
                         <!--<th>Version</th>-->
                         <!--<th>Link</th>-->
                         <th>Url</th>
+                        <th></th>
                     </tr>
                     </tfoot>
                 </table>
@@ -72,227 +65,33 @@
     </div>
     <div class="row">
 
-
     </div>
 </div>
 
 </body>
 
-<script>
-
-    var App = function (list, el, ed) {
-        var that = this;
-
-        $.ajax({
-            url: "detail_format.mustache",
-            success: function (d) {
-                that.detailFormat = d;
-            }
-        });
-        that.list = list;
-        that.el = el;
-        that.editor = ed;
-        that.editor.getSession().setMode("ace/mode/" + "html");
-        that.editor.setTheme("ace/theme/twilight");
-        that.grid = $("#bigList");
-        that.dataTable = that.grid.DataTable({
-            "data": list,
-            "columns": [
-//                {
-//                    "className": 'details-control',
-//                    "orderable": false,
-//                    "data": "<span class='fa fa-github'></span>",
-//                    "defaultContent": ''
-//                },
-                {"data": "name"},
-//                {"data": "version"},
-//                {"data": "link"},
-                {"data": "url"}
-            ]
-        });
-        that.selectedFiles = {"js": [], "css": []};
-
-        that.addFile = function (file) {
-            if (file.substr(-2) == "js") {
-                that.selectedFiles.js.push(file);
-            } else {
-                that.selectedFiles.css.push(file);
-            }
-            that.redraw();
-        };
-
-        that.redraw = function () {
-            var $html = $("<html></html>");
-            var $head = $("<head></head>");
-
-            var $body = $("<body></body>");
-            $html.append($head);
-            $html.append($body);
-            that.addAll($html, that.selectedFiles.js, "js");
-            that.addAll($html, that.selectedFiles.css, "css");
-            that.editor.setValue(html_beautify("<html>" + $html.html() + "</html>"))
-        };
-
-        that.addAll = function ($html, files, type) {
-            files.map(function (file) {
-                $html.append($("<script type='application/javascript' ><\/script>")
-                        .attr("src", "https://cdnjs.cloudflare.com/ajax/libs/" + file));
-            })
-        };
-
-        /* Formatting function for row details - modify as you need */
-        this.format = function (d) {
-            var pack = that.getPackage(d.name);
-
-            return Mustache.render(that.detailFormat, {row: d, pack: pack});
-
-        };
-
-        that.base = "https://cdnjs.com/libraries/";
-
-        function processJson(json, name) {
-            var results = json.query.results;
-            if (!results) {
-                console.log("could not get ", name);
-                return;
-            }
-            var url = results.p[0].a.href;
-            var description = results.p[2];
-            var versions = results.select[0].option;
-            var files = results.p.map(function (e, i) {
-                if (e && e.class && e.class == "library-url") {
-                    return e.content;
-                }
-            }).filter(function (e, i) {
-                console.log("include", e, !!e);
-                return !!e;
-            });
-
-            var data = {
-                name: name,
-                versions: versions,
-                files: files,
-                url: url,
-                description: description
-            };
-            localStorage.setItem("package-" + name, JSON.stringify(data))
-        }
-
-        this.fetch = function (names) {
-            names.map(function (i, name) {
-                var encoded = encodeURIComponent(that.base + name);
-                var cached = localStorage.getItem("raw-" + encoded);
-                var parsed = !cached || JSON.parse(cached);
-                if (!cached || parsed.query.results == null) {
-                    console.log("gettiing " + name + " from live");
-//                    console.log('endoded', encoded);
-                    $.ajax({
-                        url: "https://query.yahooapis.com/v1/public/yql?q=SELECT%20*%20FROM%20html%20WHERE%20url%3D'" + encoded + "'%20AND%20xpath%3D'%2F%2Fp'%20or%20url%3D'" + encoded + "'%20AND%20xpath%3D'%2F%2Fselect'&format=json&diagnostics=true&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys",
-                        success: function (json) {
-                            localStorage.setItem("raw-" + encoded, JSON.stringify(json));
-                            processJson(json, name);
-                        }
-                    });
-                } else {
-                    console.log("gettiing " + name + " from cache");
-
-
-                    processJson(parsed, name);
-                }
-            })
-        };
-
-        this.getPackage = function (name) {
-            var s = localStorage.getItem("package-" + name.trim());
-            return JSON.parse(s);
-        };
-
-
-        that.grid.find("tbody").on('click', 'tr', function () {
-            var tr = $(this);
-            var row = that.dataTable.row(tr);
-
-            if (row.child.isShown()) {
-                // This row is already open - close it
-                row.child.hide();
-                tr.removeClass('shown');
-            }
-            else {
-                // Open this row
-                row.child(that.format(row.data())).show();
-                row.child().find("input[type=checkbox]").on("change", function (e) {
-                    var $e = $(e.target);
-
-                    var isChecked = $e.attr("checked");
-                    that.addFile($e.val());
-
-                    console.log("changes", arguments);
-                });
-                tr.addClass('shown');
-            }
-        });
-
-        var reloadLibs = function () {
-            var names = $("table").find("tr").map(function (i, e) {
-                return $(e).find("td")[0]
-            }).filter(function (i, e) {
-                return e !== undefined
-            }).map(function (i, e) {
-                return $(e).text().trim()
-            });
-
-            that.fetch(names);
-        };
-        reloadLibs();
-        that.dataTable.on('draw.dt', reloadLibs);
-
-
-        this.get = function () {
-            return this;
-        };
-        that.redraw();
-        return this;
-    };
-
-    var d = localStorage.getItem("data");
-    if (!d) {
-        $.ajax({
-            url: "libraries",
-            success: function (html) {
-                console.log(arguments);
-                var $html = $(html);
-                var tr = $html.find("tr");
-                console.log("we have ", tr.length);
-                var data = tr.map(function (i, e) {
-                    return $(e).find("td");
-                });
-
-                var list = data.map(function (i, e) {
-                    var lib = $(e[0]);
-                    var link = $(e[1]);
-                    if (!lib) {
-                        return {};
-                    }
-                    return {
-                        name: lib.find("a").text(),
-                        url: lib.find('[itemprop="url"]').attr("content"),
-                        version: lib.find('[itemprop="version"]').attr("content"),
-                        link: link.find("p").text()
-                    }
-                });
-                list = list.splice(1);
-                localStorage.setItem("data", JSON.stringify(list));
-                start(list)
-            }
-        })
-
-    } else {
-        start(JSON.parse(d))
-    }
-
-    function start(list) {
-        window.app = new App(list, $("#appContainer"), ace.edit("editor-container"))
-    }
-
+<script type="text/javascript" src='//cdnjs.cloudflare.com/ajax/libs/jquery/1.9.1/jquery.min.js'></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+<script type="text/javascript"
+        src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0-alpha/js/bootstrap.min.js"></script>
+<script type="text/javascript" language="javascript"
+        src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js">
 </script>
+
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.2/js/standalone/selectize.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.12/js/dataTables.bootstrap4.min.js"></script>
+
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/2.2.1/mustache.min.js"></script>
+<script type="text/javascript" src='//cdnjs.cloudflare.com/ajax/libs/ace/1.2.3/ace.js'></script>
+<script type="text/javascript"
+        src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
+<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mustache.js/2.2.1/mustache.min.js"></script>
+<script type="text/javascript" src="beautify_html.js"></script>
+
+
+<script type="text/javascript" src="static/js/file_utils.js"></script>
+<script type="text/javascript" src="static/js/app.js"></script>
+
 </html>

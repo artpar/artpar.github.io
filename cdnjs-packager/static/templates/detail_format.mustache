@@ -1,0 +1,45 @@
+<div class="row-fluid">
+    <div class="col-md-2">
+        <div class="row">
+            <select title="version">
+                {{#pack.versions}}
+                <option value="{{value}}">{{value}}
+                {{/pack.versions}}
+            </select>
+        </div>
+        <div class="row">
+            <div class="checkbox checkbox-slider--default  checkbox-slider--c-weight">
+                <label>
+                    <input type="checkbox" class="show-non-minified"><span>Show dev build</span>
+                </label>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="checkbox checkbox-slider--default  checkbox-slider--c-weight">
+                <label>
+                    <input type="checkbox" class="show-all"><span>Show all files</span>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-9">
+        <table class="file-table" style="text-align: right">
+            {{#pack.fileSplit}}
+                <tr class="{{info.extension}} {{info.minified}} {{info.mapFile}}">
+                    {{#parts}}
+                        <td>
+                            {{.}}
+                        </td>
+                    {{/parts}}
+                    <td>{{info.extension}}</td>
+                    <td>{{info.minified}}</td>
+                    <td>
+                        <input type="checkbox" value="{{file}}">
+                    </td>
+                </tr>
+            {{/pack.fileSplit}}
+        </table>
+    </div>
+</div>
