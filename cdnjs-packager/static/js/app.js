@@ -21,6 +21,11 @@ $(document).on("ready", function () {
         that.editor.setOption("wrap", 80);
         document.getElementById('editor-container').style.fontSize = '20px';
 
+        $("#clear").on("click", function(){
+            that.selectedFiles = {};
+            that.redraw();
+        });
+
         that.grid = $("#bigList");
         that.dataTable = that.grid.DataTable({
             "data": list,
@@ -47,7 +52,7 @@ $(document).on("ready", function () {
                     "orderable": false,
                     "data": function (r) {
                         //console.log("data for", arguments);
-                        return "<a target='_blank' href='" + r.url + "'>" + r.name + "<i class='fa fa-external-link' aria-hidden='true'></i></a>";
+                        return "<i class='fa fa-external-link' aria-hidden='true'></i><a target='_blank' href='" + r.url + "'>" + r.name + "</a>";
                     },
                     "defaultContent": ''
                 }
