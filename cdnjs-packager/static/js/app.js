@@ -21,7 +21,8 @@ $(document).on("ready", function () {
         that.editor.setOption("wrap", 80);
         document.getElementById('editor-container').style.fontSize = '20px';
 
-        $("#clear").on("click", function(){
+        $("#clear").on("click", function () {
+            mixpanel.track("clear")
             that.selectedFiles = {};
             that.redraw();
         });
@@ -61,6 +62,10 @@ $(document).on("ready", function () {
         that.selectedFiles = {};
 
         that.removeFile = function (file) {
+            mixpanel.track("remove file", {
+                file: file
+            });
+
             var extension = getFileExtension(file);
             var selectedFiles = that.selectedFiles[extension];
             var originalLength = selectedFiles.length;
@@ -78,6 +83,9 @@ $(document).on("ready", function () {
         };
 
         that.addFile = function (file) {
+            mixpanel.track("add file", {
+                file: file
+            });
             var extension = getFileExtension(file);
             var selectedFile = that.selectedFiles[extension];
             if (!selectedFile) {
@@ -277,7 +285,11 @@ $(document).on("ready", function () {
         }
 
         this.fetch = function (names, callback) {
+
             names.map(function (name) {
+                mixpanel.track("fetch package", {
+                    name: names
+                });
                 var encoded = encodeURIComponent(that.base + name.trim());
                 var cached = localStorage.getItem("raw-" + encoded);
                 var parsed = !cached || JSON.parse(cached);
