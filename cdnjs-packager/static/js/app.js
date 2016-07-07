@@ -33,7 +33,10 @@ $(document).on("ready", function () {
 //                    "data": "<span class='fa fa-github'></span>",
 //                    "defaultContent": ''
 //                },
-                {"data": "name"},
+                {
+                    "data": "name",
+                    "className": ""
+                },
 //                {"data": "version"},
 //                {"data": "link"},
                 {
