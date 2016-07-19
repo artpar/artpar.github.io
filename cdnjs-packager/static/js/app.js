@@ -73,8 +73,9 @@ $(document).on("ready", function () {
         that.editor = ed;
         that.editor.getSession().setMode("ace/mode/" + "html");
         that.editor.setTheme("ace/theme/twilight");
-        that.editor.setOption("wrap", 80);
-        document.getElementById('editor-container').style.fontSize = '20px';
+        // that.editor.setOptions({fontSize: "10pxt"});
+        that.editor.setOption("wrap", 60);
+        document.getElementById('editor-container').style.fontSize = '12spx';
 
         $("#clear").on("click", function () {
             mixpanel.track("clear")
@@ -161,7 +162,7 @@ $(document).on("ready", function () {
             $html.append($body);
             that.addAll($html, that.selectedFiles.js, "js");
             that.addAll($html, that.selectedFiles.css, "css");
-            that.editor.setValue(html_beautify("<html>" + $html.html() + "</html>"))
+            that.editor.setValue(html_beautify("<!DOCTYPE html>\n<html>" + $html.html() + "</html>"))
         };
 
         that.fileTypes = {
