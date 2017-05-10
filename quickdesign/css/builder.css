@@ -1,0 +1,39 @@
+.selected {
+    background: #ff7f50;
+    border: 1px dashed #ffe4c4;
+}
+
+.droppable {
+    background: #deb887;
+    border: 2px dashed #7fff00;
+}
+
+#tooltip {
+    display: none;
+    width: 510px;
+    font-size: 15px;
+    color: #505050;
+    z-index: 99999;
+    max-height: 300px;
+}
+
+.topdrop2container {
+    border: 2px solid #D2CCC8;
+    background-color: #fff;
+    -moz-border-radius: 7px;
+    -webkit-border-radius: 7px;
+    border-radius: 7px;
+    -moz-box-shadow: 4px 4px 8px #DFDEDE;
+    -webkit-box-shadow: 4px 4px 8px #DFDEDE;
+    box-shadow: 4px 4px 8px #DFDEDE;
+    z-index: 999999999 !important;
+    display: block;
+}
+
+.less-error-message{
+    display: none;
+}
+
+#addmixin {
+    float: right;
+}

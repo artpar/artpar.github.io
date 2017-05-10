@@ -1,0 +1,19 @@
+div.builder dd {
+left: -40px;
+position: relative;
+}
+div.builder dt {
+    margin-top: 4px;
+text-transform: capitalize;
+}
+div.builder dd input {
+height: 20px;
+width: 147px;
+}
+
+#breadcrumb.builder li{
+    float: left;
+    list-style-type: none;
+    display: inline;
+    padding: 5px;
+}

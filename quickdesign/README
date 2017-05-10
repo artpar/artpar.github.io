@@ -1,0 +1,22 @@
+HTML page Designer
+
+ This is a HTML web page designer, something like a MS FrontPage, but completely browser based and made in Javascript.
+
+ Demo at : http://parth.me/builderjs/
+
+ Quick Start guide :
+
+ Selected elements show a Border.
+ use `ESC` key for unselecting elements.
+
+ `Ctrl+Space` to see the HTML code of your page.
+
+ For inserting a new Element, press `i` and then the element name (div/span/a/table etc.) and click Ok.
+
+ `r` - Make element resizable, after resizing, press enter to commit.
+ `d` - Make element draggable, after resizing, press enter to commit.
+ `c` - Add a new Class to the selected element.
+
+ After changing any CSS property from the East toolbar, press `ENTER` to make it happen.
+
+ A lot more documentation needed.
