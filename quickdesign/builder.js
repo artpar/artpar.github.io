@@ -193,8 +193,6 @@ function styleToClass(classname, target) {
 }
 
 function init() {
-  //console.log('Load complete');
-  //console.log($);
   if (rootdir == '') {
     $.ajaxSetup({cache:true});
   }
