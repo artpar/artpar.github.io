@@ -105,7 +105,7 @@ function startloading() {
   if (window.loaded)
     return;
   window.loaded = true;
-  if (document.location.hostname == "localhost") {
+  if (document.location.hostname == "localhost" || document.location.hostname == "artpar.github.io") {
     rootdir = "";
   } else {
     rootdir = "http://parth.me/builderjs/";
