@@ -1,4 +1,4 @@
-baseURL = "https://artpar.github.io/blog"
+baseURL = "https://artpar.github.io/docs"
 title = "blog"
 theme = "hugo-notepadium-mod"
 themesdir = "themes/notepadium"
