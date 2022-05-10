@@ -1,5 +1,5 @@
 baseURL = "https://artpar.github.io"
-title = "blog"
+title = "blog entries by a software engineer"
 theme = "notepadium"
 themesdir = "themes"
 copyright = "©2022"
@@ -80,7 +80,7 @@ OutdatedDays = 730  # Collaborate with preceding params. If a post is edited bef
 	       	    # a prompt box will appear before the post
 
 [params.assets]
-css = ["css/fonts.css"]
+css = ["css/cs.css"]
 
 # Disqus comments system
 [params.comments]
