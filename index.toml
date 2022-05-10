@@ -1,0 +1,27 @@
+
+[[input.files]]
+path = "exampleSite/content/post/markdown-syntax.md"
+url = "https://artpar.github.io/post/markdown-syntax/"
+title = "Markdown Syntax Guide"
+
+[[input.files]]
+path = "exampleSite/content/post/rich-content.md"
+url = "https://artpar.github.io/post/rich-content/"
+title = "Rich Content"
+
+[[input.files]]
+path = "exampleSite/content/post/placeholder-text.md"
+url = "https://artpar.github.io/post/placeholder-text/"
+title = "Placeholder Text"
+
+[[input.files]]
+path = "exampleSite/content/post/math-typesetting.md"
+url = "https://artpar.github.io/post/math-typesetting/"
+title = "Math Typesetting"
+
+[[input.files]]
+path = "exampleSite/content/post/emoji-support.md"
+url = "https://artpar.github.io/post/emoji-support/"
+title = "Emoji Support"
+[output]
+filename = "exampleSite/public/stork-posts.st"
