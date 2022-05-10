@@ -1,7 +1,7 @@
 baseURL = "https://artpar.github.io"
 title = "blog"
-theme = "hugo-notepadium-mod"
-themesdir = "themes/notepadium"
+theme = "notepadium"
+themesdir = "themes"
 copyright = "©2022"
 
 languageCode = "en"  # for the rss generation. See https://github.com/gohugoio/hugo/issues/349
