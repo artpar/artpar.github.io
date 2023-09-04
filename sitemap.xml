@@ -1,1 +1,31 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml"><url><loc>https://artpar.github.io/about/</loc><lastmod>2019-02-28T00:00:00+00:00</lastmod></url><url><loc>https://artpar.github.io/</loc></url><url><loc>https://artpar.github.io/archives/</loc></url><url><loc>https://artpar.github.io/categories/</loc></url><url><loc>https://artpar.github.io/tags/index/</loc></url><url><loc>https://artpar.github.io/post/</loc></url><url><loc>https://artpar.github.io/search/</loc></url><url><loc>https://artpar.github.io/tags/</loc></url></urlset>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+  xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <url>
+    <loc>https://example.com/tags/annotation-processing/</loc>
+    <lastmod>2023-09-04T13:16:43+05:30</lastmod>
+  </url><url>
+    <loc>https://example.com/tags/java/</loc>
+    <lastmod>2023-09-04T13:16:43+05:30</lastmod>
+  </url><url>
+    <loc>https://example.com/tags/lombok/</loc>
+    <lastmod>2023-09-04T13:16:43+05:30</lastmod>
+  </url><url>
+    <loc>https://example.com/posts/how-lombok-works/</loc>
+    <lastmod>2023-09-04T13:16:43+05:30</lastmod>
+  </url><url>
+    <loc>https://example.com/tags/maven/</loc>
+    <lastmod>2023-09-04T13:16:43+05:30</lastmod>
+  </url><url>
+    <loc>https://example.com/tags/</loc>
+    <lastmod>2023-09-04T13:16:43+05:30</lastmod>
+  </url><url>
+    <loc>https://example.com/posts/</loc>
+    <lastmod>2023-09-04T13:16:43+05:30</lastmod>
+  </url><url>
+    <loc>https://example.com/categories/</loc>
+  </url><url>
+    <loc>https://example.com/</loc>
+    <lastmod>2023-09-04T13:16:43+05:30</lastmod>
+  </url>
+</urlset>

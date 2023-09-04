@@ -1,9 +1,0 @@
-<input class="search form-control" placeholder="Search" />
-<div class="list list-group" id="commitList">
-    {{#commits}}
-        <div class="list-group-item" id="commit-sha-{{sha}}">
-            <a target="_blank" href="{{html_url}}"><span class="nav-link fa fa-github"></span> </a>
-            <a class="message" href="#!{{html_url}}"><small>{{commit.message}}</small></a>
-        </div>
-    {{/commits}}
-</div>
