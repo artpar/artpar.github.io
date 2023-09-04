@@ -5,43 +5,6 @@
     <link>https://example.com/tags/</link>
     <description>Recent content in Tags on Hugo Book</description>
     <generator>Hugo -- gohugo.io</generator>
-    <language>en</language>
-    <lastBuildDate>Sun, 11 Jun 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://example.com/tags/index.xml" rel="self" type="application/rss+xml" />
-    <item>
-      <title>annotation processing</title>
-      <link>https://example.com/tags/annotation-processing/</link>
-      <pubDate>Sun, 11 Jun 2023 00:00:00 +0000</pubDate>
-      
-      <guid>https://example.com/tags/annotation-processing/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>java</title>
-      <link>https://example.com/tags/java/</link>
-      <pubDate>Sun, 11 Jun 2023 00:00:00 +0000</pubDate>
-      
-      <guid>https://example.com/tags/java/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>lombok</title>
-      <link>https://example.com/tags/lombok/</link>
-      <pubDate>Sun, 11 Jun 2023 00:00:00 +0000</pubDate>
-      
-      <guid>https://example.com/tags/lombok/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>maven</title>
-      <link>https://example.com/tags/maven/</link>
-      <pubDate>Sun, 11 Jun 2023 00:00:00 +0000</pubDate>
-      
-      <guid>https://example.com/tags/maven/</guid>
-      <description></description>
-    </item>
-    
+    <language>en</language><atom:link href="https://example.com/tags/index.xml" rel="self" type="application/rss+xml" />
   </channel>
 </rss>

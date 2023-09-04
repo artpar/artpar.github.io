@@ -6,14 +6,5 @@
     <description>Recent content in Blog on Hugo Book</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language><atom:link href="https://example.com/posts/index.xml" rel="self" type="application/rss+xml" />
-    <item>
-      <title>Lombok notes</title>
-      <link>https://example.com/posts/how-lombok-works/</link>
-      <pubDate>Sun, 11 Jun 2023 00:00:00 +0000</pubDate>
-      
-      <guid>https://example.com/posts/how-lombok-works/</guid>
-      <description>How lombok works # Lombok uses ant to build the repository into a jar Uses SCL to hides classes not useful for the developer Compile time annotation processing Modfying the java AST in-place Bytecode rewriting Shadow Class Loader (SCL) # Lombok renames most &amp;ldquo;.class&amp;rdquo; files to &amp;ldquo;.SCL.lombok&amp;rdquo; using an ant step called &amp;ldquo;mappedresources&amp;rdquo; when it builds the jar. The shadow classloader serves to completely hide almost all classes in a given jar file by using a different file ending</description>
-    </item>
-    
   </channel>
 </rss>
