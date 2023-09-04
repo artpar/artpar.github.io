@@ -2,7 +2,7 @@
 author = "Parth Mudgal"
 title = "Lombok notes"
 date = "2023-06-11"
-draft = false
+draft = true
 description = "How lombok works"
 tags = [
     "maven",
