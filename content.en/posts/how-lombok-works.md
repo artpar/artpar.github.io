@@ -74,7 +74,12 @@ The other approach is to explicitely load a class using your custom loader. The 
 From [Java Annotation Processing (defined by JSR 269)](https://jcp.org/en/jsr/detail?id=269): 
 
 ```
-J2SE 1.5 added a new Java language mechanism "annotations" that allows annotation types to be used to annotate classes, fields, and methods. These annotations are typically processed either by build-time tools or by run-time libraries to achieve new semantic effects. In order to support annotation processing at build-time, this JSR will define APIs to allow annotation processors to be created using a standard pluggable API. This will simplify the task of creating annotation processors and will also allow automation of the discovery of appropriate annotation processors for a given source file.
+J2SE 1.5 added a new Java language mechanism "annotations" that allows annotation types to be used to 
+annotate classes, fields, and methods. These annotations are typically processed either by build-time 
+tools or by run-time libraries to achieve new semantic effects. In order to support annotation 
+processing at build-time, this JSR will define APIs to allow annotation processors to be created 
+using a standard pluggable API. This will simplify the task of creating annotation processors and will 
+also allow automation of the discovery of appropriate annotation processors for a given source file.
 ```
 
 The java compilation process happens in multiple "Rounds". In each round the java compiler might discover a new set of unprocessed files and will query each annotation process if it wants to process or not. The query itself is based on another Annotation called `@SupportedAnnotationTypes` which you annotate your AnnotationProcessor with. `@SupportedAnnotationTypes` indicates what type of annotations can the AnnotationProcessor process. We can also give it a "\*" to want to process all annotations (including un-annotated classes)
@@ -93,10 +98,10 @@ lombok.launch.AnnotationProcessorHider$ClaimingProcessor
 The requirement of two Processors isn't clear, especially given that the second one, `ClaimingProcessor` doesn't do anything, it just returns `true` signaling the compiler that this set of annotations has been processed now. But thanks to a comment available inside the process method of the main AnnotationProcessor we get a hint of whats going on.
 
 ```java
-        // Normally we rely on the claiming processor to claim away all lombok annotations.
-        // One of the many Java9 oversights is that this 'process' API has not been fixed to address the point that 'files I want to look at' and 'annotations I want to claim' must be one and the same,
-        // and yet in java9 you can no longer have 2 providers for the same service, thus, if you go by module path, lombok no longer loads the ClaimingProcessor.
-        // This doesn't do as good a job, but it'll have to do. The only way to go from here, I think, is either 2 modules, or use reflection hackery to add ClaimingProcessor during our init.
+// Normally we rely on the claiming processor to claim away all lombok annotations.
+// One of the many Java9 oversights is that this 'process' API has not been fixed to address the point that 'files I want to look at' and 'annotations I want to claim' must be one and the same,
+// and yet in java9 you can no longer have 2 providers for the same service, thus, if you go by module path, lombok no longer loads the ClaimingProcessor.
+// This doesn't do as good a job, but it'll have to do. The only way to go from here, I think, is either 2 modules, or use reflection hackery to add ClaimingProcessor during our init.
 ```
 
 
