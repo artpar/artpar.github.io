@@ -2,7 +2,7 @@
 author = "Parth Mudgal"
 title = "Lombok notes"
 date = "2023-06-11"
-draft = true
+draft = false
 description = "How lombok works"
 tags = [
     "maven",
@@ -22,7 +22,7 @@ tags = [
 
 ## Shadow Class Loader (SCL)
 
-Lombok renames most ".class" files to ".SCL.lombok" using an ant step called "mappedresources" when it builds the jar. The shadow classloader serves to completely hide almost all classes in a given jar file by using a different file ending
+Lombok renames most `.class` files to `.SCL.lombok` using an ant step called `mappedresources` when it builds the jar. The shadow classloader serves to completely hide almost all classes in a given jar file by using a different file ending
 
 From the lombok SCL class documentation,  Using ShadowClassLoader accomplishes the following things:
 - Avoid contaminating the namespace of any project using an SCL-based jar. Autocompleters in IDEs will NOT suggest anything other than actual public API.
@@ -33,7 +33,7 @@ From the lombok SCL class documentation,  Using ShadowClassLoader accomplishes t
 
 ### Assembling of the jar with SCL
 
-"mappedresources" does not have a direct equivivelent in maven plugins so I [build one](https://github.com/unloggedio/rename-file-maven-plugin) to be used for unlogged-sdk. This maven plugin will rename files based on regex just before the final jar is being assembled. This is how the usage looks like
+"mappedresources" does not have a direct equivivelent in maven plugins so I [build one](https://github.com/unloggedio/rename-file-maven-plugin) to be used for unlogged-sdk since I did not intend to use ant for the build process. This maven plugin will rename files based on regex just before the final jar is being assembled. This is how the usage looks like
 
 ```xml
 <plugin>
@@ -56,15 +56,15 @@ From the lombok SCL class documentation,  Using ShadowClassLoader accomplishes t
 </plugin>
 ```
 
-## Using the SCL
+### Using the SCL
 
 ClassLoaders is an abstract class in java which the JVM relies on to load the byte codes for any class. The purpose of the ClassLoader is to provide the class byte code to the JVM on request. You can read about class loaders [here](https://www.baeldung.com/java-classloaders)
 
 
-### Java agent
+#### Java agent
 A java-agent implements the class transformer "ClassFileTransformer" interface. In this approach the JVM loads the ClassTransformar instance entering through the "premain" method, which receives an instance of an Instrumentation object. You can read more about java-agent and the Instrumentation object [here](https://www.baeldung.com/java-instrumentation)
 
-### ClassLoader injection
+#### ClassLoader injection
 The other approach is to explicitely load a class using your custom loader. The important part is that if ClassA dependends on ClassB and ClassB is not already loaded, then the JVM will request the class loader of ClassA to load ClassB. And this is lombok brings SCL to life. The entry class `AnnotationProcessorHider` creates an instance of the AnnotationProcesser by asking the ShadowClassLoader to load it.
 
 
@@ -86,7 +86,9 @@ The java compilation process happens in multiple "Rounds". In each round the jav
 
 ### Discovery of annotation processors
 
-Javac discovers annotation processors based on its own service discovery protocol. This is very different from the web based/micro service discovery where you make an API call to locate the service endpoint. You can read more about [ServiceProviders here](https://docs.oracle.com/javase/6/docs/api/java/util/ServiceLoader.html) and [here](https://stackoverflow.com/questions/4544899/java-meta-inf-services) and [here](https://www.baeldung.com/java-spi)
+Javac discovers annotation processors based on its own service discovery protocol. This is very different from the web based/micro service discovery where you make an API call to locate the service endpoint. You can read more about [ServiceProviders here](https://docs.oracle.com/javase/6/docs/api/java/util/ServiceLoader.html) and [here](https://stackoverflow.com/questions/4544899/java-meta-inf-services) and [here](https://www.baeldung.com/java-spi). 
+
+AnnotationProcessors primarily implement two methods, `init()` and `process()`. The first method, `init()` is called when the AnnotationProcessor is initialized and it receives an instance of `ProcessingEnvironment` as an argument. The second method, `process()`, is called for every round the java compiler finds a new set of files eligible to be processed (based on the supported annotation types earlier)
 
 Lombok defines two annotation processors in its jar
 
@@ -107,22 +109,68 @@ The requirement of two Processors isn't clear, especially given that the second 
 
 ### Limitation of Annotation Processing
 
-The major limitation is that AnnotationProcessor cannot make changes to existing files. It can only create new files or bytecode. And since this is about lombok, this limitation is 100% in conflict with what lombok wants to do, that is, add methods to existing classes based on annotations. This is what we are going to cover.
+The major limitation is that AnnotationProcessor cannot make changes to existing files. It can only create new files or bytecode. And since this is about lombok, this limitation is absolute conflict with what lombok wants to do, that is, add methods to existing classes based on annotations. This is what we are going to cover.
+
+
+
+## Hooking into the java build
+
+At this point I am assuming you have a JAR of lombok on your class path and we are going to look inside the compilation phase. To hook into the java compilation phase using your debugger, you wan to run the build process with remote debugging enabled. To do this
+
+- Maven
+
+```bash
+MAVEN_OPTS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005 " mvn clean package 
+```
+
+
+- Gradle
+
+```bash
+GRADLE_OPTS='-Xdebug -agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005'  ./gradlew clean build
+```
+
+
+With the above parameters, the build process will pause (suspend=y) and server the remote debug server (server=y) at the port 5005. Now the debugger can connect to it. In IntellJ you can do this by creating a new Debug Profile of type "Remote JVM Debug". Make sure the port number matches in your intellij debug config and the one you have used to start the process. Once you have created that, click the debug button and you will be inside the javac compilation process in debug mode. Remember to put a breakpoint in the entry point of the annotation processor which is the `init()` method
 
 
 
 ## Patching and Hacking the Java Compilation
 
-At this point I am assuming you have a JAR of lombok on your class path and we are going to look inside the compilation phase. To hook into the java compilation phase using your debugger, you wan to run the build process with remote debugging enabled. To do this
+One thing to keep in mind from this point onwards is that there are many java compilers and lombok needs to work out with all of them (so does our sdk). So we are going to encounter all kinds of patching
 
-for maven
-
-```MAVEN_OPTS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005 " mvn clean package ```
+### disableJava9SillyWarning
 
 
-for gradle
+The first thing which lombok annotation processor tries to do is [disable warnings related to unsafe access](https://github.com/projectlombok/lombok/blob/000ce6d19a3d4a7d8c88ffa51e47ffda2a3b2c79/src/launch/lombok/launch/AnnotationProcessor.java#L71) of internal fields. We can read into the minor annoyance about it from the lombok developer thanks to the comment inside that method
 
-```GRADLE_OPTS='-Xdebug -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005'  ./gradlew clean build```
+```java
+// JVM9 complains about using reflection to access packages from a module that aren't exported. This makes no sense; the whole point of reflection
+// is to get past such issues. The only comment from the jigsaw team lead on this was some unspecified mumbling about security which makes no sense,
+// as the SecurityManager is invoked to check such things. Therefore this warning is a bug, so we shall patch java to fix it.
+```
+
+You might have come across the ```--add-opens``` and ```--add-exports```  arguments when running with certain libraries/java-agents which allows module A to access module B via reflection. This access was allowed to begin with, until java 1.9 when warnings/limitations were added for such access. You can read more about it in this very succinct [answer on stackoverflow](https://stackoverflow.com/questions/44056405/whats-the-difference-between-add-exports-and-add-opens-in-java-9). The `disableJava9SillyWarning` method does not really enable it, but actually just suppresses the warning that come from doing such access.
+
+
+### ProcessorDescriptor (Delegator pattern)
+
+Immediatly into the annotation processor we are encountered with the delegator pattern (or correct me if I am wrong). We see two real implementation of `ProcessorDescriptor`. The `ProcessorDescriptor` interface has two methods. The first method `want()`, invoked by the `init()` of the entry point AnnotationProcessorHider declares whether it wantes to be involved the this compilation process or not. If `want()` returns false, then it would not be invoked by the `process()` method.
+
+Since there are only two implementations, `EcjDescriptor` and `JavacDescriptor`, we can dive into both. The `want()` method is more of a `init()` on conditions method. The initializations wont happen if the condition is false. The only conditional difference between the two implementations is 
+
+```java
+procEnv.getClass().getName().startsWith("org.eclipse.jdt.")
+```
+
+which is to determine if the compilation by eclipse IDE or not. This part of the code was recently changed to do nothing. But we can once again thank the developer for the comment
+
+```java
+// Lombok used to work as annotation processor to ecj but that never actually worked properly, so we disabled the feature in 0.10.0.
+// Because loading lombok as an agent in any ECJ-based non-interactive tool works just fine, we're not going to generate any warnings, as we'll
+// likely generate more false positives than be helpful.
+
+```
 
 
 
