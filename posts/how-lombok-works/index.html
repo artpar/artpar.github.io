@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="How lombok works">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#343a40">
+<meta name="color-scheme" content="light dark"><meta property="og:title" content="Lombok notes" />
+<meta property="og:description" content="How lombok works" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://example.com/posts/how-lombok-works/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2023-06-11T00:00:00+00:00" />
+<meta property="article:modified_time" content="2023-09-04T15:08:55+05:30" />
+<title>Lombok notes | Software engineering and reverse</title>
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="/favicon.png" >
+<link rel="stylesheet" href="/book.min.33a48f5432973b8ff9a82679d9e45d67f2c15d4399bd2829269455cfe390b5e8.css" integrity="sha256-M6SPVDKXO4/5qCZ52eRdZ/LBXUOZvSgpJpRVz&#43;OQteg=" crossorigin="anonymous">
+  <script defer src="/flexsearch.min.js"></script>
+  <script defer src="/en.search.min.13ef726c6c4d761eee51e076945741834612fbecde5303e651bd105313935971.js" integrity="sha256-E&#43;9ybGxNdh7uUeB2lFdBg0YS&#43;&#43;zeUwPmUb0QUxOTWXE=" crossorigin="anonymous"></script>
+<!--
+Made with Book Theme
+https://github.com/alex-shpak/hugo-book
+-->
+  
+</head>
+<body dir="ltr">
+  <input type="checkbox" class="hidden toggle" id="menu-control" />
+  <input type="checkbox" class="hidden toggle" id="toc-control" />
+  <main class="container flex">
+    <aside class="book-menu">
+      <div class="book-menu-content">
+        
+  <nav>
+<h2 class="book-brand">
+  <a class="flex align-center" href="/"><span>Software engineering and reverse</span>
+  </a>
+</h2>
+
+
+<div class="book-search">
+  <input type="text" id="book-search-input" placeholder="Search" aria-label="Search" maxlength="64" data-hotkeys="s/" />
+  <div class="book-search-spinner hidden"></div>
+  <ul id="book-search-results"></ul>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+<ul>
+  
+  <li>
+    <a href="/posts/"  >
+        Blog
+      </a>
+  </li>
+  
+</ul>
+
+
+
+
+
+
+</nav>
+
+
+
+
+  <script>(function(){var e=document.querySelector("aside .book-menu-content");addEventListener("beforeunload",function(){localStorage.setItem("menu.scrollTop",e.scrollTop)}),e.scrollTop=localStorage.getItem("menu.scrollTop")})()</script>
+
+
+ 
+      </div>
+    </aside>
+
+    <div class="book-page">
+      <header class="book-header">
+        
+  <div class="flex align-center justify-between">
+  <label for="menu-control">
+    <img src="/svg/menu.svg" class="book-icon" alt="Menu" />
+  </label>
+
+  <strong>Lombok notes</strong>
+
+  <label for="toc-control">
+    
+    <img src="/svg/toc.svg" class="book-icon" alt="Table of Contents" />
+    
+  </label>
+</div>
+
+
+  
+  <aside class="hidden clearfix">
+    
+  
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="#how-lombok-works">How lombok works</a>
+      <ul>
+        <li><a href="#shadow-class-loader-scl">Shadow Class Loader (SCL)</a>
+          <ul>
+            <li><a href="#assembling-of-the-jar-with-scl">Assembling of the jar with SCL</a></li>
+            <li><a href="#using-the-scl">Using the SCL</a></li>
+          </ul>
+        </li>
+        <li><a href="#annotation-processing-apt">Annotation Processing (APT)</a>
+          <ul>
+            <li><a href="#discovery-of-annotation-processors">Discovery of annotation processors</a></li>
+            <li><a href="#limitation-of-annotation-processing">Limitation of Annotation Processing</a></li>
+          </ul>
+        </li>
+        <li><a href="#hooking-into-the-java-build">Hooking into the java build</a></li>
+        <li><a href="#patching-and-hacking-the-java-compilation">Patching and Hacking the Java Compilation</a>
+          <ul>
+            <li><a href="#disablejava9sillywarning">disableJava9SillyWarning</a></li>
+            <li><a href="#processordescriptor-delegator-pattern">ProcessorDescriptor (Delegator pattern)</a></li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+
+
+
+  </aside>
+  
+ 
+      </header>
+
+      
+      
+<article class="markdown">
+  <h1>
+    <a href="/posts/how-lombok-works/">Lombok notes</a>
+  </h1>
+  
+  <h5>June 11, 2023</h5>
+
+
+
+  
+
+  
+  <div>
+    
+      <a href="/tags/maven/">maven</a>, 
+      <a href="/tags/java/">java</a>, 
+      <a href="/tags/lombok/">lombok</a>, 
+      <a href="/tags/annotation-processing/">annotation processing</a>
+  </div>
+  
+
+
+
+<h1 id="how-lombok-works">
+  How lombok works
+  <a class="anchor" href="#how-lombok-works">#</a>
+</h1>
+<ul>
+<li>Lombok uses ant to build the repository into a jar</li>
+<li>Uses SCL to hides classes not useful for the developer</li>
+<li>Compile time annotation processing</li>
+<li>Modfying the java AST in-place</li>
+<li>Bytecode rewriting</li>
+</ul>
+<h2 id="shadow-class-loader-scl">
+  Shadow Class Loader (SCL)
+  <a class="anchor" href="#shadow-class-loader-scl">#</a>
+</h2>
+<p>Lombok renames most <code>.class</code> files to <code>.SCL.lombok</code> using an ant step called <code>mappedresources</code> when it builds the jar. The shadow classloader serves to completely hide almost all classes in a given jar file by using a different file ending</p>
+<p>From the lombok SCL class documentation,  Using ShadowClassLoader accomplishes the following things:</p>
+<ul>
+<li>Avoid contaminating the namespace of any project using an SCL-based jar. Autocompleters in IDEs will NOT suggest anything other than actual public API.</li>
+<li>Like jarjar, allows folding in dependencies such as ASM without foisting these dependencies on projects that use this jar. shadowloader obviates the need for jarjar.</li>
+<li>Allows an agent (which MUST be in jar form) to still load everything except this loader infrastructure from class files generated by the IDE, which should
+considerably help debugging, as you can now rely on the IDE&rsquo;s built-in auto-recompile features instead of having to run a full build everytime, and it should help
+with hot code replace and the like (this is what the {@code shadow.override} feature is for).</li>
+</ul>
+<h3 id="assembling-of-the-jar-with-scl">
+  Assembling of the jar with SCL
+  <a class="anchor" href="#assembling-of-the-jar-with-scl">#</a>
+</h3>
+<p>&ldquo;mappedresources&rdquo; does not have a direct equivivelent in maven plugins so I 
+  <a href="https://github.com/unloggedio/rename-file-maven-plugin">build one</a> to be used for unlogged-sdk since I did not intend to use ant for the build process. This maven plugin will rename files based on regex just before the final jar is being assembled. This is how the usage looks like</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-xml" data-lang="xml"><span style="display:flex;"><span><span style="color:#f92672">&lt;plugin&gt;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;groupId&gt;</span>video.bug<span style="color:#f92672">&lt;/groupId&gt;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;artifactId&gt;</span>rename-file-maven-plugin<span style="color:#f92672">&lt;/artifactId&gt;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;version&gt;</span>1.0-SNAPSHOT<span style="color:#f92672">&lt;/version&gt;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;executions&gt;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&lt;execution&gt;</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">&lt;phase&gt;</span>compile<span style="color:#f92672">&lt;/phase&gt;</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">&lt;goals&gt;</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">&lt;goal&gt;</span>rename-file<span style="color:#f92672">&lt;/goal&gt;</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">&lt;/goals&gt;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&lt;/execution&gt;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;/executions&gt;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;configuration&gt;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&lt;source&gt;</span>(.+).class<span style="color:#f92672">&lt;/source&gt;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&lt;target&gt;</span>$1.scl.unlogged<span style="color:#f92672">&lt;/target&gt;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&lt;workingDirectory&gt;</span>${build.directory}/classes/io/unlogged/processor<span style="color:#f92672">&lt;/workingDirectory&gt;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;/configuration&gt;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;/plugin&gt;</span>
+</span></span></code></pre></div><h3 id="using-the-scl">
+  Using the SCL
+  <a class="anchor" href="#using-the-scl">#</a>
+</h3>
+<p>ClassLoaders is an abstract class in java which the JVM relies on to load the byte codes for any class. The purpose of the ClassLoader is to provide the class byte code to the JVM on request. You can read about class loaders 
+  <a href="https://www.baeldung.com/java-classloaders">here</a></p>
+<h4 id="java-agent">
+  Java agent
+  <a class="anchor" href="#java-agent">#</a>
+</h4>
+<p>A java-agent implements the class transformer &ldquo;ClassFileTransformer&rdquo; interface. In this approach the JVM loads the ClassTransformar instance entering through the &ldquo;premain&rdquo; method, which receives an instance of an Instrumentation object. You can read more about java-agent and the Instrumentation object 
+  <a href="https://www.baeldung.com/java-instrumentation">here</a></p>
+<h4 id="classloader-injection">
+  ClassLoader injection
+  <a class="anchor" href="#classloader-injection">#</a>
+</h4>
+<p>The other approach is to explicitely load a class using your custom loader. The important part is that if ClassA dependends on ClassB and ClassB is not already loaded, then the JVM will request the class loader of ClassA to load ClassB. And this is lombok brings SCL to life. The entry class <code>AnnotationProcessorHider</code> creates an instance of the AnnotationProcesser by asking the ShadowClassLoader to load it.</p>
+<h2 id="annotation-processing-apt">
+  Annotation Processing (APT)
+  <a class="anchor" href="#annotation-processing-apt">#</a>
+</h2>
+<p>From 
+  <a href="https://jcp.org/en/jsr/detail?id=269">Java Annotation Processing (defined by JSR 269)</a>:</p>
+<pre tabindex="0"><code>J2SE 1.5 added a new Java language mechanism &#34;annotations&#34; that allows annotation types to be used to 
+annotate classes, fields, and methods. These annotations are typically processed either by build-time 
+tools or by run-time libraries to achieve new semantic effects. In order to support annotation 
+processing at build-time, this JSR will define APIs to allow annotation processors to be created 
+using a standard pluggable API. This will simplify the task of creating annotation processors and will 
+also allow automation of the discovery of appropriate annotation processors for a given source file.
+</code></pre><p>The java compilation process happens in multiple &ldquo;Rounds&rdquo;. In each round the java compiler might discover a new set of unprocessed files and will query each annotation process if it wants to process or not. The query itself is based on another Annotation called <code>@SupportedAnnotationTypes</code> which you annotate your AnnotationProcessor with. <code>@SupportedAnnotationTypes</code> indicates what type of annotations can the AnnotationProcessor process. We can also give it a &ldquo;*&rdquo; to want to process all annotations (including un-annotated classes)</p>
+<h3 id="discovery-of-annotation-processors">
+  Discovery of annotation processors
+  <a class="anchor" href="#discovery-of-annotation-processors">#</a>
+</h3>
+<p>Javac discovers annotation processors based on its own service discovery protocol. This is very different from the web based/micro service discovery where you make an API call to locate the service endpoint. You can read more about 
+  <a href="https://docs.oracle.com/javase/6/docs/api/java/util/ServiceLoader.html">ServiceProviders here</a> and 
+  <a href="https://stackoverflow.com/questions/4544899/java-meta-inf-services">here</a> and 
+  <a href="https://www.baeldung.com/java-spi">here</a>.</p>
+<p>AnnotationProcessors primarily implement two methods, <code>init()</code> and <code>process()</code>. The first method, <code>init()</code> is called when the AnnotationProcessor is initialized and it receives an instance of <code>ProcessingEnvironment</code> as an argument. The second method, <code>process()</code>, is called for every round the java compiler finds a new set of files eligible to be processed (based on the supported annotation types earlier)</p>
+<p>Lombok defines two annotation processors in its jar</p>
+<pre tabindex="0"><code>lombok.launch.AnnotationProcessorHider$AnnotationProcessor
+lombok.launch.AnnotationProcessorHider$ClaimingProcessor
+</code></pre><p>The requirement of two Processors isn&rsquo;t clear, especially given that the second one, <code>ClaimingProcessor</code> doesn&rsquo;t do anything, it just returns <code>true</code> signaling the compiler that this set of annotations has been processed now. But thanks to a comment available inside the process method of the main AnnotationProcessor we get a hint of whats going on.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#75715e">// Normally we rely on the claiming processor to claim away all lombok annotations.
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// One of the many Java9 oversights is that this &#39;process&#39; API has not been fixed to address the point that &#39;files I want to look at&#39; and &#39;annotations I want to claim&#39; must be one and the same,
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// and yet in java9 you can no longer have 2 providers for the same service, thus, if you go by module path, lombok no longer loads the ClaimingProcessor.
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// This doesn&#39;t do as good a job, but it&#39;ll have to do. The only way to go from here, I think, is either 2 modules, or use reflection hackery to add ClaimingProcessor during our init.
+</span></span></span></code></pre></div><h3 id="limitation-of-annotation-processing">
+  Limitation of Annotation Processing
+  <a class="anchor" href="#limitation-of-annotation-processing">#</a>
+</h3>
+<p>The major limitation is that AnnotationProcessor cannot make changes to existing files. It can only create new files or bytecode. And since this is about lombok, this limitation is absolute conflict with what lombok wants to do, that is, add methods to existing classes based on annotations. This is what we are going to cover.</p>
+<h2 id="hooking-into-the-java-build">
+  Hooking into the java build
+  <a class="anchor" href="#hooking-into-the-java-build">#</a>
+</h2>
+<p>At this point I am assuming you have a JAR of lombok on your class path and we are going to look inside the compilation phase. To hook into the java compilation phase using your debugger, you wan to run the build process with remote debugging enabled. To do this</p>
+<ul>
+<li>Maven</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>MAVEN_OPTS<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005 &#34;</span> mvn clean package 
+</span></span></code></pre></div><ul>
+<li>Gradle</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>GRADLE_OPTS<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;-Xdebug -agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005&#39;</span>  ./gradlew clean build
+</span></span></code></pre></div><p>With the above parameters, the build process will pause (suspend=y) and server the remote debug server (server=y) at the port 5005. Now the debugger can connect to it. In IntellJ you can do this by creating a new Debug Profile of type &ldquo;Remote JVM Debug&rdquo;. Make sure the port number matches in your intellij debug config and the one you have used to start the process. Once you have created that, click the debug button and you will be inside the javac compilation process in debug mode. Remember to put a breakpoint in the entry point of the annotation processor which is the <code>init()</code> method</p>
+<h2 id="patching-and-hacking-the-java-compilation">
+  Patching and Hacking the Java Compilation
+  <a class="anchor" href="#patching-and-hacking-the-java-compilation">#</a>
+</h2>
+<p>One thing to keep in mind from this point onwards is that there are many java compilers and lombok needs to work out with all of them (so does our sdk). So we are going to encounter all kinds of patching</p>
+<h3 id="disablejava9sillywarning">
+  disableJava9SillyWarning
+  <a class="anchor" href="#disablejava9sillywarning">#</a>
+</h3>
+<p>The first thing which lombok annotation processor tries to do is 
+  <a href="https://github.com/projectlombok/lombok/blob/000ce6d19a3d4a7d8c88ffa51e47ffda2a3b2c79/src/launch/lombok/launch/AnnotationProcessor.java#L71">disable warnings related to unsafe access</a> of internal fields. We can read into the minor annoyance about it from the lombok developer thanks to the comment inside that method</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#75715e">// JVM9 complains about using reflection to access packages from a module that aren&#39;t exported. This makes no sense; the whole point of reflection
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// is to get past such issues. The only comment from the jigsaw team lead on this was some unspecified mumbling about security which makes no sense,
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// as the SecurityManager is invoked to check such things. Therefore this warning is a bug, so we shall patch java to fix it.
+</span></span></span></code></pre></div><p>You might have come across the <code>--add-opens</code> and <code>--add-exports</code>  arguments when running with certain libraries/java-agents which allows module A to access module B via reflection. This access was allowed to begin with, until java 1.9 when warnings/limitations were added for such access. You can read more about it in this very succinct 
+  <a href="https://stackoverflow.com/questions/44056405/whats-the-difference-between-add-exports-and-add-opens-in-java-9">answer on stackoverflow</a>. The <code>disableJava9SillyWarning</code> method does not really enable it, but actually just suppresses the warning that come from doing such access.</p>
+<h3 id="processordescriptor-delegator-pattern">
+  ProcessorDescriptor (Delegator pattern)
+  <a class="anchor" href="#processordescriptor-delegator-pattern">#</a>
+</h3>
+<p>Immediatly into the annotation processor we are encountered with the delegator pattern (or correct me if I am wrong). We see two real implementation of <code>ProcessorDescriptor</code>. The <code>ProcessorDescriptor</code> interface has two methods. The first method <code>want()</code>, invoked by the <code>init()</code> of the entry point AnnotationProcessorHider declares whether it wantes to be involved the this compilation process or not. If <code>want()</code> returns false, then it would not be invoked by the <code>process()</code> method.</p>
+<p>Since there are only two implementations, <code>EcjDescriptor</code> and <code>JavacDescriptor</code>, we can dive into both. The <code>want()</code> method is more of a <code>init()</code> on conditions method. The initializations wont happen if the condition is false. The only conditional difference between the two implementations is</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>procEnv<span style="color:#f92672">.</span><span style="color:#a6e22e">getClass</span><span style="color:#f92672">().</span><span style="color:#a6e22e">getName</span><span style="color:#f92672">().</span><span style="color:#a6e22e">startsWith</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;org.eclipse.jdt.&#34;</span><span style="color:#f92672">)</span>
+</span></span></code></pre></div><p>which is to determine if the compilation by eclipse IDE or not. This part of the code was recently changed to do nothing. But we can once again thank the developer for the comment</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#75715e">// Lombok used to work as annotation processor to ecj but that never actually worked properly, so we disabled the feature in 0.10.0.
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// Because loading lombok as an agent in any ECJ-based non-interactive tool works just fine, we&#39;re not going to generate any warnings, as we&#39;ll
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// likely generate more false positives than be helpful.
+</span></span></span></code></pre></div></article>
+ 
+      
+
+      <footer class="book-footer">
+        
+  <div class="flex flex-wrap justify-between">
+
+
+  <div><a class="flex align-center" href="https://github.com/artpar/artpar.github.io/commit/a3541b4a534f174304c4a7acf3f59af16b6d4c7c" title='Last modified by artpar | September 4, 2023' target="_blank" rel="noopener">
+      <img src="/svg/calendar.svg" class="book-icon" alt="Calendar" />
+      <span>September 4, 2023</span>
+    </a>
+  </div>
+
+
+
+
+</div>
+
+
+
+  <script>(function(){function e(e){const t=window.getSelection(),n=document.createRange();n.selectNodeContents(e),t.removeAllRanges(),t.addRange(n)}document.querySelectorAll("pre code").forEach(t=>{t.addEventListener("click",function(){if(window.getSelection().toString())return;e(t.parentElement),navigator.clipboard&&navigator.clipboard.writeText(t.parentElement.textContent)})})})()</script>
+
+
+ 
+        
+      </footer>
+
+      
+  
+ 
+
+      <label for="menu-control" class="hidden book-menu-overlay"></label>
+    </div>
+
+    
+    <aside class="book-toc">
+      <div class="book-toc-content">
+        
+  
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="#how-lombok-works">How lombok works</a>
+      <ul>
+        <li><a href="#shadow-class-loader-scl">Shadow Class Loader (SCL)</a>
+          <ul>
+            <li><a href="#assembling-of-the-jar-with-scl">Assembling of the jar with SCL</a></li>
+            <li><a href="#using-the-scl">Using the SCL</a></li>
+          </ul>
+        </li>
+        <li><a href="#annotation-processing-apt">Annotation Processing (APT)</a>
+          <ul>
+            <li><a href="#discovery-of-annotation-processors">Discovery of annotation processors</a></li>
+            <li><a href="#limitation-of-annotation-processing">Limitation of Annotation Processing</a></li>
+          </ul>
+        </li>
+        <li><a href="#hooking-into-the-java-build">Hooking into the java build</a></li>
+        <li><a href="#patching-and-hacking-the-java-compilation">Patching and Hacking the Java Compilation</a>
+          <ul>
+            <li><a href="#disablejava9sillywarning">disableJava9SillyWarning</a></li>
+            <li><a href="#processordescriptor-delegator-pattern">ProcessorDescriptor (Delegator pattern)</a></li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+
+
+ 
+      </div>
+    </aside>
+    
+  </main>
+
+  
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+

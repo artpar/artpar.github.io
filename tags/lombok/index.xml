@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Blog on Software engineering and reverse</title>
-    <link>https://example.com/posts/</link>
-    <description>Recent content in Blog on Software engineering and reverse</description>
+    <title>lombok on Software engineering and reverse</title>
+    <link>https://example.com/tags/lombok/</link>
+    <description>Recent content in lombok on Software engineering and reverse</description>
     <generator>Hugo -- gohugo.io</generator>
-    <language>en</language><atom:link href="https://example.com/posts/index.xml" rel="self" type="application/rss+xml" />
+    <language>en</language>
+    <lastBuildDate>Sun, 11 Jun 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://example.com/tags/lombok/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Lombok notes</title>
       <link>https://example.com/posts/how-lombok-works/</link>

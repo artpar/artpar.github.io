@@ -2,6 +2,24 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
+    <loc>https://example.com/tags/annotation-processing/</loc>
+    <lastmod>2023-09-04T15:08:55+05:30</lastmod>
+  </url><url>
+    <loc>https://example.com/tags/java/</loc>
+    <lastmod>2023-09-04T15:08:55+05:30</lastmod>
+  </url><url>
+    <loc>https://example.com/tags/lombok/</loc>
+    <lastmod>2023-09-04T15:08:55+05:30</lastmod>
+  </url><url>
+    <loc>https://example.com/posts/how-lombok-works/</loc>
+    <lastmod>2023-09-04T15:08:55+05:30</lastmod>
+  </url><url>
+    <loc>https://example.com/tags/maven/</loc>
+    <lastmod>2023-09-04T15:08:55+05:30</lastmod>
+  </url><url>
+    <loc>https://example.com/tags/</loc>
+    <lastmod>2023-09-04T15:08:55+05:30</lastmod>
+  </url><url>
     <loc>https://example.com/posts/</loc>
     <lastmod>2023-09-04T13:16:43+05:30</lastmod>
   </url><url>
@@ -9,7 +27,5 @@
   </url><url>
     <loc>https://example.com/</loc>
     <lastmod>2023-09-04T13:23:06+05:30</lastmod>
-  </url><url>
-    <loc>https://example.com/tags/</loc>
   </url>
 </urlset>
