@@ -22,7 +22,7 @@ Project [Lombok](https://projectlombok.org/) is a java library that automaticall
  Automate your logging variables, and much more. 
 ```
 
-This post is not a guide to use lombok, you can find plenty of them with a search. This post is about how the magic of lombok works. Lombok is one of those libraries that work so flawlessly that I had never needed to think about how it really works under the hood. That was until I wanted to do something technically similar (bytecode rewriting without using a java-agent). 
+This post is not a guide to use lombok, you can find plenty of them with a search. This post is about how the lombok works internally. Lombok is one of those libraries that works so flawlessly that I never had to think about how it really works under the hood. That was until I wanted to do something technically similar (bytecode rewriting without using a java-agent). 
 
 Here is a brief summary of what lies ahead
 
@@ -52,7 +52,7 @@ The main technical feat that lombok accomplishes is modfying java code of existi
 
 # Shadow Class Loader (SCL)
 
-Lombok renames most `.class` files to `.SCL.lombok` using an ant step called `mappedresources` when it builds the jar. The shadow classloader serves to completely hide almost all classes in a given jar file by using a different file ending
+Lombok renames most `.class` files to `.SCL.lombok` using an ant step called `mappedresources` when it assembles the jar. The ShadowClassLoader serves to hide almost all classes in a jar file by using a different file extension
 
 From the lombok SCL class documentation,  Using ShadowClassLoader accomplishes the following things:
 - Avoid contaminating the namespace of any project using an SCL-based jar. Autocompleters in IDEs will NOT suggest anything other than actual public API.
@@ -63,7 +63,7 @@ From the lombok SCL class documentation,  Using ShadowClassLoader accomplishes t
 
 ## Assembling of the jar with SCL
 
-`mappedresources` does not have a direct equivivelent in maven plugins so I [build one](https://github.com/unloggedio/rename-file-maven-plugin) to be used for unlogged-sdk since I did not intend to use ant for the build process. This maven plugin will rename files based on regex just before the final jar is being assembled. This is how the usage looks like
+`mappedresources` does not have a direct equivalent in maven plugin so I [build one](https://github.com/unloggedio/rename-file-maven-plugin) to be used for unlogged-sdk since I did not intend to use ant for the build process. This maven plugin will rename files based on regex just before the final jar is being assembled. This is how the usage looks like
 
 ```xml
 <plugin>
@@ -88,14 +88,14 @@ From the lombok SCL class documentation,  Using ShadowClassLoader accomplishes t
 
 ## Using the SCL
 
-ClassLoaders is an abstract class in java which the JVM relies on to load the byte codes for any class. The purpose of the ClassLoader is to provide the class byte code to the JVM on request. You can read about class loaders [here](https://www.baeldung.com/java-classloaders)
+`ClassLoader` is an abstract class in java which the JVM relies on for loading the bytecode for any class. The purpose of the ClassLoader is to figure out where the bytecode for a class is located based on its fully qualified name, retrieve it and give it to the JVM on request. You can read about class loaders [here](https://www.baeldung.com/java-classloaders). There are two ways in which you can use a custom class loader in java.
 
 
 ### Java Agent
-A java-agent implements the class transformer "ClassFileTransformer" interface. In this approach the JVM loads the ClassTransformar instance entering through the "premain" method, which receives an instance of an Instrumentation object. You can read more about java-agent and the Instrumentation object [here](https://www.baeldung.com/java-instrumentation)
+A java-agent implements the class transformer `ClassFileTransformer` interface. In this approach the JVM loads the `ClassTransformar` instance entering through the "premain" method, which receives an instance of an `Instrumentation` object. You can read more about java-agent and the `Instrumentation` object [here](https://www.baeldung.com/java-instrumentation). With the `Instrumentation` instance you can add your `ClassFileTransformer` which is hooked in every time a class in going to be redefined from bytecode by jvm. This also works in hot-reloading java.
 
 ### ClassLoader injection
-The other approach is to explicitely load a class using your custom loader. The important part is that if ClassA dependends on ClassB and ClassB is not already loaded, then the JVM will request the class loader of ClassA to load ClassB. And this is lombok brings SCL to life. The entry class `AnnotationProcessorHider` creates an instance of the AnnotationProcesser by asking the ShadowClassLoader to load it.
+The other approach is to explicitely load a class using your custom loader. The important part is that if `ClassA` dependends on `ClassB` and `ClassB` is not already loaded, then the JVM will request the class loader of `ClassA` to load `ClassB`. And this is lombok brings SCL to life. The entry class `AnnotationProcessorHider` creates an instance of the `AnnotationProcesser` by asking the `ShadowClassLoader` to load it.
 
 ---
 
@@ -171,7 +171,9 @@ GRADLE_OPTS='-Xdebug -agentlib:jdwp=transport=dt_socket,server=y,suspend=y,addre
 ```
 
 
-With the above parameters, the build process will pause (suspend=y) and server the remote debug server (server=y) at the port 5005. Now the debugger can connect to it. In IntellJ you can do this by creating a new Debug Profile of type "Remote JVM Debug". Make sure the port number matches in your intellij debug config and the one you have used to start the process. Once you have created that, click the debug button and you will be inside the javac compilation process in debug mode. Remember to put a breakpoint in the entry point of the annotation processor which is the `init()` method
+With the above parameters, the build process will pause (suspend=y) and server the remote debug server (server=y) at the port 5005. Now the debugger can connect to it. 
+
+In IntellJ you can do this by creating a new Debug Profile of type "Remote JVM Debug". Make sure the port number matches in your intellij debug config and the one you have used to start the process. Once you have created that, click the debug button and you will be inside the javac compilation process in debug mode. Remember to put a breakpoint in the entry point of the annotation processor which is the `init()` method
 
 ---
 
@@ -304,7 +306,7 @@ But before diving into it, we see a quick disable switch
     }
 ```
 
-Interesting this piece is not mentioned in the [project lombok feature configuration page](https://projectlombok.org/features/configuration) but is listed in the generated [Lombok JavaDoc](https://projectlombok.org/api/lombok/ConfigurationKeys#LOMBOK_DISABLE). 
+Interestingly this is not mentioned in the [project lombok feature configuration page](https://projectlombok.org/features/configuration) but is listed in the generated [Lombok JavaDoc](https://projectlombok.org/api/lombok/ConfigurationKeys#LOMBOK_DISABLE). 
 
 The ConfigurationKeys java source itself carries a scary notice with this 
 
@@ -415,7 +417,7 @@ flowchart TD
 
 ## Order of transformations
 
-Each visitor might also declare a `Long priority` since in some cases there is a dependency between two handlers, For instance
+Each visitor might also declare a `Long priority` since in some cases there is a dependency between two handlers, for instance
 
 In `HandleVal`
 
@@ -432,12 +434,13 @@ And in `HandleSynchronized` we have
 
 ```java
 @HandlerPriority(value = 1024) 
-// 2^10; @NonNull must have run first, so that we wrap around the statements generated by it.
+// 2^10; @NonNull must have run first, so that we wrap around 
+// the statements generated by it.
 public class HandleSynchronized extends JavacAnnotationHandler<Synchronized> {
 
 ```
 
-`LombokProcessor` in its init() call will build the array of priority values available and in each round will identify the next priority value to be invoked, identify all the handlers against that priority and call the `JavacTransformer` to invoke the handlers against that priority. Handlers at the same priority will be invoked in order which they were loaded in the first place.
+`LombokProcessor` in its `init()` method builds the array of all priority values available and in each round will identify the next priority value to be invoked, identify all the handlers against that priority and call the `JavacTransformer` to invoke the handlers against that priority. Handlers at the same priority will be invoked in order which they were loaded in the first place.
 
 ## AST Visitors and Annotation Handlers
 
