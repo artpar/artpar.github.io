@@ -11,13 +11,13 @@
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://example.com/posts/how-lombok-works/" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2023-06-11T00:00:00+00:00" />
-<meta property="article:modified_time" content="2023-09-06T13:46:09+05:30" />
+<meta property="article:modified_time" content="2023-09-06T15:31:29+05:30" />
 <title>How lombok works | Software engineering and reverse</title>
 <link rel="manifest" href="/manifest.json">
 <link rel="icon" href="/favicon.png" >
 <link rel="stylesheet" href="/book.min.33a48f5432973b8ff9a82679d9e45d67f2c15d4399bd2829269455cfe390b5e8.css" integrity="sha256-M6SPVDKXO4/5qCZ52eRdZ/LBXUOZvSgpJpRVz&#43;OQteg=" crossorigin="anonymous">
   <script defer src="/flexsearch.min.js"></script>
-  <script defer src="/en.search.min.f0acf6c42795357c2052b3afff99847ccad16eb8568c52a535971bb53912afff.js" integrity="sha256-8Kz2xCeVNXwgUrOv/5mEfMrRbrhWjFKlNZcbtTkSr/8=" crossorigin="anonymous"></script>
+  <script defer src="/en.search.min.70d6bb1a4c7801dc22ed06c2dc995613a35e4dbfc8322b1e2c051fad70d19790.js" integrity="sha256-cNa7Gkx4Adwi7QbC3JlWE6NeTb/IMiseLAUfrXDRl5A=" crossorigin="anonymous"></script>
 <!--
 Made with Book Theme
 https://github.com/alex-shpak/hugo-book
@@ -210,7 +210,7 @@ https://github.com/alex-shpak/hugo-book
 <pre tabindex="0"><code> Never write another getter or equals method again, 
  with one annotation your class has a fully featured builder, 
  Automate your logging variables, and much more. 
-</code></pre><p>This post is not a guide to use lombok, you can find plenty of them with a search. This post is about how the magic of lombok works. Lombok is one of those libraries that work so flawlessly that I had never needed to think about how it really works under the hood. That was until I wanted to do something technically similar (bytecode rewriting without using a java-agent).</p>
+</code></pre><p>This post is not a guide to use lombok, you can find plenty of them with a search. This post is about how the lombok works internally. Lombok is one of those libraries that works so flawlessly that I never had to think about how it really works under the hood. That was until I wanted to do something technically similar (bytecode rewriting without using a java-agent).</p>
 <p>Here is a brief summary of what lies ahead</p>
 <ul>
 <li>Use of ShadowClassLoader</li>
@@ -253,7 +253,7 @@ flowchart TD
   Shadow Class Loader (SCL)
   <a class="anchor" href="#shadow-class-loader-scl">#</a>
 </h1>
-<p>Lombok renames most <code>.class</code> files to <code>.SCL.lombok</code> using an ant step called <code>mappedresources</code> when it builds the jar. The shadow classloader serves to completely hide almost all classes in a given jar file by using a different file ending</p>
+<p>Lombok renames most <code>.class</code> files to <code>.SCL.lombok</code> using an ant step called <code>mappedresources</code> when it assembles the jar. The ShadowClassLoader serves to hide almost all classes in a jar file by using a different file extension</p>
 <p>From the lombok SCL class documentation,  Using ShadowClassLoader accomplishes the following things:</p>
 <ul>
 <li>Avoid contaminating the namespace of any project using an SCL-based jar. Autocompleters in IDEs will NOT suggest anything other than actual public API.</li>
@@ -266,7 +266,7 @@ with hot code replace and the like (this is what the {@code shadow.override} fea
   Assembling of the jar with SCL
   <a class="anchor" href="#assembling-of-the-jar-with-scl">#</a>
 </h2>
-<p><code>mappedresources</code> does not have a direct equivivelent in maven plugins so I 
+<p><code>mappedresources</code> does not have a direct equivalent in maven plugin so I 
   <a href="https://github.com/unloggedio/rename-file-maven-plugin">build one</a> to be used for unlogged-sdk since I did not intend to use ant for the build process. This maven plugin will rename files based on regex just before the final jar is being assembled. This is how the usage looks like</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-xml" data-lang="xml"><span style="display:flex;"><span><span style="color:#f92672">&lt;plugin&gt;</span>
 </span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;groupId&gt;</span>video.bug<span style="color:#f92672">&lt;/groupId&gt;</span>
@@ -290,19 +290,19 @@ with hot code replace and the like (this is what the {@code shadow.override} fea
   Using the SCL
   <a class="anchor" href="#using-the-scl">#</a>
 </h2>
-<p>ClassLoaders is an abstract class in java which the JVM relies on to load the byte codes for any class. The purpose of the ClassLoader is to provide the class byte code to the JVM on request. You can read about class loaders 
-  <a href="https://www.baeldung.com/java-classloaders">here</a></p>
+<p><code>ClassLoader</code> is an abstract class in java which the JVM relies on for loading the bytecode for any class. The purpose of the ClassLoader is to figure out where the bytecode for a class is located based on its fully qualified name, retrieve it and give it to the JVM on request. You can read about class loaders 
+  <a href="https://www.baeldung.com/java-classloaders">here</a>. There are two ways in which you can use a custom class loader in java.</p>
 <h3 id="java-agent">
   Java Agent
   <a class="anchor" href="#java-agent">#</a>
 </h3>
-<p>A java-agent implements the class transformer &ldquo;ClassFileTransformer&rdquo; interface. In this approach the JVM loads the ClassTransformar instance entering through the &ldquo;premain&rdquo; method, which receives an instance of an Instrumentation object. You can read more about java-agent and the Instrumentation object 
-  <a href="https://www.baeldung.com/java-instrumentation">here</a></p>
+<p>A java-agent implements the class transformer <code>ClassFileTransformer</code> interface. In this approach the JVM loads the <code>ClassTransformar</code> instance entering through the &ldquo;premain&rdquo; method, which receives an instance of an <code>Instrumentation</code> object. You can read more about java-agent and the <code>Instrumentation</code> object 
+  <a href="https://www.baeldung.com/java-instrumentation">here</a>. With the <code>Instrumentation</code> instance you can add your <code>ClassFileTransformer</code> which is hooked in every time a class in going to be redefined from bytecode by jvm. This also works in hot-reloading java.</p>
 <h3 id="classloader-injection">
   ClassLoader injection
   <a class="anchor" href="#classloader-injection">#</a>
 </h3>
-<p>The other approach is to explicitely load a class using your custom loader. The important part is that if ClassA dependends on ClassB and ClassB is not already loaded, then the JVM will request the class loader of ClassA to load ClassB. And this is lombok brings SCL to life. The entry class <code>AnnotationProcessorHider</code> creates an instance of the AnnotationProcesser by asking the ShadowClassLoader to load it.</p>
+<p>The other approach is to explicitely load a class using your custom loader. The important part is that if <code>ClassA</code> dependends on <code>ClassB</code> and <code>ClassB</code> is not already loaded, then the JVM will request the class loader of <code>ClassA</code> to load <code>ClassB</code>. And this is lombok brings SCL to life. The entry class <code>AnnotationProcessorHider</code> creates an instance of the <code>AnnotationProcesser</code> by asking the <code>ShadowClassLoader</code> to load it.</p>
 <hr>
 <h1 id="annotation-processing-apt">
   Annotation Processing (APT)
@@ -363,7 +363,8 @@ lombok.launch.AnnotationProcessorHider$ClaimingProcessor
 </ul>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>GRADLE_OPTS<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;-Xdebug -agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005&#39;</span> <span style="color:#ae81ff">\
 </span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>./gradlew clean build
-</span></span></code></pre></div><p>With the above parameters, the build process will pause (suspend=y) and server the remote debug server (server=y) at the port 5005. Now the debugger can connect to it. In IntellJ you can do this by creating a new Debug Profile of type &ldquo;Remote JVM Debug&rdquo;. Make sure the port number matches in your intellij debug config and the one you have used to start the process. Once you have created that, click the debug button and you will be inside the javac compilation process in debug mode. Remember to put a breakpoint in the entry point of the annotation processor which is the <code>init()</code> method</p>
+</span></span></code></pre></div><p>With the above parameters, the build process will pause (suspend=y) and server the remote debug server (server=y) at the port 5005. Now the debugger can connect to it.</p>
+<p>In IntellJ you can do this by creating a new Debug Profile of type &ldquo;Remote JVM Debug&rdquo;. Make sure the port number matches in your intellij debug config and the one you have used to start the process. Once you have created that, click the debug button and you will be inside the javac compilation process in debug mode. Remember to put a breakpoint in the entry point of the annotation processor which is the <code>init()</code> method</p>
 <hr>
 <h1 id="patching-java-compilation">
   Patching Java Compilation
@@ -478,7 +479,7 @@ flowchart TD
 </span></span><span style="display:flex;"><span>        lombokDisabled <span style="color:#f92672">=</span> <span style="color:#66d9ef">true</span><span style="color:#f92672">;</span>
 </span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span><span style="color:#f92672">;</span>
 </span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
-</span></span></code></pre></div><p>Interesting this piece is not mentioned in the 
+</span></span></code></pre></div><p>Interestingly this is not mentioned in the 
   <a href="https://projectlombok.org/features/configuration">project lombok feature configuration page</a> but is listed in the generated 
   <a href="https://projectlombok.org/api/lombok/ConfigurationKeys#LOMBOK_DISABLE">Lombok JavaDoc</a>.</p>
 <p>The ConfigurationKeys java source itself carries a scary notice with this</p>
@@ -569,7 +570,7 @@ flowchart TD
   Order of transformations
   <a class="anchor" href="#order-of-transformations">#</a>
 </h2>
-<p>Each visitor might also declare a <code>Long priority</code> since in some cases there is a dependency between two handlers, For instance</p>
+<p>Each visitor might also declare a <code>Long priority</code> since in some cases there is a dependency between two handlers, for instance</p>
 <p>In <code>HandleVal</code></p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#a6e22e">@HandlerPriority</span><span style="color:#f92672">(</span>HANDLE_DELEGATE_PRIORITY <span style="color:#f92672">+</span> 100<span style="color:#f92672">)</span> 
 </span></span><span style="display:flex;"><span><span style="color:#75715e">// run slightly after HandleDelegate; resolution needs to work, 
@@ -578,9 +579,10 @@ flowchart TD
 </span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">HandleVal</span> <span style="color:#66d9ef">extends</span> JavacASTAdapter <span style="color:#f92672">{</span>
 </span></span></code></pre></div><p>And in <code>HandleSynchronized</code> we have</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#a6e22e">@HandlerPriority</span><span style="color:#f92672">(</span>value <span style="color:#f92672">=</span> 1024<span style="color:#f92672">)</span> 
-</span></span><span style="display:flex;"><span><span style="color:#75715e">// 2^10; @NonNull must have run first, so that we wrap around the statements generated by it.
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 2^10; @NonNull must have run first, so that we wrap around 
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// the statements generated by it.
 </span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">HandleSynchronized</span> <span style="color:#66d9ef">extends</span> JavacAnnotationHandler<span style="color:#f92672">&lt;</span>Synchronized<span style="color:#f92672">&gt;</span> <span style="color:#f92672">{</span>
-</span></span></code></pre></div><p><code>LombokProcessor</code> in its init() call will build the array of priority values available and in each round will identify the next priority value to be invoked, identify all the handlers against that priority and call the <code>JavacTransformer</code> to invoke the handlers against that priority. Handlers at the same priority will be invoked in order which they were loaded in the first place.</p>
+</span></span></code></pre></div><p><code>LombokProcessor</code> in its <code>init()</code> method builds the array of all priority values available and in each round will identify the next priority value to be invoked, identify all the handlers against that priority and call the <code>JavacTransformer</code> to invoke the handlers against that priority. Handlers at the same priority will be invoked in order which they were loaded in the first place.</p>
 <h2 id="ast-visitors-and-annotation-handlers">
   AST Visitors and Annotation Handlers
   <a class="anchor" href="#ast-visitors-and-annotation-handlers">#</a>
@@ -645,7 +647,7 @@ flowchart TD
   <div class="flex flex-wrap justify-between">
 
 
-  <div><a class="flex align-center" href="https://github.com/artpar/artpar.github.io/commit/2b75f6c447a88ef25a9c89a672c308c1678de19a" title='Last modified by artpar | September 6, 2023' target="_blank" rel="noopener">
+  <div><a class="flex align-center" href="https://github.com/artpar/artpar.github.io/commit/cdb655211aafdbfcb2ab7702b4b490a419a5850c" title='Last modified by artpar | September 6, 2023' target="_blank" rel="noopener">
       <img src="/svg/calendar.svg" class="book-icon" alt="Calendar" />
       <span>September 6, 2023</span>
     </a>
