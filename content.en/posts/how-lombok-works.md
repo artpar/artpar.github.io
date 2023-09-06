@@ -1,9 +1,9 @@
 +++
 author = "Parth Mudgal"
-title = "Lombok notes"
+title = "How lombok works"
 date = "2023-06-11"
 draft = false
-description = "How lombok works"
+description = "understanding how lombok works"
 tags = [
     "maven",
     "java",
@@ -12,15 +12,29 @@ tags = [
 ]
 +++
 
-# How lombok works
+# Introduction
 
-- Lombok uses ant to build the repository into a jar
-- Uses SCL to hides classes not useful for the developer
+Project [Lombok](https://projectlombok.org/) is a java library that automatically plugs into your editor and build tools, spicing up your java.
+
+```
+ Never write another getter or equals method again, 
+ with one annotation your class has a fully featured builder, 
+ Automate your logging variables, and much more. 
+```
+
+This post is not a guide to use lombok, you can find plenty of them with a search. This post is about how the magic of lombok works. Lombok is one of those libraries that work so flawlessly that I had never needed to think about how it really works under the hood. That was until I wanted to do something technically similar (bytecode rewriting without using a java-agent). 
+
+Here is a brief summary of what lies ahead
+
+- Use of ShadowClassLoader
+- Patching the Javac compiler class fields phase during build process
 - Compile time annotation processing
-- Modfying the java AST in-place
+- Modfying the Java AST in-place
 - Bytecode rewriting
 
-## Shadow Class Loader (SCL)
+The main technical feat that lombok accomplishes is modfying java code of existing java files during the compilation phase based on annotations.
+
+# Shadow Class Loader (SCL)
 
 Lombok renames most `.class` files to `.SCL.lombok` using an ant step called `mappedresources` when it builds the jar. The shadow classloader serves to completely hide almost all classes in a given jar file by using a different file ending
 
@@ -31,9 +45,9 @@ From the lombok SCL class documentation,  Using ShadowClassLoader accomplishes t
   considerably help debugging, as you can now rely on the IDE's built-in auto-recompile features instead of having to run a full build everytime, and it should help
   with hot code replace and the like (this is what the {@code shadow.override} feature is for).
 
-### Assembling of the jar with SCL
+## Assembling of the jar with SCL
 
-"mappedresources" does not have a direct equivivelent in maven plugins so I [build one](https://github.com/unloggedio/rename-file-maven-plugin) to be used for unlogged-sdk since I did not intend to use ant for the build process. This maven plugin will rename files based on regex just before the final jar is being assembled. This is how the usage looks like
+`mappedresources` does not have a direct equivivelent in maven plugins so I [build one](https://github.com/unloggedio/rename-file-maven-plugin) to be used for unlogged-sdk since I did not intend to use ant for the build process. This maven plugin will rename files based on regex just before the final jar is being assembled. This is how the usage looks like
 
 ```xml
 <plugin>
@@ -56,20 +70,20 @@ From the lombok SCL class documentation,  Using ShadowClassLoader accomplishes t
 </plugin>
 ```
 
-### Using the SCL
+## Using the SCL
 
 ClassLoaders is an abstract class in java which the JVM relies on to load the byte codes for any class. The purpose of the ClassLoader is to provide the class byte code to the JVM on request. You can read about class loaders [here](https://www.baeldung.com/java-classloaders)
 
 
-#### Java agent
+### Java Agent
 A java-agent implements the class transformer "ClassFileTransformer" interface. In this approach the JVM loads the ClassTransformar instance entering through the "premain" method, which receives an instance of an Instrumentation object. You can read more about java-agent and the Instrumentation object [here](https://www.baeldung.com/java-instrumentation)
 
-#### ClassLoader injection
+### ClassLoader injection
 The other approach is to explicitely load a class using your custom loader. The important part is that if ClassA dependends on ClassB and ClassB is not already loaded, then the JVM will request the class loader of ClassA to load ClassB. And this is lombok brings SCL to life. The entry class `AnnotationProcessorHider` creates an instance of the AnnotationProcesser by asking the ShadowClassLoader to load it.
 
 
 
-## Annotation Processing (APT)
+# Annotation Processing (APT)
 
 From [Java Annotation Processing (defined by JSR 269)](https://jcp.org/en/jsr/detail?id=269): 
 
@@ -84,7 +98,7 @@ also allow automation of the discovery of appropriate annotation processors for 
 
 The java compilation process happens in multiple "Rounds". In each round the java compiler might discover a new set of unprocessed files and will query each annotation process if it wants to process or not. The query itself is based on another Annotation called `@SupportedAnnotationTypes` which you annotate your AnnotationProcessor with. `@SupportedAnnotationTypes` indicates what type of annotations can the AnnotationProcessor process. We can also give it a "\*" to want to process all annotations (including un-annotated classes)
 
-### Discovery of annotation processors
+## Discovery of annotation processors
 
 Javac discovers annotation processors based on its own service discovery protocol. This is very different from the web based/micro service discovery where you make an API call to locate the service endpoint. You can read more about [ServiceProviders here](https://docs.oracle.com/javase/6/docs/api/java/util/ServiceLoader.html) and [here](https://stackoverflow.com/questions/4544899/java-meta-inf-services) and [here](https://www.baeldung.com/java-spi). 
 
@@ -107,13 +121,13 @@ The requirement of two Processors isn't clear, especially given that the second 
 ```
 
 
-### Limitation of Annotation Processing
+## Limitation of annotation processing
 
 The major limitation is that AnnotationProcessor cannot make changes to existing files. It can only create new files or bytecode. And since this is about lombok, this limitation is absolute conflict with what lombok wants to do, that is, add methods to existing classes based on annotations. This is what we are going to cover.
 
 
 
-## Hooking into the java build
+# Attaching debugger to the Java build
 
 At this point I am assuming you have a JAR of lombok on your class path and we are going to look inside the compilation phase. To hook into the java compilation phase using your debugger, you wan to run the build process with remote debugging enabled. To do this
 
@@ -134,43 +148,217 @@ GRADLE_OPTS='-Xdebug -agentlib:jdwp=transport=dt_socket,server=y,suspend=y,addre
 With the above parameters, the build process will pause (suspend=y) and server the remote debug server (server=y) at the port 5005. Now the debugger can connect to it. In IntellJ you can do this by creating a new Debug Profile of type "Remote JVM Debug". Make sure the port number matches in your intellij debug config and the one you have used to start the process. Once you have created that, click the debug button and you will be inside the javac compilation process in debug mode. Remember to put a breakpoint in the entry point of the annotation processor which is the `init()` method
 
 
+# Entering Java Compilation
 
-## Patching and Hacking the Java Compilation
+One thing to keep in mind from this point onwards is that there are many java compilers(javac/eclipse)/build systems(maven/gradle/intellij)/java 1.8/11/... and lombok needs to work out with all of them (so does our sdk). So we are going to encounter all kinds of patching
 
-One thing to keep in mind from this point onwards is that there are many java compilers and lombok needs to work out with all of them (so does our sdk). So we are going to encounter all kinds of patching
-
-### disableJava9SillyWarning
+## disableJava9SillyWarning
 
 
 The first thing which lombok annotation processor tries to do is [disable warnings related to unsafe access](https://github.com/projectlombok/lombok/blob/000ce6d19a3d4a7d8c88ffa51e47ffda2a3b2c79/src/launch/lombok/launch/AnnotationProcessor.java#L71) of internal fields. We can read into the minor annoyance about it from the lombok developer thanks to the comment inside that method
 
 ```java
-// JVM9 complains about using reflection to access packages from a module that aren't exported. This makes no sense; the whole point of reflection
-// is to get past such issues. The only comment from the jigsaw team lead on this was some unspecified mumbling about security which makes no sense,
-// as the SecurityManager is invoked to check such things. Therefore this warning is a bug, so we shall patch java to fix it.
+    // JVM9 complains about using reflection to access packages from a module that aren't exported. This makes no sense; the whole point of reflection
+    // is to get past such issues. The only comment from the jigsaw team lead on this was some unspecified mumbling about security which makes no sense,
+    // as the SecurityManager is invoked to check such things. Therefore this warning is a bug, so we shall patch java to fix it.
 ```
 
-You might have come across the ```--add-opens``` and ```--add-exports```  arguments when running with certain libraries/java-agents which allows module A to access module B via reflection. This access was allowed to begin with, until java 1.9 when warnings/limitations were added for such access. You can read more about it in this very succinct [answer on stackoverflow](https://stackoverflow.com/questions/44056405/whats-the-difference-between-add-exports-and-add-opens-in-java-9). The `disableJava9SillyWarning` method does not really enable it, but actually just suppresses the warning that come from doing such access.
+You might have come across the ```--add-opens``` and ```--add-exports```  arguments when running with certain libraries/java-agents which allows module A to access module B via reflection. This access was allowed to begin with, until java 1.9 when warnings/limitations were added for such access. You can read more about it in this very succinct [answer on stackoverflow](https://stackoverflow.com/questions/44056405/whats-the-difference-between-add-exports-and-add-opens-in-java-9). The `disableJava9SillyWarning` method does not really enable it (that will happen later), but actually just suppresses the warning that come from doing such access.
 
 
-### ProcessorDescriptor (Delegator pattern)
+## ProcessorDescriptor (Delegator pattern)
 
-Immediatly into the annotation processor we are encountered with the delegator pattern (or correct me if I am wrong). We see two real implementation of `ProcessorDescriptor`. The `ProcessorDescriptor` interface has two methods. The first method `want()`, invoked by the `init()` of the entry point AnnotationProcessorHider declares whether it wantes to be involved the this compilation process or not. If `want()` returns false, then it would not be invoked by the `process()` method.
+Inside the annotation processor we encounter the delegator pattern (or correct me if I am wrong). There are two implementation of `ProcessorDescriptor`. The `ProcessorDescriptor` class is an interface with two methods. The first method `want()`, invoked by the `init()` of the entry point AnnotationProcessorHider declares whether it wantes to be involved in this compilation process or not. If `want()` returns false, then it would not be invoked by the `process()` method.
 
-Since there are only two implementations, `EcjDescriptor` and `JavacDescriptor`, we can dive into both. The `want()` method is more of a `init()` on conditions method. The initializations wont happen if the condition is false. The only conditional difference between the two implementations is 
+Since there are only two implementations, `EcjDescriptor` and `JavacDescriptor`, we can dive into both. The `want()` method is more of a `init()` with conditions method. The initializations wont happen if the condition is false. The only conditional difference between the two implementations is 
 
 ```java
-procEnv.getClass().getName().startsWith("org.eclipse.jdt.")
+    procEnv.getClass().getName().startsWith("org.eclipse.jdt.")
 ```
 
-which is to determine if the compilation by eclipse IDE or not. This part of the code was recently changed to do nothing. But we can once again thank the developer for the comment
+which is to determine if the compilation by eclipse IDE or not. This part of the code was ~~recently~~ [changed 12 years ago](https://github.com/projectlombok/lombok/commit/2d9195a2296e36ce904719b63ff0e5c0321b2a74) to do nothing. But we can once again thank the developer for the comment
 
 ```java
-// Lombok used to work as annotation processor to ecj but that never actually worked properly, so we disabled the feature in 0.10.0.
-// Because loading lombok as an agent in any ECJ-based non-interactive tool works just fine, we're not going to generate any warnings, as we'll
-// likely generate more false positives than be helpful.
+    // Lombok used to work as annotation processor to ecj but that never actually worked properly, so we disabled the feature in 0.10.0.
+    // Because loading lombok as an agent in any ECJ-based non-interactive tool works just fine, we're not going to generate any warnings, as we'll
+    // likely generate more false positives than be helpful.
 
 ```
+
+What we have now is the only `JavacDescriptor` which needs to process the compilation phase. Interestingly, the `JavacDescriptor` declares
+
+```java
+    // do not run on ECJ as it may print warnings
+    if (procEnv.getClass().getName().startsWith("org.eclipse.jdt.")) return false;
+
+```
+
+Putting it together with EcjDescriptor this means for eclipse based compilations none of the two descriptors are going to be invoked. This brings up certain questions to my mind but I feel too lazy to follow this through. My guess is that in some versions of eclipse the methods by lombok are not visible to the ide (thus no auto complete). But another possiblility is that this change was introduced at a point when the processing was unnecessary, so there is no regression.
+
+### Javac ProcessDescriptor init()
+
+Lombok does couple of things in the init method
+
+### Get Javac ProcessingEnvironment
+
+
+AnnotationProcessors receive an instance of `ProcessingEnvironment` but lombok wants the real instance of `JavacProcessingEnvironment` to get to work. In case of gradle/kotlin incremental builds the real instance of `JavacProcessingEnvironment` is wrapped inside another class or the class itself might be extended. So lombok will try to find that real instance of `com.sun.tools.javac.processing.JavacProcessingEnvironment` or returns null if nothing worked (in which case the processor will be disabled). Here is how lombok will attempt on the `ProcessEnvironment` instance
+
+- get a field by the name `delegate` (for gradle)
+- else try to get a field by the name `processingEnv` (for kotlin)
+- else try to get a field by the name `val$delegateTo` (for IntelliJ IDEA >= 2020.3)
+
+
+If any of the above is not null, the same logic is applied to the value of this field until we get an instance of `com.sun.tools.javac.processing.JavacProcessingEnvironment`. Else try the logic on the super-class of the instance (remember the getField might fail on the child class). 
+
+Finally we should have a non-null instance of `JavacProcessingEnvironment`.
+
+### Find And Patch ClassLoader
+
+In most cases this method only finds the classLoader to load the real AnnotationProcessor which is `lombok.javac.apt.LombokProcessor`. Remember we have now 3 classes implementing the AnnotationProcessor interface 
+
+- AnnotationProcessorHider: loaded by builtin class loader, creates instance of ShadowClassLoader and create instance of AnnotationProcessor
+- AnnotationProcessor: loaded by SCL, disabled warnings, delegates work to the implementations of ProcessDescriptor
+- LombokProcessor: will be created after we get back the instance of the SCL by using JavacDescriptor.class.getClassLoader
+
+In a special case where the plexus apache compiler is being used (by eclipse ide), lombok will use reflection to [add the root class path of itself to the class loader](https://github.com/projectlombok/lombok/blob/000ce6d19a3d4a7d8c88ffa51e47ffda2a3b2c79/src/core/lombok/core/AnnotationProcessor.java#L177).
+
+Using the classLoader an instance of `LombokProcessor` is created followed by a call to `processor.init()`
+
+```java
+    processor = (Processor) Class.forName("lombok.javac.apt.LombokProcessor", false, classLoader).getConstructor().newInstance();
+    // ..
+    // ..
+    processor.init(procEnv);
+```
+
+
+## LombokProcessor init()
+
+We are only getting started at this point. The real patching of the Javac fields takes inside the `LombokProcessor.init()` method. 
+
+### lombok.disable ?
+
+But before diving into it, we see a quick disable switch
+
+```java
+    if (System.getProperty("lombok.disable") != null) {
+        lombokDisabled = true;
+        return;
+    }
+```
+
+Interesting this piece is not mentioned in the [project lombok feature configuration page](https://projectlombok.org/features/configuration) but is listed in the generated [Lombok JavaDoc](https://projectlombok.org/api/lombok/ConfigurationKeys#LOMBOK_DISABLE). 
+
+The ConfigurationKeys java source itself carries a scary notice with this 
+
+```
+Disables lombok transformers. It does not flag any lombok mentions (so, @Cleanup silently does nothing), and does not disable patched operations in eclipse either. Don't use this unless you know what you're doing. (default: false).
+```
+
+I did come across [this thread](https://groups.google.com/g/project-lombok/c/M3n8dwUMYBk) where the developer moved the lombok dependency from (500) sub-modules to a global parent module, ending up with a `java.lang.ClassNotFoundException: com.sun.tools.javac.processing.JavacProcessingEnvironment`. And they resolved it by disabling lombok during tests.
+
+```xml
+    <!-- disable lombok during tests -->
+    <lombok.disable>true</lombok.disable>
+```
+
+I couldn't make much sense of this. Disabling lombok should have resulted in non-compilable code (since the @Getters/@Setters are not effective resulting in missing methods). But we move on.
+
+
+### Get Javac ProcessingEnvironment Again
+
+But a different one. This method, a separate declaration, doing *almost* the same thing as mentioned [here](#get-javac-processingenvironment). "Almost" because the main flow to find the real `JavacProcessingEnvironment` is same as earlier one. But this method also calls into a `addOpensForLombok()`. 
+
+`addOpensForLombok` starts by making sure that this compilation is for a java 1.9 or above, by loading the class `java.lang.Module`. If this class does not exist, the method does nothing and returns early. 
+
+If it does exist, the next step is to get `theUnsafe` field of the `sun.misc.Unsafe` class. Unsafe is a singleton class and the field `theUnsafe` holds that singleton instance. There is a `getUnsafe` method also available to get `theUnsafe` field but is guarded by security check to make sure only trusted code can get this instance.
+
+There is a actually a [paper which does deep dive into the usage pattern of the `Unsafe` class](https://www.inf.usi.ch/faculty/lanza/Downloads/Mast2015a.pdf)
+
+Next we get hold of the method reference for the method `implAddOpens`. This is the method needed to be invoked to "add opens" in runtime. But we have two mystery lines before the method is actually invoked 
+
+```java
+    long firstFieldOffset = getFirstFieldOffset(unsafe);
+    unsafe.putBooleanVolatile(m, firstFieldOffset, true);
+```
+
+
+`theUnsafe` instance is used to get the `objectFieldOffset`for a field named `first` in a class named `Parent`. And then this offset is used to set a value on the `Method` instance. I was initially a bit lost to the purpose of this code, but this becomes clear if we look at the implementation of the method `Method.invoke()`. We see a `if(!override)` leading to a access check. This access check is going to fail. The call to `unsafe.putBooleanVolatile(m, firstFieldOffset, true)` sets the value of the `override` field to `true` since it is the first (non-static) field of that class. The base class of `Method` class is the [`AccessibleObject` class](https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/reflect/AccessibleObject.html)
+
+Once override is marked as true, we see the method invoked for 10 modules inside a for loop. Pretty straighforward stuff.
+
+
+### Get Javac Filer
+
+
+JavacFiler class has the responsibility of creating target files which the compiler will write its results to. The `JavacProcessingEnvironment` has a straighforward method to get the JavacFiler, but just in the case of `JavacProcessingEnvironment` the `JavacFiler` might also be wrapped inside another proxy class. So we have a `getJavacFiler()` method which applies tactics similar to what we encountered in `getJavacProcessingEnvironment()`.
+
+The JavacFiler instance obtained isn't immediately used, but will be used at a later point in time (when lombok wants to apply bytecode transformations).
+
+### Place Post Compile And Dont Make Force Round Dummies Hook
+
+Yes, thats a method name which is quite overloaded, both name wise and responsibility wise. Let's jump right into it.
+
+- stopJavacProcessingEnvironmentFromClosingOurClassloader
+
+This method gets the existing processorClassLoader field value from the `JavacProcessingEnvironment` and wraps it inside an anonymous ClassLoader implementation. This anonymous ClassLoader implementation does not implement the `Closable` interface. *What* this will result into is that when the `JavacProcessingEnvironment` ends up its processing, the call to `close()` on the original ClassLoader (which is URLClassLoader) will not be invoked. *Why* was this needed is something I do not understand. I tried disabling this part in hopes to run into some exception/error, but that did not happen either.
+
+- forceMultipleRoundsInNetBeansEditor
+
+This part sets the value of the field `isBackgroundCompilation` in the `JavacProcessingEnvironment` class to true. This is only applicable when you are using NetBeans.
+
+- disablePartialReparseInNetBeansEditor
+
+This one is again for NetBeans only. From the name of it, seems like it disables partial reparses of java code.
+
+- patching the Context instance
+
+In this part lombok will wrap the JavaFileManager so that intercept the calls to the method `getJavaFileForOutput`. These calls need to be intercepted so that lombok can apply the bytecode transformation it needs to before the target class file is written to disk. This block will also set this new `Intercepting` FileManager as the fileManager of the JavaCompiler and ClassWriter class instances in case the compilation is happening for jdk >= 1.9
+
+
+We are done with all the patching needed to be done which will serve us later with bytecode transformation.
+
+The `init` isn't complete yet though. Lombok will create an instance of `com.sun.source.util.Trees` using the `Trees.instance( ... )`  method and an instance of a `JavacTransformer`. 
+
+`Trees` class bridges `JSR 199`, `JSR 269`, and the `Tree API`. 
+
+[`JSR 199`](https://jcp.org/en/jsr/detail?id=199) is a service provider API that allows a Java program to select and invoke a Java Language Compiler programmatically. The interfaces abstract the way a compiler interacts with its environment. 
+
+[`JSR 269`](https://jcp.org/en/jsr/detail?id=269) is the pluggable annotation processing API.
+
+[`Tree API`](https://docs.oracle.com/javase/8/docs/jdk/api/javac/tree/index.html) Provides interface to represent source code and documentation as Abstract Syntax Tree (AST) and also provides utilities for operating on the AST. 
+
+`JavacTransformer` is another delegator pattern based implementation which will pass on instances of `JCCompilationUnit`s to all the real handlers. It is a pretty thin class and mostly does nothing on its own.
+
+At this point the `init()` of both LombokProcessor and the original AnnotationProcessor is complete and the java compiler can start passing AST to the lombok annotation processor via the `process()` method.
+
+
+{{< mermaid >}}
+flowchart TD
+    A[AnnotationProcessHider] -->|process| B(AnnotationProcessor)
+    B -->|process| C[LombokProcessor]
+    C -->|transform| D{JavacTransformer}
+    D -->|callASTVisitor| E[HandlerLibrary]
+    D -->|traverse| F[AnnotationVisitor]
+    F -->|handleAnnotation| E
+{{< /mermaid >}}
+
+
+# The last part
+
+The in-place modification of the the java code during compilation happens in two parts as we see in the call flow earlier. One is the AST based handlers like `HandleFieldDefaults` and most notably the `HandleVal`. The second one is annotation based and most handlers are of this second type. `@Getter`/`@Setter`/`@Builder` are all annotation based handler implementations.
+
+## callASTVisitors
+
+## handleAnnotation
+
+
+
+
+
+
+
 
 
 
