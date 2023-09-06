@@ -11,13 +11,13 @@
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://example.com/posts/how-lombok-works/" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2023-06-11T00:00:00+00:00" />
-<meta property="article:modified_time" content="2023-09-06T10:36:51+05:30" />
+<meta property="article:modified_time" content="2023-09-06T13:46:09+05:30" />
 <title>How lombok works | Software engineering and reverse</title>
 <link rel="manifest" href="/manifest.json">
 <link rel="icon" href="/favicon.png" >
 <link rel="stylesheet" href="/book.min.33a48f5432973b8ff9a82679d9e45d67f2c15d4399bd2829269455cfe390b5e8.css" integrity="sha256-M6SPVDKXO4/5qCZ52eRdZ/LBXUOZvSgpJpRVz&#43;OQteg=" crossorigin="anonymous">
   <script defer src="/flexsearch.min.js"></script>
-  <script defer src="/en.search.min.cbc8b86c285365b80d5ca00c19b202ba750b07e31cbbe14a95cf10bc6c377748.js" integrity="sha256-y8i4bChTZbgNXKAMGbICunULB&#43;Mcu&#43;FKlc8QvGw3d0g=" crossorigin="anonymous"></script>
+  <script defer src="/en.search.min.f0acf6c42795357c2052b3afff99847ccad16eb8568c52a535971bb53912afff.js" integrity="sha256-8Kz2xCeVNXwgUrOv/5mEfMrRbrhWjFKlNZcbtTkSr/8=" crossorigin="anonymous"></script>
 <!--
 Made with Book Theme
 https://github.com/alex-shpak/hugo-book
@@ -139,13 +139,13 @@ https://github.com/alex-shpak/hugo-book
       </ul>
     </li>
     <li><a href="#attaching-debugger-to-the-java-build">Attaching debugger to the Java build</a></li>
-    <li><a href="#entering-java-compilation">Entering Java Compilation</a>
+    <li><a href="#patching-java-compilation">Patching Java Compilation</a>
       <ul>
-        <li><a href="#disablejava9sillywarning">disableJava9SillyWarning</a></li>
-        <li><a href="#processordescriptor-delegator-pattern">ProcessorDescriptor (Delegator pattern)</a>
+        <li><a href="#disable-java9-silly-warning">Disable Java9 Silly Warning</a></li>
+        <li><a href="#processor-descriptor-delegator-pattern">Processor Descriptor (Delegator pattern)</a>
           <ul>
-            <li><a href="#javac-processdescriptor-init">Javac ProcessDescriptor init()</a></li>
-            <li><a href="#get-javac-processingenvironment">Get Javac ProcessingEnvironment</a></li>
+            <li><a href="#javac-process-descriptor-init">Javac Process Descriptor init()</a></li>
+            <li><a href="#the-real-javac-processing-environment">The Real Javac Processing Environment</a></li>
             <li><a href="#find-and-patch-classloader">Find And Patch ClassLoader</a></li>
           </ul>
         </li>
@@ -159,10 +159,11 @@ https://github.com/alex-shpak/hugo-book
         </li>
       </ul>
     </li>
-    <li><a href="#the-last-part">The last part</a>
+    <li><a href="#the-actual-transformations">The actual transformations</a>
       <ul>
-        <li><a href="#callastvisitors">callASTVisitors</a></li>
-        <li><a href="#handleannotation">handleAnnotation</a></li>
+        <li><a href="#order-of-transformations">Order of transformations</a></li>
+        <li><a href="#ast-visitors-and-annotation-handlers">AST Visitors and Annotation Handlers</a></li>
+        <li><a href="#postcompiler-transformers">PostCompiler Transformers</a></li>
       </ul>
     </li>
   </ul>
@@ -218,7 +219,36 @@ https://github.com/alex-shpak/hugo-book
 <li>Modfying the Java AST in-place</li>
 <li>Bytecode rewriting</li>
 </ul>
+
+
+<script src="/mermaid.min.js"></script>
+
+  <script>mermaid.initialize({
+  "flowchart": {
+    "useMaxWidth":true
+  },
+  "theme": "default"
+}
+)</script>
+
+
+
+
+<p class="mermaid">
+flowchart TD
+    A[AnnotationProcessHider] -->|process| B(AnnotationProcessor)
+    B -->|process| C[LombokProcessor]
+    C -->|transform| D{JavacTransformer}
+    C -->|intercept filer| G[Intercepting File Manager]
+    D -->|callASTVisitor| E[HandlerLibrary]
+    D -->|traverse| F[AnnotationVisitor]
+    F -->|handleAnnotation| E
+    G -->|writeBytecodeOutput| H[PostCompiler]
+    H -->|applyTransformations| I[Post Compiler Transformation]
+</p>
+
 <p>The main technical feat that lombok accomplishes is modfying java code of existing java files during the compilation phase based on annotations.</p>
+<hr>
 <h1 id="shadow-class-loader-scl">
   Shadow Class Loader (SCL)
   <a class="anchor" href="#shadow-class-loader-scl">#</a>
@@ -273,18 +303,22 @@ with hot code replace and the like (this is what the {@code shadow.override} fea
   <a class="anchor" href="#classloader-injection">#</a>
 </h3>
 <p>The other approach is to explicitely load a class using your custom loader. The important part is that if ClassA dependends on ClassB and ClassB is not already loaded, then the JVM will request the class loader of ClassA to load ClassB. And this is lombok brings SCL to life. The entry class <code>AnnotationProcessorHider</code> creates an instance of the AnnotationProcesser by asking the ShadowClassLoader to load it.</p>
+<hr>
 <h1 id="annotation-processing-apt">
   Annotation Processing (APT)
   <a class="anchor" href="#annotation-processing-apt">#</a>
 </h1>
 <p>From 
   <a href="https://jcp.org/en/jsr/detail?id=269">Java Annotation Processing (defined by JSR 269)</a>:</p>
-<pre tabindex="0"><code>J2SE 1.5 added a new Java language mechanism &#34;annotations&#34; that allows annotation types to be used to 
-annotate classes, fields, and methods. These annotations are typically processed either by build-time 
-tools or by run-time libraries to achieve new semantic effects. In order to support annotation 
-processing at build-time, this JSR will define APIs to allow annotation processors to be created 
-using a standard pluggable API. This will simplify the task of creating annotation processors and will 
-also allow automation of the discovery of appropriate annotation processors for a given source file.
+<pre tabindex="0"><code>J2SE 1.5 added a new Java language mechanism &#34;annotations&#34; that allows 
+annotation types to be used to annotate classes, fields, and methods. 
+These annotations are typically processed either by build-time tools 
+or by run-time libraries to achieve new semantic effects. In order to 
+support annotation processing at build-time, this JSR will define APIs 
+to allow annotation processors to be created using a standard pluggable API. 
+This will simplify the task of creating annotation processors and will also 
+allow automation of the discovery of appropriate annotation processors for 
+a given source file.
 </code></pre><p>The java compilation process happens in multiple &ldquo;Rounds&rdquo;. In each round the java compiler might discover a new set of unprocessed files and will query each annotation process if it wants to process or not. The query itself is based on another Annotation called <code>@SupportedAnnotationTypes</code> which you annotate your AnnotationProcessor with. <code>@SupportedAnnotationTypes</code> indicates what type of annotations can the AnnotationProcessor process. We can also give it a &ldquo;*&rdquo; to want to process all annotations (including un-annotated classes)</p>
 <h2 id="discovery-of-annotation-processors">
   Discovery of annotation processors
@@ -299,15 +333,21 @@ also allow automation of the discovery of appropriate annotation processors for 
 <pre tabindex="0"><code>lombok.launch.AnnotationProcessorHider$AnnotationProcessor
 lombok.launch.AnnotationProcessorHider$ClaimingProcessor
 </code></pre><p>The requirement of two Processors isn&rsquo;t clear, especially given that the second one, <code>ClaimingProcessor</code> doesn&rsquo;t do anything, it just returns <code>true</code> signaling the compiler that this set of annotations has been processed now. But thanks to a comment available inside the process method of the main AnnotationProcessor we get a hint of whats going on.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#75715e">// Normally we rely on the claiming processor to claim away all lombok annotations.
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// One of the many Java9 oversights is that this &#39;process&#39; API has not been fixed to address the point that &#39;files I want to look at&#39; and &#39;annotations I want to claim&#39; must be one and the same,
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// and yet in java9 you can no longer have 2 providers for the same service, thus, if you go by module path, lombok no longer loads the ClaimingProcessor.
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// This doesn&#39;t do as good a job, but it&#39;ll have to do. The only way to go from here, I think, is either 2 modules, or use reflection hackery to add ClaimingProcessor during our init.
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#75715e">// Normally we rely on the claiming processor to claim away all lombok annotations
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// One of the many Java9 oversights is that this &#39;process&#39; API has not been 
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// fixed to address the point that &#39;files I want to look at&#39; and &#39;annotations 
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// I want to claim&#39; must be one and the same, and yet in java9 you can no longer
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// have 2 providers for the same service, thus, if you go by module path, 
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// lombok no longer loads the ClaimingProcessor.
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// This doesn&#39;t do as good a job, but it&#39;ll have to do. 
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// The only way to go from here, I think, is either 2 modules, or use reflection 
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// hackery to add ClaimingProcessor during our init.
 </span></span></span></code></pre></div><h2 id="limitation-of-annotation-processing">
   Limitation of annotation processing
   <a class="anchor" href="#limitation-of-annotation-processing">#</a>
 </h2>
 <p>The major limitation is that AnnotationProcessor cannot make changes to existing files. It can only create new files or bytecode. And since this is about lombok, this limitation is absolute conflict with what lombok wants to do, that is, add methods to existing classes based on annotations. This is what we are going to cover.</p>
+<hr>
 <h1 id="attaching-debugger-to-the-java-build">
   Attaching debugger to the Java build
   <a class="anchor" href="#attaching-debugger-to-the-java-build">#</a>
@@ -316,54 +356,88 @@ lombok.launch.AnnotationProcessorHider$ClaimingProcessor
 <ul>
 <li>Maven</li>
 </ul>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>MAVEN_OPTS<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005 &#34;</span> mvn clean package 
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>MAVEN_OPTS<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005 &#34;</span> <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>mvn clean package 
 </span></span></code></pre></div><ul>
 <li>Gradle</li>
 </ul>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>GRADLE_OPTS<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;-Xdebug -agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005&#39;</span>  ./gradlew clean build
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>GRADLE_OPTS<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;-Xdebug -agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005&#39;</span> <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>./gradlew clean build
 </span></span></code></pre></div><p>With the above parameters, the build process will pause (suspend=y) and server the remote debug server (server=y) at the port 5005. Now the debugger can connect to it. In IntellJ you can do this by creating a new Debug Profile of type &ldquo;Remote JVM Debug&rdquo;. Make sure the port number matches in your intellij debug config and the one you have used to start the process. Once you have created that, click the debug button and you will be inside the javac compilation process in debug mode. Remember to put a breakpoint in the entry point of the annotation processor which is the <code>init()</code> method</p>
-<h1 id="entering-java-compilation">
-  Entering Java Compilation
-  <a class="anchor" href="#entering-java-compilation">#</a>
+<hr>
+<h1 id="patching-java-compilation">
+  Patching Java Compilation
+  <a class="anchor" href="#patching-java-compilation">#</a>
 </h1>
 <p>One thing to keep in mind from this point onwards is that there are many java compilers(javac/eclipse)/build systems(maven/gradle/intellij)/java 1.8/11/&hellip; and lombok needs to work out with all of them (so does our sdk). So we are going to encounter all kinds of patching</p>
-<h2 id="disablejava9sillywarning">
-  disableJava9SillyWarning
-  <a class="anchor" href="#disablejava9sillywarning">#</a>
+
+
+<p class="mermaid">
+flowchart TD
+    A[Annotation ProcessHider] -->B(disable Java9 Silly Warning)
+    A -->|init|C[Annotation Processor]
+    C -->D{Processor Descriptor}
+</p>
+
+
+
+<p class="mermaid">
+flowchart TD
+    D{Processor Descriptor} -->E[EcjProcessorDescriptor]
+    E --> E1(NoOp)
+    D -->F[JavacProcessorDescriptor]
+    F -->G(findAndPatchClassLoader)
+    F -->|init|H[Lombok Processor]
+    H -->I(getJavacProcessingEnvironment)
+    H -->J(getJavacFiler)
+    H -->K(placePostCompileAndDontMakeForceRoundDummiesHook)
+    K -->K1(stopJavacProcessingEnvironmentFromClosingOurClassloader)
+    K -->K2[InterceptingJavaFileManager]
+</p>
+
+<h2 id="disable-java9-silly-warning">
+  Disable Java9 Silly Warning
+  <a class="anchor" href="#disable-java9-silly-warning">#</a>
 </h2>
 <p>The first thing which lombok annotation processor tries to do is 
   <a href="https://github.com/projectlombok/lombok/blob/000ce6d19a3d4a7d8c88ffa51e47ffda2a3b2c79/src/launch/lombok/launch/AnnotationProcessor.java#L71">disable warnings related to unsafe access</a> of internal fields. We can read into the minor annoyance about it from the lombok developer thanks to the comment inside that method</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>    <span style="color:#75715e">// JVM9 complains about using reflection to access packages from a module that aren&#39;t exported. This makes no sense; the whole point of reflection
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#75715e">// is to get past such issues. The only comment from the jigsaw team lead on this was some unspecified mumbling about security which makes no sense,
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#75715e">// as the SecurityManager is invoked to check such things. Therefore this warning is a bug, so we shall patch java to fix it.
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#75715e">// JVM9 complains about using reflection to access packages from a module that 
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// aren&#39;t exported. This makes no sense; the whole point of reflection
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// is to get past such issues. The only comment from the jigsaw team lead on this 
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// was some unspecified mumbling about security which makes no sense,
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// as the SecurityManager is invoked to check such things. Therefore this warning 
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// is a bug, so we shall patch java to fix it.
 </span></span></span></code></pre></div><p>You might have come across the <code>--add-opens</code> and <code>--add-exports</code>  arguments when running with certain libraries/java-agents which allows module A to access module B via reflection. This access was allowed to begin with, until java 1.9 when warnings/limitations were added for such access. You can read more about it in this very succinct 
-  <a href="https://stackoverflow.com/questions/44056405/whats-the-difference-between-add-exports-and-add-opens-in-java-9">answer on stackoverflow</a>. The <code>disableJava9SillyWarning</code> method does not really enable it (that will happen later), but actually just suppresses the warning that come from doing such access.</p>
-<h2 id="processordescriptor-delegator-pattern">
-  ProcessorDescriptor (Delegator pattern)
-  <a class="anchor" href="#processordescriptor-delegator-pattern">#</a>
+  <a href="https://stackoverflow.com/questions/44056405/whats-the-difference-between-add-exports-and-add-opens-in-java-9">answer on stackoverflow</a> by 
+  <a href="https://inside.java/u/NicolaiParlog/">Nicolai Parlog</a>. The <code>disableJava9SillyWarning</code> method does not really enable it (that will happen later), but actually just suppresses the warning that come from doing such access.</p>
+<h2 id="processor-descriptor-delegator-pattern">
+  Processor Descriptor (Delegator pattern)
+  <a class="anchor" href="#processor-descriptor-delegator-pattern">#</a>
 </h2>
 <p>Inside the annotation processor we encounter the delegator pattern (or correct me if I am wrong). There are two implementation of <code>ProcessorDescriptor</code>. The <code>ProcessorDescriptor</code> class is an interface with two methods. The first method <code>want()</code>, invoked by the <code>init()</code> of the entry point AnnotationProcessorHider declares whether it wantes to be involved in this compilation process or not. If <code>want()</code> returns false, then it would not be invoked by the <code>process()</code> method.</p>
 <p>Since there are only two implementations, <code>EcjDescriptor</code> and <code>JavacDescriptor</code>, we can dive into both. The <code>want()</code> method is more of a <code>init()</code> with conditions method. The initializations wont happen if the condition is false. The only conditional difference between the two implementations is</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>    procEnv<span style="color:#f92672">.</span><span style="color:#a6e22e">getClass</span><span style="color:#f92672">().</span><span style="color:#a6e22e">getName</span><span style="color:#f92672">().</span><span style="color:#a6e22e">startsWith</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;org.eclipse.jdt.&#34;</span><span style="color:#f92672">)</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>procEnv<span style="color:#f92672">.</span><span style="color:#a6e22e">getClass</span><span style="color:#f92672">().</span><span style="color:#a6e22e">getName</span><span style="color:#f92672">().</span><span style="color:#a6e22e">startsWith</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;org.eclipse.jdt.&#34;</span><span style="color:#f92672">)</span>
 </span></span></code></pre></div><p>which is to determine if the compilation by eclipse IDE or not. This part of the code was <del>recently</del> 
   <a href="https://github.com/projectlombok/lombok/commit/2d9195a2296e36ce904719b63ff0e5c0321b2a74">changed 12 years ago</a> to do nothing. But we can once again thank the developer for the comment</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>    <span style="color:#75715e">// Lombok used to work as annotation processor to ecj but that never actually worked properly, so we disabled the feature in 0.10.0.
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#75715e">// Because loading lombok as an agent in any ECJ-based non-interactive tool works just fine, we&#39;re not going to generate any warnings, as we&#39;ll
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#75715e">// likely generate more false positives than be helpful.
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#75715e">// Lombok used to work as annotation processor to ecj but that never actually 
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// worked properly, so we disabled the feature in 0.10.0.
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// Because loading lombok as an agent in any ECJ-based non-interactive tool 
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// works just fine, we&#39;re not going to generate any warnings, as we&#39;ll
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// likely generate more false positives than be helpful.
 </span></span></span></code></pre></div><p>What we have now is the only <code>JavacDescriptor</code> which needs to process the compilation phase. Interestingly, the <code>JavacDescriptor</code> declares</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>    <span style="color:#75715e">// do not run on ECJ as it may print warnings
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>procEnv<span style="color:#f92672">.</span><span style="color:#a6e22e">getClass</span><span style="color:#f92672">().</span><span style="color:#a6e22e">getName</span><span style="color:#f92672">().</span><span style="color:#a6e22e">startsWith</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;org.eclipse.jdt.&#34;</span><span style="color:#f92672">))</span> <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">false</span><span style="color:#f92672">;</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#75715e">// do not run on ECJ as it may print warnings
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>procEnv<span style="color:#f92672">.</span><span style="color:#a6e22e">getClass</span><span style="color:#f92672">().</span><span style="color:#a6e22e">getName</span><span style="color:#f92672">().</span><span style="color:#a6e22e">startsWith</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;org.eclipse.jdt.&#34;</span><span style="color:#f92672">))</span> <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">false</span><span style="color:#f92672">;</span>
 </span></span></code></pre></div><p>Putting it together with EcjDescriptor this means for eclipse based compilations none of the two descriptors are going to be invoked. This brings up certain questions to my mind but I feel too lazy to follow this through. My guess is that in some versions of eclipse the methods by lombok are not visible to the ide (thus no auto complete). But another possiblility is that this change was introduced at a point when the processing was unnecessary, so there is no regression.</p>
-<h3 id="javac-processdescriptor-init">
-  Javac ProcessDescriptor init()
-  <a class="anchor" href="#javac-processdescriptor-init">#</a>
+<h3 id="javac-process-descriptor-init">
+  Javac Process Descriptor init()
+  <a class="anchor" href="#javac-process-descriptor-init">#</a>
 </h3>
 <p>Lombok does couple of things in the init method</p>
-<h3 id="get-javac-processingenvironment">
-  Get Javac ProcessingEnvironment
-  <a class="anchor" href="#get-javac-processingenvironment">#</a>
+<h3 id="the-real-javac-processing-environment">
+  The Real Javac Processing Environment
+  <a class="anchor" href="#the-real-javac-processing-environment">#</a>
 </h3>
-<p>AnnotationProcessors receive an instance of <code>ProcessingEnvironment</code> but lombok wants the real instance of <code>JavacProcessingEnvironment</code> to get to work. In case of gradle/kotlin incremental builds the real instance of <code>JavacProcessingEnvironment</code> is wrapped inside another class or the class itself might be extended. So lombok will try to find that real instance of <code>com.sun.tools.javac.processing.JavacProcessingEnvironment</code> or returns null if nothing worked (in which case the processor will be disabled). Here is how lombok will attempt on the <code>ProcessEnvironment</code> instance</p>
+<p>AnnotationProcessors recieve an instance of <code>ProcessingEnvironment</code> but lombok wants the real instance of <code>JavacProcessingEnvironment</code> to get to work. In case of gradle/kotlin incremental builds the real instance of <code>JavacProcessingEnvironment</code> is wrapped inside another class or the class itself might be extended. So lombok will try to find that real instance of <code>com.sun.tools.javac.processing.JavacProcessingEnvironment</code> or returns null if nothing worked (in which case the processor will be disabled). Here is how lombok will attempt on the <code>ProcessEnvironment</code> instance</p>
 <ul>
 <li>get a field by the name <code>delegate</code> (for gradle)</li>
 <li>else try to get a field by the name <code>processingEnv</code> (for kotlin)</li>
@@ -384,10 +458,12 @@ lombok.launch.AnnotationProcessorHider$ClaimingProcessor
 <p>In a special case where the plexus apache compiler is being used (by eclipse ide), lombok will use reflection to 
   <a href="https://github.com/projectlombok/lombok/blob/000ce6d19a3d4a7d8c88ffa51e47ffda2a3b2c79/src/core/lombok/core/AnnotationProcessor.java#L177">add the root class path of itself to the class loader</a>.</p>
 <p>Using the classLoader an instance of <code>LombokProcessor</code> is created followed by a call to <code>processor.init()</code></p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>    processor <span style="color:#f92672">=</span> <span style="color:#f92672">(</span>Processor<span style="color:#f92672">)</span> Class<span style="color:#f92672">.</span><span style="color:#a6e22e">forName</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;lombok.javac.apt.LombokProcessor&#34;</span><span style="color:#f92672">,</span> <span style="color:#66d9ef">false</span><span style="color:#f92672">,</span> classLoader<span style="color:#f92672">).</span><span style="color:#a6e22e">getConstructor</span><span style="color:#f92672">().</span><span style="color:#a6e22e">newInstance</span><span style="color:#f92672">();</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// ..
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#75715e">// ..
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    processor<span style="color:#f92672">.</span><span style="color:#a6e22e">init</span><span style="color:#f92672">(</span>procEnv<span style="color:#f92672">);</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>processor <span style="color:#f92672">=</span> <span style="color:#f92672">(</span>Processor<span style="color:#f92672">)</span> 
+</span></span><span style="display:flex;"><span>            Class<span style="color:#f92672">.</span><span style="color:#a6e22e">forName</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;lombok.javac.apt.LombokProcessor&#34;</span><span style="color:#f92672">,</span> <span style="color:#66d9ef">false</span><span style="color:#f92672">,</span> classLoader<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">.</span><span style="color:#a6e22e">getConstructor</span><span style="color:#f92672">().</span><span style="color:#a6e22e">newInstance</span><span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// ..
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// ..
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>processor<span style="color:#f92672">.</span><span style="color:#a6e22e">init</span><span style="color:#f92672">(</span>procEnv<span style="color:#f92672">);</span>
 </span></span></code></pre></div><h2 id="lombokprocessor-init">
   LombokProcessor init()
   <a class="anchor" href="#lombokprocessor-init">#</a>
@@ -444,18 +520,19 @@ lombok.launch.AnnotationProcessorHider$ClaimingProcessor
 </ul>
 <p>This method gets the existing processorClassLoader field value from the <code>JavacProcessingEnvironment</code> and wraps it inside an anonymous ClassLoader implementation. This anonymous ClassLoader implementation does not implement the <code>Closable</code> interface. <em>What</em> this will result into is that when the <code>JavacProcessingEnvironment</code> ends up its processing, the call to <code>close()</code> on the original ClassLoader (which is URLClassLoader) will not be invoked. <em>Why</em> was this needed is something I do not understand. I tried disabling this part in hopes to run into some exception/error, but that did not happen either.</p>
 <ul>
-<li>forceMultipleRoundsInNetBeansEditor</li>
+<li>Force Multiple RoundsIn NetBeans Editor</li>
 </ul>
 <p>This part sets the value of the field <code>isBackgroundCompilation</code> in the <code>JavacProcessingEnvironment</code> class to true. This is only applicable when you are using NetBeans.</p>
 <ul>
-<li>disablePartialReparseInNetBeansEditor</li>
+<li>Disable Partial Reparse In NetBeans Editor</li>
 </ul>
 <p>This one is again for NetBeans only. From the name of it, seems like it disables partial reparses of java code.</p>
 <ul>
-<li>patching the Context instance</li>
+<li>Patching the JavaFileManager Context instance</li>
 </ul>
 <p>In this part lombok will wrap the JavaFileManager so that intercept the calls to the method <code>getJavaFileForOutput</code>. These calls need to be intercepted so that lombok can apply the bytecode transformation it needs to before the target class file is written to disk. This block will also set this new <code>Intercepting</code> FileManager as the fileManager of the JavaCompiler and ClassWriter class instances in case the compilation is happening for jdk &gt;= 1.9</p>
 <p>We are done with all the patching needed to be done which will serve us later with bytecode transformation.</p>
+<hr>
 <p>The <code>init</code> isn&rsquo;t complete yet though. Lombok will create an instance of <code>com.sun.source.util.Trees</code> using the <code>Trees.instance( ... )</code>  method and an instance of a <code>JavacTransformer</code>.</p>
 <p><code>Trees</code> class bridges <code>JSR 199</code>, <code>JSR 269</code>, and the <code>Tree API</code>.</p>
 <p>
@@ -466,44 +543,99 @@ lombok.launch.AnnotationProcessorHider$ClaimingProcessor
   <a href="https://docs.oracle.com/javase/8/docs/jdk/api/javac/tree/index.html"><code>Tree API</code></a> Provides interface to represent source code and documentation as Abstract Syntax Tree (AST) and also provides utilities for operating on the AST.</p>
 <p><code>JavacTransformer</code> is another delegator pattern based implementation which will pass on instances of <code>JCCompilationUnit</code>s to all the real handlers. It is a pretty thin class and mostly does nothing on its own.</p>
 <p>At this point the <code>init()</code> of both LombokProcessor and the original AnnotationProcessor is complete and the java compiler can start passing AST to the lombok annotation processor via the <code>process()</code> method.</p>
-
-
-<script src="/mermaid.min.js"></script>
-
-  <script>mermaid.initialize({
-  "flowchart": {
-    "useMaxWidth":true
-  },
-  "theme": "default"
-}
-)</script>
-
-
+<hr>
+<h1 id="the-actual-transformations">
+  The actual transformations
+  <a class="anchor" href="#the-actual-transformations">#</a>
+</h1>
+<p>The in-place modification of the the java code during compilation happens in <del>two</del> three parts as we see in the call flow earlier. One is the AST based handlers like <code>HandleFieldDefaults</code> and most notably the <code>HandleVal</code>. The second one is annotation based and most handlers are of this second type. <code>@Getter</code>/<code>@Setter</code>/<code>@Builder</code> are all annotation based handler implementations.</p>
 
 
 <p class="mermaid">
 flowchart TD
-    A[AnnotationProcessHider] -->|process| B(AnnotationProcessor)
-    B -->|process| C[LombokProcessor]
-    C -->|transform| D{JavacTransformer}
+    C[LombokProcessor] -->|transform| D{JavacTransformer}
+    C -->|intercept filer| G[Intercepting File Manager]
     D -->|callASTVisitor| E[HandlerLibrary]
     D -->|traverse| F[AnnotationVisitor]
     F -->|handleAnnotation| E
+    G -->|writeBytecodeOutput| H[PostCompiler]
+    H -->|applyTransformations| I[Post Compiler Transformation]
+    E --> E1[JavacASTVisitor]
+    I --> I1[Bytecode ClassVisitor]
 </p>
 
-<h1 id="the-last-part">
-  The last part
-  <a class="anchor" href="#the-last-part">#</a>
-</h1>
-<p>The in-place modification of the the java code during compilation happens in two parts as we see in the call flow earlier. One is the AST based handlers like <code>HandleFieldDefaults</code> and most notably the <code>HandleVal</code>. The second one is annotation based and most handlers are of this second type. <code>@Getter</code>/<code>@Setter</code>/<code>@Builder</code> are all annotation based handler implementations.</p>
-<h2 id="callastvisitors">
-  callASTVisitors
-  <a class="anchor" href="#callastvisitors">#</a>
+<p><code>AnnotationVisitor</code> are themselves extensions of <code>JavacASTAdapter</code> (which is the empty implementation of the interface <code>JavacASTVisitor</code>) but are less free form in terms of &ldquo;when&rdquo; they are invoked as the name sugguests.</p>
+<h2 id="order-of-transformations">
+  Order of transformations
+  <a class="anchor" href="#order-of-transformations">#</a>
 </h2>
-<h2 id="handleannotation">
-  handleAnnotation
-  <a class="anchor" href="#handleannotation">#</a>
+<p>Each visitor might also declare a <code>Long priority</code> since in some cases there is a dependency between two handlers, For instance</p>
+<p>In <code>HandleVal</code></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#a6e22e">@HandlerPriority</span><span style="color:#f92672">(</span>HANDLE_DELEGATE_PRIORITY <span style="color:#f92672">+</span> 100<span style="color:#f92672">)</span> 
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// run slightly after HandleDelegate; resolution needs to work, 
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// so if the RHS expression is i.e. a call to a generated getter, 
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// we have to run after that getter has been generated.
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">HandleVal</span> <span style="color:#66d9ef">extends</span> JavacASTAdapter <span style="color:#f92672">{</span>
+</span></span></code></pre></div><p>And in <code>HandleSynchronized</code> we have</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#a6e22e">@HandlerPriority</span><span style="color:#f92672">(</span>value <span style="color:#f92672">=</span> 1024<span style="color:#f92672">)</span> 
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 2^10; @NonNull must have run first, so that we wrap around the statements generated by it.
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">HandleSynchronized</span> <span style="color:#66d9ef">extends</span> JavacAnnotationHandler<span style="color:#f92672">&lt;</span>Synchronized<span style="color:#f92672">&gt;</span> <span style="color:#f92672">{</span>
+</span></span></code></pre></div><p><code>LombokProcessor</code> in its init() call will build the array of priority values available and in each round will identify the next priority value to be invoked, identify all the handlers against that priority and call the <code>JavacTransformer</code> to invoke the handlers against that priority. Handlers at the same priority will be invoked in order which they were loaded in the first place.</p>
+<h2 id="ast-visitors-and-annotation-handlers">
+  AST Visitors and Annotation Handlers
+  <a class="anchor" href="#ast-visitors-and-annotation-handlers">#</a>
 </h2>
+<p><code>JavacASTVisitor</code> interface is the visitor pattern. All method receive an instance of the associated <code>JavacNode</code> being visited and also an instance of <code>JCTree</code>.</p>
+<p><code>JavacNode</code> is a wrapper around <code>JavacAST</code> which itself is a wrapper around the JavacAST class.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#75715e">/**
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"> * Wraps around javac&#39;s internal AST view to add useful features as well 
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"> * as the ability to visit parents from children,
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"> * something javac&#39;s own AST system does not offer.
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"> */</span>
+</span></span></code></pre></div><p>The <code>JCTree</code> (or one of the class which extends it) is the instance which is modified in rumtime to achieve the desired effects which lombok wants.</p>
+<p>For instance, the <code>@Setter</code> annotation will be handled by <code>HandleSetter</code> implementation, and adds the method to the field <code>defs</code> of the Class AST as follows</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">/**
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"> * Adds the given new method declaration to the provided type AST Node.
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"> * Can also inject constructors.
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"> * 
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"> * Also takes care of updating the JavacAST.
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"> */</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">injectMethod</span><span style="color:#f92672">(</span>JavacNode typeNode<span style="color:#f92672">,</span> JCMethodDecl method<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>    JCClassDecl type <span style="color:#f92672">=</span> <span style="color:#f92672">(</span>JCClassDecl<span style="color:#f92672">)</span> typeNode<span style="color:#f92672">.</span><span style="color:#a6e22e">get</span><span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>method<span style="color:#f92672">.</span><span style="color:#a6e22e">getName</span><span style="color:#f92672">().</span><span style="color:#a6e22e">contentEquals</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;&lt;init&gt;&#34;</span><span style="color:#f92672">))</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">//Scan for default constructor, and remove it.
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        <span style="color:#66d9ef">int</span> idx <span style="color:#f92672">=</span> 0<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> <span style="color:#f92672">(</span>JCTree def <span style="color:#f92672">:</span> type<span style="color:#f92672">.</span><span style="color:#a6e22e">defs</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>def <span style="color:#66d9ef">instanceof</span> JCMethodDecl<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">if</span> <span style="color:#f92672">((((</span>JCMethodDecl<span style="color:#f92672">)</span> def<span style="color:#f92672">).</span><span style="color:#a6e22e">mods</span><span style="color:#f92672">.</span><span style="color:#a6e22e">flags</span> <span style="color:#f92672">&amp;</span> Flags<span style="color:#f92672">.</span><span style="color:#a6e22e">GENERATEDCONSTR</span><span style="color:#f92672">)</span> <span style="color:#f92672">!=</span> 0<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>                    JavacNode tossMe <span style="color:#f92672">=</span> typeNode<span style="color:#f92672">.</span><span style="color:#a6e22e">getNodeFor</span><span style="color:#f92672">(</span>def<span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>                    <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>tossMe <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> tossMe<span style="color:#f92672">.</span><span style="color:#a6e22e">up</span><span style="color:#f92672">().</span><span style="color:#a6e22e">removeChild</span><span style="color:#f92672">(</span>tossMe<span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>                    type<span style="color:#f92672">.</span><span style="color:#a6e22e">defs</span> <span style="color:#f92672">=</span> addAllButOne<span style="color:#f92672">(</span>type<span style="color:#f92672">.</span><span style="color:#a6e22e">defs</span><span style="color:#f92672">,</span> idx<span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>                    ClassSymbolMembersField<span style="color:#f92672">.</span><span style="color:#a6e22e">remove</span><span style="color:#f92672">(</span>type<span style="color:#f92672">.</span><span style="color:#a6e22e">sym</span><span style="color:#f92672">,</span> <span style="color:#f92672">((</span>JCMethodDecl<span style="color:#f92672">)</span> def<span style="color:#f92672">).</span><span style="color:#a6e22e">sym</span><span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>                    <span style="color:#66d9ef">break</span><span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>            idx<span style="color:#f92672">++;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    addSuppressWarningsAll<span style="color:#f92672">(</span>method<span style="color:#f92672">.</span><span style="color:#a6e22e">mods</span><span style="color:#f92672">,</span> typeNode<span style="color:#f92672">,</span> typeNode<span style="color:#f92672">.</span><span style="color:#a6e22e">getNodeFor</span><span style="color:#f92672">(</span>getGeneratedBy<span style="color:#f92672">(</span>method<span style="color:#f92672">)),</span> typeNode<span style="color:#f92672">.</span><span style="color:#a6e22e">getContext</span><span style="color:#f92672">());</span>
+</span></span><span style="display:flex;"><span>    addGenerated<span style="color:#f92672">(</span>method<span style="color:#f92672">.</span><span style="color:#a6e22e">mods</span><span style="color:#f92672">,</span> typeNode<span style="color:#f92672">,</span> typeNode<span style="color:#f92672">.</span><span style="color:#a6e22e">getNodeFor</span><span style="color:#f92672">(</span>getGeneratedBy<span style="color:#f92672">(</span>method<span style="color:#f92672">)),</span> typeNode<span style="color:#f92672">.</span><span style="color:#a6e22e">getContext</span><span style="color:#f92672">());</span>
+</span></span><span style="display:flex;"><span>    type<span style="color:#f92672">.</span><span style="color:#a6e22e">defs</span> <span style="color:#f92672">=</span> type<span style="color:#f92672">.</span><span style="color:#a6e22e">defs</span><span style="color:#f92672">.</span><span style="color:#a6e22e">append</span><span style="color:#f92672">(</span>method<span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    EnterReflect<span style="color:#f92672">.</span><span style="color:#a6e22e">memberEnter</span><span style="color:#f92672">(</span>method<span style="color:#f92672">,</span> typeNode<span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    typeNode<span style="color:#f92672">.</span><span style="color:#a6e22e">add</span><span style="color:#f92672">(</span>method<span style="color:#f92672">,</span> Kind<span style="color:#f92672">.</span><span style="color:#a6e22e">METHOD</span><span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span></code></pre></div><h2 id="postcompiler-transformers">
+  PostCompiler Transformers
+  <a class="anchor" href="#postcompiler-transformers">#</a>
+</h2>
+<p>Lombok also uses 
+  <a href="https://asm.ow2.io/"><code>objectweb.asm</code></a> library to bytecode level transformations, although not many. For instance the <code>PreventNullAnalysisRemover</code> will remove all calls to the method <code>Lombok.preventNullAnalysis</code> in the generated byte code. Since lombok patched the <code>JavacFiler</code> earlier and replaced it with its own <code>InterceptingFiler</code> so at the time the java compiler wants to write the final bytecode to the class files on disk, the <code>InterceptingFiler</code> will receive the bytes, apply the bytecode transformations and then write them to the disk as expected.</p>
+<p>Once the class file is on the disk, it is ready to be used the the JVM when you start your application next time, or to be packed inside the JAR.</p>
 </article>
  
       
@@ -513,7 +645,7 @@ flowchart TD
   <div class="flex flex-wrap justify-between">
 
 
-  <div><a class="flex align-center" href="https://github.com/artpar/artpar.github.io/commit/b726d58cc775e9787ead82cef5fcd9b8deb6ccea" title='Last modified by artpar | September 6, 2023' target="_blank" rel="noopener">
+  <div><a class="flex align-center" href="https://github.com/artpar/artpar.github.io/commit/2b75f6c447a88ef25a9c89a672c308c1678de19a" title='Last modified by artpar | September 6, 2023' target="_blank" rel="noopener">
       <img src="/svg/calendar.svg" class="book-icon" alt="Calendar" />
       <span>September 6, 2023</span>
     </a>
@@ -566,13 +698,13 @@ flowchart TD
       </ul>
     </li>
     <li><a href="#attaching-debugger-to-the-java-build">Attaching debugger to the Java build</a></li>
-    <li><a href="#entering-java-compilation">Entering Java Compilation</a>
+    <li><a href="#patching-java-compilation">Patching Java Compilation</a>
       <ul>
-        <li><a href="#disablejava9sillywarning">disableJava9SillyWarning</a></li>
-        <li><a href="#processordescriptor-delegator-pattern">ProcessorDescriptor (Delegator pattern)</a>
+        <li><a href="#disable-java9-silly-warning">Disable Java9 Silly Warning</a></li>
+        <li><a href="#processor-descriptor-delegator-pattern">Processor Descriptor (Delegator pattern)</a>
           <ul>
-            <li><a href="#javac-processdescriptor-init">Javac ProcessDescriptor init()</a></li>
-            <li><a href="#get-javac-processingenvironment">Get Javac ProcessingEnvironment</a></li>
+            <li><a href="#javac-process-descriptor-init">Javac Process Descriptor init()</a></li>
+            <li><a href="#the-real-javac-processing-environment">The Real Javac Processing Environment</a></li>
             <li><a href="#find-and-patch-classloader">Find And Patch ClassLoader</a></li>
           </ul>
         </li>
@@ -586,10 +718,11 @@ flowchart TD
         </li>
       </ul>
     </li>
-    <li><a href="#the-last-part">The last part</a>
+    <li><a href="#the-actual-transformations">The actual transformations</a>
       <ul>
-        <li><a href="#callastvisitors">callASTVisitors</a></li>
-        <li><a href="#handleannotation">handleAnnotation</a></li>
+        <li><a href="#order-of-transformations">Order of transformations</a></li>
+        <li><a href="#ast-visitors-and-annotation-handlers">AST Visitors and Annotation Handlers</a></li>
+        <li><a href="#postcompiler-transformers">PostCompiler Transformers</a></li>
       </ul>
     </li>
   </ul>
