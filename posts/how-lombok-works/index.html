@@ -12,12 +12,13 @@
 <meta property="og:url" content="https://example.com/posts/how-lombok-works/" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2023-06-11T00:00:00+00:00" />
 <meta property="article:modified_time" content="2023-09-06T15:31:29+05:30" />
+
 <title>How lombok works | Software engineering and reverse</title>
 <link rel="manifest" href="/manifest.json">
 <link rel="icon" href="/favicon.png" >
 <link rel="stylesheet" href="/book.min.33a48f5432973b8ff9a82679d9e45d67f2c15d4399bd2829269455cfe390b5e8.css" integrity="sha256-M6SPVDKXO4/5qCZ52eRdZ/LBXUOZvSgpJpRVz&#43;OQteg=" crossorigin="anonymous">
   <script defer src="/flexsearch.min.js"></script>
-  <script defer src="/en.search.min.70d6bb1a4c7801dc22ed06c2dc995613a35e4dbfc8322b1e2c051fad70d19790.js" integrity="sha256-cNa7Gkx4Adwi7QbC3JlWE6NeTb/IMiseLAUfrXDRl5A=" crossorigin="anonymous"></script>
+  <script defer src="/en.search.min.780de9c5099f3ec8ec8748fc09af527117284ffcb49f42ed815c17e86cd76679.js" integrity="sha256-eA3pxQmfPsjsh0j8Ca9ScRcoT/y0n0LtgVwX6GzXZnk=" crossorigin="anonymous"></script>
 <!--
 Made with Book Theme
 https://github.com/alex-shpak/hugo-book
@@ -333,16 +334,16 @@ a given source file.
 <pre tabindex="0"><code>lombok.launch.AnnotationProcessorHider$AnnotationProcessor
 lombok.launch.AnnotationProcessorHider$ClaimingProcessor
 </code></pre><p>The requirement of two Processors isn&rsquo;t clear, especially given that the second one, <code>ClaimingProcessor</code> doesn&rsquo;t do anything, it just returns <code>true</code> signaling the compiler that this set of annotations has been processed now. But thanks to a comment available inside the process method of the main AnnotationProcessor we get a hint of whats going on.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#75715e">// Normally we rely on the claiming processor to claim away all lombok annotations
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// One of the many Java9 oversights is that this &#39;process&#39; API has not been 
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// fixed to address the point that &#39;files I want to look at&#39; and &#39;annotations 
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// I want to claim&#39; must be one and the same, and yet in java9 you can no longer
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// have 2 providers for the same service, thus, if you go by module path, 
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// lombok no longer loads the ClaimingProcessor.
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// This doesn&#39;t do as good a job, but it&#39;ll have to do. 
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// The only way to go from here, I think, is either 2 modules, or use reflection 
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// hackery to add ClaimingProcessor during our init.
-</span></span></span></code></pre></div><h2 id="limitation-of-annotation-processing">
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#75715e">// Normally we rely on the claiming processor to claim away all lombok annotations</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// One of the many Java9 oversights is that this &#39;process&#39; API has not been </span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// fixed to address the point that &#39;files I want to look at&#39; and &#39;annotations </span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// I want to claim&#39; must be one and the same, and yet in java9 you can no longer</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// have 2 providers for the same service, thus, if you go by module path, </span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// lombok no longer loads the ClaimingProcessor.</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// This doesn&#39;t do as good a job, but it&#39;ll have to do. </span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// The only way to go from here, I think, is either 2 modules, or use reflection </span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// hackery to add ClaimingProcessor during our init.</span>
+</span></span></code></pre></div><h2 id="limitation-of-annotation-processing">
   Limitation of annotation processing
   <a class="anchor" href="#limitation-of-annotation-processing">#</a>
 </h2>
@@ -402,13 +403,13 @@ flowchart TD
 </h2>
 <p>The first thing which lombok annotation processor tries to do is 
   <a href="https://github.com/projectlombok/lombok/blob/000ce6d19a3d4a7d8c88ffa51e47ffda2a3b2c79/src/launch/lombok/launch/AnnotationProcessor.java#L71">disable warnings related to unsafe access</a> of internal fields. We can read into the minor annoyance about it from the lombok developer thanks to the comment inside that method</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#75715e">// JVM9 complains about using reflection to access packages from a module that 
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// aren&#39;t exported. This makes no sense; the whole point of reflection
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// is to get past such issues. The only comment from the jigsaw team lead on this 
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// was some unspecified mumbling about security which makes no sense,
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// as the SecurityManager is invoked to check such things. Therefore this warning 
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// is a bug, so we shall patch java to fix it.
-</span></span></span></code></pre></div><p>You might have come across the <code>--add-opens</code> and <code>--add-exports</code>  arguments when running with certain libraries/java-agents which allows module A to access module B via reflection. This access was allowed to begin with, until java 1.9 when warnings/limitations were added for such access. You can read more about it in this very succinct 
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#75715e">// JVM9 complains about using reflection to access packages from a module that </span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// aren&#39;t exported. This makes no sense; the whole point of reflection</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// is to get past such issues. The only comment from the jigsaw team lead on this </span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// was some unspecified mumbling about security which makes no sense,</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// as the SecurityManager is invoked to check such things. Therefore this warning </span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// is a bug, so we shall patch java to fix it.</span>
+</span></span></code></pre></div><p>You might have come across the <code>--add-opens</code> and <code>--add-exports</code>  arguments when running with certain libraries/java-agents which allows module A to access module B via reflection. This access was allowed to begin with, until java 1.9 when warnings/limitations were added for such access. You can read more about it in this very succinct 
   <a href="https://stackoverflow.com/questions/44056405/whats-the-difference-between-add-exports-and-add-opens-in-java-9">answer on stackoverflow</a> by 
   <a href="https://inside.java/u/NicolaiParlog/">Nicolai Parlog</a>. The <code>disableJava9SillyWarning</code> method does not really enable it (that will happen later), but actually just suppresses the warning that come from doing such access.</p>
 <h2 id="processor-descriptor-delegator-pattern">
@@ -417,17 +418,17 @@ flowchart TD
 </h2>
 <p>Inside the annotation processor we encounter the delegator pattern (or correct me if I am wrong). There are two implementation of <code>ProcessorDescriptor</code>. The <code>ProcessorDescriptor</code> class is an interface with two methods. The first method <code>want()</code>, invoked by the <code>init()</code> of the entry point AnnotationProcessorHider declares whether it wantes to be involved in this compilation process or not. If <code>want()</code> returns false, then it would not be invoked by the <code>process()</code> method.</p>
 <p>Since there are only two implementations, <code>EcjDescriptor</code> and <code>JavacDescriptor</code>, we can dive into both. The <code>want()</code> method is more of a <code>init()</code> with conditions method. The initializations wont happen if the condition is false. The only conditional difference between the two implementations is</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>procEnv<span style="color:#f92672">.</span><span style="color:#a6e22e">getClass</span><span style="color:#f92672">().</span><span style="color:#a6e22e">getName</span><span style="color:#f92672">().</span><span style="color:#a6e22e">startsWith</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;org.eclipse.jdt.&#34;</span><span style="color:#f92672">)</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>procEnv.<span style="color:#a6e22e">getClass</span>().<span style="color:#a6e22e">getName</span>().<span style="color:#a6e22e">startsWith</span>(<span style="color:#e6db74">&#34;org.eclipse.jdt.&#34;</span>)
 </span></span></code></pre></div><p>which is to determine if the compilation by eclipse IDE or not. This part of the code was <del>recently</del> 
   <a href="https://github.com/projectlombok/lombok/commit/2d9195a2296e36ce904719b63ff0e5c0321b2a74">changed 12 years ago</a> to do nothing. But we can once again thank the developer for the comment</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#75715e">// Lombok used to work as annotation processor to ecj but that never actually 
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// worked properly, so we disabled the feature in 0.10.0.
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// Because loading lombok as an agent in any ECJ-based non-interactive tool 
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// works just fine, we&#39;re not going to generate any warnings, as we&#39;ll
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// likely generate more false positives than be helpful.
-</span></span></span></code></pre></div><p>What we have now is the only <code>JavacDescriptor</code> which needs to process the compilation phase. Interestingly, the <code>JavacDescriptor</code> declares</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#75715e">// do not run on ECJ as it may print warnings
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>procEnv<span style="color:#f92672">.</span><span style="color:#a6e22e">getClass</span><span style="color:#f92672">().</span><span style="color:#a6e22e">getName</span><span style="color:#f92672">().</span><span style="color:#a6e22e">startsWith</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;org.eclipse.jdt.&#34;</span><span style="color:#f92672">))</span> <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">false</span><span style="color:#f92672">;</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#75715e">// Lombok used to work as annotation processor to ecj but that never actually </span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// worked properly, so we disabled the feature in 0.10.0.</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// Because loading lombok as an agent in any ECJ-based non-interactive tool </span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// works just fine, we&#39;re not going to generate any warnings, as we&#39;ll</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// likely generate more false positives than be helpful.</span>
+</span></span></code></pre></div><p>What we have now is the only <code>JavacDescriptor</code> which needs to process the compilation phase. Interestingly, the <code>JavacDescriptor</code> declares</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#75715e">// do not run on ECJ as it may print warnings</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> (procEnv.<span style="color:#a6e22e">getClass</span>().<span style="color:#a6e22e">getName</span>().<span style="color:#a6e22e">startsWith</span>(<span style="color:#e6db74">&#34;org.eclipse.jdt.&#34;</span>)) <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">false</span>;
 </span></span></code></pre></div><p>Putting it together with EcjDescriptor this means for eclipse based compilations none of the two descriptors are going to be invoked. This brings up certain questions to my mind but I feel too lazy to follow this through. My guess is that in some versions of eclipse the methods by lombok are not visible to the ide (thus no auto complete). But another possiblility is that this change was introduced at a point when the processing was unnecessary, so there is no regression.</p>
 <h3 id="javac-process-descriptor-init">
   Javac Process Descriptor init()
@@ -459,12 +460,12 @@ flowchart TD
 <p>In a special case where the plexus apache compiler is being used (by eclipse ide), lombok will use reflection to 
   <a href="https://github.com/projectlombok/lombok/blob/000ce6d19a3d4a7d8c88ffa51e47ffda2a3b2c79/src/core/lombok/core/AnnotationProcessor.java#L177">add the root class path of itself to the class loader</a>.</p>
 <p>Using the classLoader an instance of <code>LombokProcessor</code> is created followed by a call to <code>processor.init()</code></p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>processor <span style="color:#f92672">=</span> <span style="color:#f92672">(</span>Processor<span style="color:#f92672">)</span> 
-</span></span><span style="display:flex;"><span>            Class<span style="color:#f92672">.</span><span style="color:#a6e22e">forName</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;lombok.javac.apt.LombokProcessor&#34;</span><span style="color:#f92672">,</span> <span style="color:#66d9ef">false</span><span style="color:#f92672">,</span> classLoader<span style="color:#f92672">)</span>
-</span></span><span style="display:flex;"><span>                <span style="color:#f92672">.</span><span style="color:#a6e22e">getConstructor</span><span style="color:#f92672">().</span><span style="color:#a6e22e">newInstance</span><span style="color:#f92672">();</span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e">// ..
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// ..
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>processor<span style="color:#f92672">.</span><span style="color:#a6e22e">init</span><span style="color:#f92672">(</span>procEnv<span style="color:#f92672">);</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>processor <span style="color:#f92672">=</span> (Processor) 
+</span></span><span style="display:flex;"><span>            Class.<span style="color:#a6e22e">forName</span>(<span style="color:#e6db74">&#34;lombok.javac.apt.LombokProcessor&#34;</span>, <span style="color:#66d9ef">false</span>, classLoader)
+</span></span><span style="display:flex;"><span>                .<span style="color:#a6e22e">getConstructor</span>().<span style="color:#a6e22e">newInstance</span>();
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// ..</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// ..</span>
+</span></span><span style="display:flex;"><span>processor.<span style="color:#a6e22e">init</span>(procEnv);
 </span></span></code></pre></div><h2 id="lombokprocessor-init">
   LombokProcessor init()
   <a class="anchor" href="#lombokprocessor-init">#</a>
@@ -475,10 +476,10 @@ flowchart TD
   <a class="anchor" href="#lombokdisable-">#</a>
 </h3>
 <p>But before diving into it, we see a quick disable switch</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>System<span style="color:#f92672">.</span><span style="color:#a6e22e">getProperty</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;lombok.disable&#34;</span><span style="color:#f92672">)</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>        lombokDisabled <span style="color:#f92672">=</span> <span style="color:#66d9ef">true</span><span style="color:#f92672">;</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span><span style="color:#f92672">;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> (System.<span style="color:#a6e22e">getProperty</span>(<span style="color:#e6db74">&#34;lombok.disable&#34;</span>) <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span>) {
+</span></span><span style="display:flex;"><span>        lombokDisabled <span style="color:#f92672">=</span> <span style="color:#66d9ef">true</span>;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span>;
+</span></span><span style="display:flex;"><span>    }
 </span></span></code></pre></div><p>Interestingly this is not mentioned in the 
   <a href="https://projectlombok.org/features/configuration">project lombok feature configuration page</a> but is listed in the generated 
   <a href="https://projectlombok.org/api/lombok/ConfigurationKeys#LOMBOK_DISABLE">Lombok JavaDoc</a>.</p>
@@ -500,8 +501,8 @@ flowchart TD
 <p>There is a actually a 
   <a href="https://www.inf.usi.ch/faculty/lanza/Downloads/Mast2015a.pdf">paper which does deep dive into the usage pattern of the <code>Unsafe</code> class</a></p>
 <p>Next we get hold of the method reference for the method <code>implAddOpens</code>. This is the method needed to be invoked to &ldquo;add opens&rdquo; in runtime. But we have two mystery lines before the method is actually invoked</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>    <span style="color:#66d9ef">long</span> firstFieldOffset <span style="color:#f92672">=</span> getFirstFieldOffset<span style="color:#f92672">(</span>unsafe<span style="color:#f92672">);</span>
-</span></span><span style="display:flex;"><span>    unsafe<span style="color:#f92672">.</span><span style="color:#a6e22e">putBooleanVolatile</span><span style="color:#f92672">(</span>m<span style="color:#f92672">,</span> firstFieldOffset<span style="color:#f92672">,</span> <span style="color:#66d9ef">true</span><span style="color:#f92672">);</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>    <span style="color:#66d9ef">long</span> firstFieldOffset <span style="color:#f92672">=</span> getFirstFieldOffset(unsafe);
+</span></span><span style="display:flex;"><span>    unsafe.<span style="color:#a6e22e">putBooleanVolatile</span>(m, firstFieldOffset, <span style="color:#66d9ef">true</span>);
 </span></span></code></pre></div><p><code>theUnsafe</code> instance is used to get the <code>objectFieldOffset</code>for a field named <code>first</code> in a class named <code>Parent</code>. And then this offset is used to set a value on the <code>Method</code> instance. I was initially a bit lost to the purpose of this code, but this becomes clear if we look at the implementation of the method <code>Method.invoke()</code>. We see a <code>if(!override)</code> leading to a access check. This access check is going to fail. The call to <code>unsafe.putBooleanVolatile(m, firstFieldOffset, true)</code> sets the value of the <code>override</code> field to <code>true</code> since it is the first (non-static) field of that class. The base class of <code>Method</code> class is the 
   <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/reflect/AccessibleObject.html"><code>AccessibleObject</code> class</a></p>
 <p>Once override is marked as true, we see the method invoked for 10 modules inside a for loop. Pretty straighforward stuff.</p>
@@ -572,16 +573,16 @@ flowchart TD
 </h2>
 <p>Each visitor might also declare a <code>Long priority</code> since in some cases there is a dependency between two handlers, for instance</p>
 <p>In <code>HandleVal</code></p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#a6e22e">@HandlerPriority</span><span style="color:#f92672">(</span>HANDLE_DELEGATE_PRIORITY <span style="color:#f92672">+</span> 100<span style="color:#f92672">)</span> 
-</span></span><span style="display:flex;"><span><span style="color:#75715e">// run slightly after HandleDelegate; resolution needs to work, 
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// so if the RHS expression is i.e. a call to a generated getter, 
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// we have to run after that getter has been generated.
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">HandleVal</span> <span style="color:#66d9ef">extends</span> JavacASTAdapter <span style="color:#f92672">{</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#a6e22e">@HandlerPriority</span>(HANDLE_DELEGATE_PRIORITY <span style="color:#f92672">+</span> 100) 
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// run slightly after HandleDelegate; resolution needs to work, </span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// so if the RHS expression is i.e. a call to a generated getter, </span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// we have to run after that getter has been generated.</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">HandleVal</span> <span style="color:#66d9ef">extends</span> JavacASTAdapter {
 </span></span></code></pre></div><p>And in <code>HandleSynchronized</code> we have</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#a6e22e">@HandlerPriority</span><span style="color:#f92672">(</span>value <span style="color:#f92672">=</span> 1024<span style="color:#f92672">)</span> 
-</span></span><span style="display:flex;"><span><span style="color:#75715e">// 2^10; @NonNull must have run first, so that we wrap around 
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// the statements generated by it.
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">HandleSynchronized</span> <span style="color:#66d9ef">extends</span> JavacAnnotationHandler<span style="color:#f92672">&lt;</span>Synchronized<span style="color:#f92672">&gt;</span> <span style="color:#f92672">{</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#a6e22e">@HandlerPriority</span>(value <span style="color:#f92672">=</span> 1024) 
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 2^10; @NonNull must have run first, so that we wrap around </span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// the statements generated by it.</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">HandleSynchronized</span> <span style="color:#66d9ef">extends</span> JavacAnnotationHandler<span style="color:#f92672">&lt;</span>Synchronized<span style="color:#f92672">&gt;</span> {
 </span></span></code></pre></div><p><code>LombokProcessor</code> in its <code>init()</code> method builds the array of all priority values available and in each round will identify the next priority value to be invoked, identify all the handlers against that priority and call the <code>JavacTransformer</code> to invoke the handlers against that priority. Handlers at the same priority will be invoked in order which they were loaded in the first place.</p>
 <h2 id="ast-visitors-and-annotation-handlers">
   AST Visitors and Annotation Handlers
@@ -603,34 +604,34 @@ flowchart TD
 </span></span></span><span style="display:flex;"><span><span style="color:#75715e"> * 
 </span></span></span><span style="display:flex;"><span><span style="color:#75715e"> * Also takes care of updating the JavacAST.
 </span></span></span><span style="display:flex;"><span><span style="color:#75715e"> */</span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">injectMethod</span><span style="color:#f92672">(</span>JavacNode typeNode<span style="color:#f92672">,</span> JCMethodDecl method<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>    JCClassDecl type <span style="color:#f92672">=</span> <span style="color:#f92672">(</span>JCClassDecl<span style="color:#f92672">)</span> typeNode<span style="color:#f92672">.</span><span style="color:#a6e22e">get</span><span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">injectMethod</span>(JavacNode typeNode, JCMethodDecl method) {
+</span></span><span style="display:flex;"><span>    JCClassDecl type <span style="color:#f92672">=</span> (JCClassDecl) typeNode.<span style="color:#a6e22e">get</span>();
 </span></span><span style="display:flex;"><span>    
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>method<span style="color:#f92672">.</span><span style="color:#a6e22e">getName</span><span style="color:#f92672">().</span><span style="color:#a6e22e">contentEquals</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;&lt;init&gt;&#34;</span><span style="color:#f92672">))</span> <span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#75715e">//Scan for default constructor, and remove it.
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        <span style="color:#66d9ef">int</span> idx <span style="color:#f92672">=</span> 0<span style="color:#f92672">;</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> <span style="color:#f92672">(</span>JCTree def <span style="color:#f92672">:</span> type<span style="color:#f92672">.</span><span style="color:#a6e22e">defs</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>def <span style="color:#66d9ef">instanceof</span> JCMethodDecl<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">if</span> <span style="color:#f92672">((((</span>JCMethodDecl<span style="color:#f92672">)</span> def<span style="color:#f92672">).</span><span style="color:#a6e22e">mods</span><span style="color:#f92672">.</span><span style="color:#a6e22e">flags</span> <span style="color:#f92672">&amp;</span> Flags<span style="color:#f92672">.</span><span style="color:#a6e22e">GENERATEDCONSTR</span><span style="color:#f92672">)</span> <span style="color:#f92672">!=</span> 0<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-</span></span><span style="display:flex;"><span>                    JavacNode tossMe <span style="color:#f92672">=</span> typeNode<span style="color:#f92672">.</span><span style="color:#a6e22e">getNodeFor</span><span style="color:#f92672">(</span>def<span style="color:#f92672">);</span>
-</span></span><span style="display:flex;"><span>                    <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>tossMe <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> tossMe<span style="color:#f92672">.</span><span style="color:#a6e22e">up</span><span style="color:#f92672">().</span><span style="color:#a6e22e">removeChild</span><span style="color:#f92672">(</span>tossMe<span style="color:#f92672">);</span>
-</span></span><span style="display:flex;"><span>                    type<span style="color:#f92672">.</span><span style="color:#a6e22e">defs</span> <span style="color:#f92672">=</span> addAllButOne<span style="color:#f92672">(</span>type<span style="color:#f92672">.</span><span style="color:#a6e22e">defs</span><span style="color:#f92672">,</span> idx<span style="color:#f92672">);</span>
-</span></span><span style="display:flex;"><span>                    ClassSymbolMembersField<span style="color:#f92672">.</span><span style="color:#a6e22e">remove</span><span style="color:#f92672">(</span>type<span style="color:#f92672">.</span><span style="color:#a6e22e">sym</span><span style="color:#f92672">,</span> <span style="color:#f92672">((</span>JCMethodDecl<span style="color:#f92672">)</span> def<span style="color:#f92672">).</span><span style="color:#a6e22e">sym</span><span style="color:#f92672">);</span>
-</span></span><span style="display:flex;"><span>                    <span style="color:#66d9ef">break</span><span style="color:#f92672">;</span>
-</span></span><span style="display:flex;"><span>                <span style="color:#f92672">}</span>
-</span></span><span style="display:flex;"><span>            <span style="color:#f92672">}</span>
-</span></span><span style="display:flex;"><span>            idx<span style="color:#f92672">++;</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#f92672">}</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> (method.<span style="color:#a6e22e">getName</span>().<span style="color:#a6e22e">contentEquals</span>(<span style="color:#e6db74">&#34;&lt;init&gt;&#34;</span>)) {
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">//Scan for default constructor, and remove it.</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">int</span> idx <span style="color:#f92672">=</span> 0;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> (JCTree def : type.<span style="color:#a6e22e">defs</span>) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> (def <span style="color:#66d9ef">instanceof</span> JCMethodDecl) {
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">if</span> ((((JCMethodDecl) def).<span style="color:#a6e22e">mods</span>.<span style="color:#a6e22e">flags</span> <span style="color:#f92672">&amp;</span> Flags.<span style="color:#a6e22e">GENERATEDCONSTR</span>) <span style="color:#f92672">!=</span> 0) {
+</span></span><span style="display:flex;"><span>                    JavacNode tossMe <span style="color:#f92672">=</span> typeNode.<span style="color:#a6e22e">getNodeFor</span>(def);
+</span></span><span style="display:flex;"><span>                    <span style="color:#66d9ef">if</span> (tossMe <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span>) tossMe.<span style="color:#a6e22e">up</span>().<span style="color:#a6e22e">removeChild</span>(tossMe);
+</span></span><span style="display:flex;"><span>                    type.<span style="color:#a6e22e">defs</span> <span style="color:#f92672">=</span> addAllButOne(type.<span style="color:#a6e22e">defs</span>, idx);
+</span></span><span style="display:flex;"><span>                    ClassSymbolMembersField.<span style="color:#a6e22e">remove</span>(type.<span style="color:#a6e22e">sym</span>, ((JCMethodDecl) def).<span style="color:#a6e22e">sym</span>);
+</span></span><span style="display:flex;"><span>                    <span style="color:#66d9ef">break</span>;
+</span></span><span style="display:flex;"><span>                }
+</span></span><span style="display:flex;"><span>            }
+</span></span><span style="display:flex;"><span>            idx<span style="color:#f92672">++</span>;
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>    
-</span></span><span style="display:flex;"><span>    addSuppressWarningsAll<span style="color:#f92672">(</span>method<span style="color:#f92672">.</span><span style="color:#a6e22e">mods</span><span style="color:#f92672">,</span> typeNode<span style="color:#f92672">,</span> typeNode<span style="color:#f92672">.</span><span style="color:#a6e22e">getNodeFor</span><span style="color:#f92672">(</span>getGeneratedBy<span style="color:#f92672">(</span>method<span style="color:#f92672">)),</span> typeNode<span style="color:#f92672">.</span><span style="color:#a6e22e">getContext</span><span style="color:#f92672">());</span>
-</span></span><span style="display:flex;"><span>    addGenerated<span style="color:#f92672">(</span>method<span style="color:#f92672">.</span><span style="color:#a6e22e">mods</span><span style="color:#f92672">,</span> typeNode<span style="color:#f92672">,</span> typeNode<span style="color:#f92672">.</span><span style="color:#a6e22e">getNodeFor</span><span style="color:#f92672">(</span>getGeneratedBy<span style="color:#f92672">(</span>method<span style="color:#f92672">)),</span> typeNode<span style="color:#f92672">.</span><span style="color:#a6e22e">getContext</span><span style="color:#f92672">());</span>
-</span></span><span style="display:flex;"><span>    type<span style="color:#f92672">.</span><span style="color:#a6e22e">defs</span> <span style="color:#f92672">=</span> type<span style="color:#f92672">.</span><span style="color:#a6e22e">defs</span><span style="color:#f92672">.</span><span style="color:#a6e22e">append</span><span style="color:#f92672">(</span>method<span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>    addSuppressWarningsAll(method.<span style="color:#a6e22e">mods</span>, typeNode, typeNode.<span style="color:#a6e22e">getNodeFor</span>(getGeneratedBy(method)), typeNode.<span style="color:#a6e22e">getContext</span>());
+</span></span><span style="display:flex;"><span>    addGenerated(method.<span style="color:#a6e22e">mods</span>, typeNode, typeNode.<span style="color:#a6e22e">getNodeFor</span>(getGeneratedBy(method)), typeNode.<span style="color:#a6e22e">getContext</span>());
+</span></span><span style="display:flex;"><span>    type.<span style="color:#a6e22e">defs</span> <span style="color:#f92672">=</span> type.<span style="color:#a6e22e">defs</span>.<span style="color:#a6e22e">append</span>(method);
 </span></span><span style="display:flex;"><span>    
-</span></span><span style="display:flex;"><span>    EnterReflect<span style="color:#f92672">.</span><span style="color:#a6e22e">memberEnter</span><span style="color:#f92672">(</span>method<span style="color:#f92672">,</span> typeNode<span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>    EnterReflect.<span style="color:#a6e22e">memberEnter</span>(method, typeNode);
 </span></span><span style="display:flex;"><span>    
-</span></span><span style="display:flex;"><span>    typeNode<span style="color:#f92672">.</span><span style="color:#a6e22e">add</span><span style="color:#f92672">(</span>method<span style="color:#f92672">,</span> Kind<span style="color:#f92672">.</span><span style="color:#a6e22e">METHOD</span><span style="color:#f92672">);</span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>    typeNode.<span style="color:#a6e22e">add</span>(method, Kind.<span style="color:#a6e22e">METHOD</span>);
+</span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><h2 id="postcompiler-transformers">
   PostCompiler Transformers
   <a class="anchor" href="#postcompiler-transformers">#</a>

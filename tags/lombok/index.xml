@@ -6,16 +6,15 @@
     <description>Recent content in lombok on Software engineering and reverse</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
-    <lastBuildDate>Sun, 11 Jun 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://example.com/tags/lombok/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sun, 11 Jun 2023 00:00:00 +0000</lastBuildDate>
+    <atom:link href="https://example.com/tags/lombok/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>How lombok works</title>
       <link>https://example.com/posts/how-lombok-works/</link>
       <pubDate>Sun, 11 Jun 2023 00:00:00 +0000</pubDate>
-      
       <guid>https://example.com/posts/how-lombok-works/</guid>
       <description>Introduction # Project Lombok is a java library that automatically plugs into your editor and build tools, spicing up your java.
 Never write another getter or equals method again, with one annotation your class has a fully featured builder, Automate your logging variables, and much more. This post is not a guide to use lombok, you can find plenty of them with a search. This post is about how the lombok works internally.</description>
     </item>
-    
   </channel>
 </rss>

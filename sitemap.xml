@@ -2,6 +2,24 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
+    <loc>https://example.com/tags/awk/</loc>
+    <lastmod>2023-11-07T13:29:08+05:30</lastmod>
+  </url><url>
+    <loc>https://example.com/tags/bash/</loc>
+    <lastmod>2023-11-07T13:29:08+05:30</lastmod>
+  </url><url>
+    <loc>https://example.com/tags/kill/</loc>
+    <lastmod>2023-11-07T13:29:08+05:30</lastmod>
+  </url><url>
+    <loc>https://example.com/posts/process-killer/</loc>
+    <lastmod>2023-11-07T13:29:08+05:30</lastmod>
+  </url><url>
+    <loc>https://example.com/tags/</loc>
+    <lastmod>2023-11-07T13:29:08+05:30</lastmod>
+  </url><url>
+    <loc>https://example.com/tags/xargs/</loc>
+    <lastmod>2023-11-07T13:29:08+05:30</lastmod>
+  </url><url>
     <loc>https://example.com/tags/annotation-processing/</loc>
     <lastmod>2023-09-06T15:31:29+05:30</lastmod>
   </url><url>
@@ -15,9 +33,6 @@
     <lastmod>2023-09-06T15:31:29+05:30</lastmod>
   </url><url>
     <loc>https://example.com/tags/maven/</loc>
-    <lastmod>2023-09-06T15:31:29+05:30</lastmod>
-  </url><url>
-    <loc>https://example.com/tags/</loc>
     <lastmod>2023-09-06T15:31:29+05:30</lastmod>
   </url><url>
     <loc>https://example.com/posts/</loc>

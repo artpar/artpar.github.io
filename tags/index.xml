@@ -6,42 +6,63 @@
     <description>Recent content in Tags on Software engineering and reverse</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
-    <lastBuildDate>Sun, 11 Jun 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://example.com/tags/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Tue, 07 Nov 2023 00:00:00 +0000</lastBuildDate>
+    <atom:link href="https://example.com/tags/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>awk</title>
+      <link>https://example.com/tags/awk/</link>
+      <pubDate>Tue, 07 Nov 2023 00:00:00 +0000</pubDate>
+      <guid>https://example.com/tags/awk/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>bash</title>
+      <link>https://example.com/tags/bash/</link>
+      <pubDate>Tue, 07 Nov 2023 00:00:00 +0000</pubDate>
+      <guid>https://example.com/tags/bash/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>kill</title>
+      <link>https://example.com/tags/kill/</link>
+      <pubDate>Tue, 07 Nov 2023 00:00:00 +0000</pubDate>
+      <guid>https://example.com/tags/kill/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>xargs</title>
+      <link>https://example.com/tags/xargs/</link>
+      <pubDate>Tue, 07 Nov 2023 00:00:00 +0000</pubDate>
+      <guid>https://example.com/tags/xargs/</guid>
+      <description></description>
+    </item>
     <item>
       <title>annotation processing</title>
       <link>https://example.com/tags/annotation-processing/</link>
       <pubDate>Sun, 11 Jun 2023 00:00:00 +0000</pubDate>
-      
       <guid>https://example.com/tags/annotation-processing/</guid>
       <description></description>
     </item>
-    
     <item>
       <title>java</title>
       <link>https://example.com/tags/java/</link>
       <pubDate>Sun, 11 Jun 2023 00:00:00 +0000</pubDate>
-      
       <guid>https://example.com/tags/java/</guid>
       <description></description>
     </item>
-    
     <item>
       <title>lombok</title>
       <link>https://example.com/tags/lombok/</link>
       <pubDate>Sun, 11 Jun 2023 00:00:00 +0000</pubDate>
-      
       <guid>https://example.com/tags/lombok/</guid>
       <description></description>
     </item>
-    
     <item>
       <title>maven</title>
       <link>https://example.com/tags/maven/</link>
       <pubDate>Sun, 11 Jun 2023 00:00:00 +0000</pubDate>
-      
       <guid>https://example.com/tags/maven/</guid>
       <description></description>
     </item>
-    
   </channel>
 </rss>
