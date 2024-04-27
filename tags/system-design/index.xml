@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>System-Design on Software engineering and reverse</title>
+    <link>https://example.com/tags/system-design/</link>
+    <description>Recent content in System-Design on Software engineering and reverse</description>
+    <generator>Hugo</generator>
+    <language>en</language>
+    <lastBuildDate>Sat, 27 Apr 2024 21:47:18 +0530</lastBuildDate>
+    <atom:link href="https://example.com/tags/system-design/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Reserving Ids ahead of time</title>
+      <link>https://example.com/posts/reserving-ids-ahead-of-time/</link>
+      <pubDate>Sat, 27 Apr 2024 00:00:00 +0000</pubDate>
+      <guid>https://example.com/posts/reserving-ids-ahead-of-time/</guid>
+      <description>Reserving entity IDs ahead of time can address a bunch of issues in software development and system design, particularly in distributed systems, databases, and applications requiring high concurrency or real-time processing. Here are some of the key benefits and problems that this approach can solve:&#xA;Avoiding Collisions and Ensuring Uniqueness In distributed systems where different nodes generate IDs independently, reserving IDs in batches can prevent collisions. Each node or service can reserve a block of IDs and use them without needing to coordinate with others in real time, ensuring uniqueness across the system.</description>
+    </item>
+  </channel>
+</rss>

@@ -2,6 +2,24 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
+    <loc>https://example.com/tags/distributed/</loc>
+    <lastmod>2024-04-27T21:47:18+05:30</lastmod>
+  </url><url>
+    <loc>https://example.com/tags/id/</loc>
+    <lastmod>2024-04-27T21:47:18+05:30</lastmod>
+  </url><url>
+    <loc>https://example.com/tags/reservation/</loc>
+    <lastmod>2024-04-27T21:47:18+05:30</lastmod>
+  </url><url>
+    <loc>https://example.com/posts/reserving-ids-ahead-of-time/</loc>
+    <lastmod>2024-04-27T21:47:18+05:30</lastmod>
+  </url><url>
+    <loc>https://example.com/tags/system-design/</loc>
+    <lastmod>2024-04-27T21:47:18+05:30</lastmod>
+  </url><url>
+    <loc>https://example.com/tags/</loc>
+    <lastmod>2024-04-27T21:47:18+05:30</lastmod>
+  </url><url>
     <loc>https://example.com/tags/awk/</loc>
     <lastmod>2023-11-07T13:29:08+05:30</lastmod>
   </url><url>
@@ -14,29 +32,23 @@
     <loc>https://example.com/posts/process-killer/</loc>
     <lastmod>2023-11-07T13:29:08+05:30</lastmod>
   </url><url>
-    <loc>https://example.com/tags/</loc>
-    <lastmod>2024-04-27T21:38:45+05:30</lastmod>
-  </url><url>
     <loc>https://example.com/tags/xargs/</loc>
     <lastmod>2023-11-07T13:29:08+05:30</lastmod>
   </url><url>
     <loc>https://example.com/tags/annotation-processing/</loc>
-    <lastmod>2024-04-27T21:38:45+05:30</lastmod>
+    <lastmod>2023-09-06T15:31:29+05:30</lastmod>
   </url><url>
     <loc>https://example.com/posts/how-lombok-works/</loc>
     <lastmod>2023-09-06T15:31:29+05:30</lastmod>
   </url><url>
     <loc>https://example.com/tags/java/</loc>
-    <lastmod>2024-04-27T21:38:45+05:30</lastmod>
+    <lastmod>2023-09-06T15:31:29+05:30</lastmod>
   </url><url>
     <loc>https://example.com/tags/lombok/</loc>
-    <lastmod>2024-04-27T21:38:45+05:30</lastmod>
+    <lastmod>2023-09-06T15:31:29+05:30</lastmod>
   </url><url>
     <loc>https://example.com/tags/maven/</loc>
-    <lastmod>2024-04-27T21:38:45+05:30</lastmod>
-  </url><url>
-    <loc>https://example.com/posts/reserving-ids-ahead-of-time/</loc>
-    <lastmod>2024-04-27T21:38:45+05:30</lastmod>
+    <lastmod>2023-09-06T15:31:29+05:30</lastmod>
   </url><url>
     <loc>https://example.com/posts/</loc>
     <lastmod>2023-09-04T13:16:43+05:30</lastmod>
