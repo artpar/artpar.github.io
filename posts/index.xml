@@ -19,7 +19,7 @@
       <link>https://example.com/posts/process-killer/</link>
       <pubDate>Tue, 07 Nov 2023 00:00:00 +0000</pubDate>
       <guid>https://example.com/posts/process-killer/</guid>
-      <description>ps aux | grep java | grep unlogged-sdk- | grep -v grep | awk &amp;#39;{print $2}&amp;#39; | xargs kill -9 This is a command that can be used to identify and terminate Java processes that are using the UnLogged SDK library in Linux. Here&amp;rsquo;s an explanation of each part of the command:&#xA;ps aux: This command lists all currently running processes on the system, along with their process ID (PID), user ID, CPU usage, memory usage, and other relevant information.</description>
+      <description>ps aux | grep java | grep unlogged-sdk- | grep -v grep | awk &amp;#39;{print $2}&amp;#39; | xargs kill -9 This is a command that can be used to identify and terminate Java processes that are using the UnLogged SDK library in Linux. Here&amp;rsquo;s an explanation of each part of the command:&#xA;ps aux: lists all currently running processes on the system, along with their process ID (PID), user ID, CPU usage, memory usage, and other relevant information.</description>
     </item>
     <item>
       <title>How lombok works</title>

@@ -14,7 +14,7 @@
   <meta property="og:type" content="article">
     <meta property="article:section" content="posts">
     <meta property="article:published_time" content="2023-11-07T00:00:00+00:00">
-    <meta property="article:modified_time" content="2023-11-07T13:29:08+05:30">
+    <meta property="article:modified_time" content="2024-04-27T22:29:39+05:30">
     <meta property="article:tag" content="Bash">
     <meta property="article:tag" content="Kill">
     <meta property="article:tag" content="Awk">
@@ -24,7 +24,7 @@
 <link rel="icon" href="/favicon.png" >
 <link rel="stylesheet" href="/book.min.33a48f5432973b8ff9a82679d9e45d67f2c15d4399bd2829269455cfe390b5e8.css" integrity="sha256-M6SPVDKXO4/5qCZ52eRdZ/LBXUOZvSgpJpRVz&#43;OQteg=" crossorigin="anonymous">
   <script defer src="/flexsearch.min.js"></script>
-  <script defer src="/en.search.min.f633c6e1df8421d7cdd9dc647746bacf69c697af2bb37b597f38c0f5dbc8125c.js" integrity="sha256-9jPG4d&#43;EIdfN2dxkd0a6z2nGl68rs3tZfzjA9dvIElw=" crossorigin="anonymous"></script>
+  <script defer src="/en.search.min.c9b2a36b8d6bd3417baefb64adf13dfdb85af8356660e5126487173cb0e3aa7c.js" integrity="sha256-ybKja41r00F7rvtkrfE9/bha&#43;DVmYOUSZIcXPLDjqnw=" crossorigin="anonymous"></script>
 
   
 
@@ -166,20 +166,20 @@ https://github.com/alex-shpak/hugo-book
 </span></span></code></pre></div><p>This is a command that can be used to identify and terminate Java processes that are using the UnLogged SDK library in
 Linux. Here&rsquo;s an explanation of each part of the command:</p>
 <ul>
-<li><code>ps aux</code>: This command lists all currently running processes on the system, along with their process ID (PID), user
+<li><code>ps aux</code>: lists all currently running processes on the system, along with their process ID (PID), user
 ID, CPU usage, memory usage, and other relevant information.</li>
-<li><code>grep java</code>: This command filters the output to only show processes that are running Java applications.</li>
-<li><code>grep unlogged-sdk-</code>: This command further filters the output to only show processes that are using the UnLogged SDK
+<li><code>grep java</code>: filters the output to only show processes that are running Java applications.</li>
+<li><code>grep unlogged-sdk-</code>: filters the output to only show processes that are using the UnLogged SDK
 library specifically.</li>
-<li><code>grep -v grep</code>: This command removes any lines from the output that contain the word &ldquo;grep&rdquo; itself (which is used in
+<li><code>grep -v grep</code>: removes any lines from the output that contain the word &ldquo;grep&rdquo; itself (which is used in
 several of the commands in this sequence).</li>
-<li><code>awk '{print $2}'</code>: This command extracts the second column from each line of output, which contains the PID of each
+<li><code>awk '{print $2}'</code>: extract the second column from each line of output, which contains the PID of each
 process.</li>
-<li><code>xargs kill -9</code>: This command uses the output of the previous command (which is a list of PIDs) to terminate those
+<li><code>xargs kill -9</code>: use the output of the previous command (which is a list of PIDs) to terminate those
 processes using signal 9 (also known as SIGKILL).</li>
 </ul>
 <p>It&rsquo;s worth noting that this command should only be used if you are certain that you want to terminate all processes
-that are using the UnLogged SDK library, and that there are no other processes running on your system that may rely on
+that are using the Unlogged SDK library, and that there are no other processes running on your system that may rely on
 those libraries. Terminating a process using signal 9 can cause data loss or other unexpected behavior, so use this
 command with caution.</p>
 </article>
@@ -191,9 +191,9 @@ command with caution.</p>
   <div class="flex flex-wrap justify-between">
 
 
-  <div><a class="flex align-center" href="https://github.com/artpar/artpar.github.io/commit/5a9b8fb10e5f763ce0091410c0f15b6a35415ac0" title='Last modified by artpar | November 7, 2023' target="_blank" rel="noopener">
+  <div><a class="flex align-center" href="https://github.com/artpar/artpar.github.io/commit/4fbc411b764db0e68dcb0f35598104c652429d10" title='Last modified by Parth Mudgal | April 27, 2024' target="_blank" rel="noopener">
       <img src="/svg/calendar.svg" class="book-icon" alt="Calendar" />
-      <span>November 7, 2023</span>
+      <span>April 27, 2024</span>
     </a>
   </div>
 
