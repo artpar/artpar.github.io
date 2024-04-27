@@ -4,63 +4,63 @@
     <title>Tags on Software engineering and reverse</title>
     <link>https://example.com/tags/</link>
     <description>Recent content in Tags on Software engineering and reverse</description>
-    <generator>Hugo -- gohugo.io</generator>
+    <generator>Hugo</generator>
     <language>en</language>
-    <lastBuildDate>Tue, 07 Nov 2023 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sat, 27 Apr 2024 21:38:45 +0530</lastBuildDate>
     <atom:link href="https://example.com/tags/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>awk</title>
+      <title>Awk</title>
       <link>https://example.com/tags/awk/</link>
-      <pubDate>Tue, 07 Nov 2023 00:00:00 +0000</pubDate>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://example.com/tags/awk/</guid>
       <description></description>
     </item>
     <item>
-      <title>bash</title>
+      <title>Bash</title>
       <link>https://example.com/tags/bash/</link>
-      <pubDate>Tue, 07 Nov 2023 00:00:00 +0000</pubDate>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://example.com/tags/bash/</guid>
       <description></description>
     </item>
     <item>
-      <title>kill</title>
+      <title>Kill</title>
       <link>https://example.com/tags/kill/</link>
-      <pubDate>Tue, 07 Nov 2023 00:00:00 +0000</pubDate>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://example.com/tags/kill/</guid>
       <description></description>
     </item>
     <item>
-      <title>xargs</title>
+      <title>Xargs</title>
       <link>https://example.com/tags/xargs/</link>
-      <pubDate>Tue, 07 Nov 2023 00:00:00 +0000</pubDate>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://example.com/tags/xargs/</guid>
       <description></description>
     </item>
     <item>
-      <title>annotation processing</title>
+      <title>Annotation Processing</title>
       <link>https://example.com/tags/annotation-processing/</link>
-      <pubDate>Sun, 11 Jun 2023 00:00:00 +0000</pubDate>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://example.com/tags/annotation-processing/</guid>
       <description></description>
     </item>
     <item>
-      <title>java</title>
+      <title>Java</title>
       <link>https://example.com/tags/java/</link>
-      <pubDate>Sun, 11 Jun 2023 00:00:00 +0000</pubDate>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://example.com/tags/java/</guid>
       <description></description>
     </item>
     <item>
-      <title>lombok</title>
+      <title>Lombok</title>
       <link>https://example.com/tags/lombok/</link>
-      <pubDate>Sun, 11 Jun 2023 00:00:00 +0000</pubDate>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://example.com/tags/lombok/</guid>
       <description></description>
     </item>
     <item>
-      <title>maven</title>
+      <title>Maven</title>
       <link>https://example.com/tags/maven/</link>
-      <pubDate>Sun, 11 Jun 2023 00:00:00 +0000</pubDate>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://example.com/tags/maven/</guid>
       <description></description>
     </item>

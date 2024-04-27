@@ -1,20 +1,26 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>lombok on Software engineering and reverse</title>
+    <title>Lombok on Software engineering and reverse</title>
     <link>https://example.com/tags/lombok/</link>
-    <description>Recent content in lombok on Software engineering and reverse</description>
-    <generator>Hugo -- gohugo.io</generator>
+    <description>Recent content in Lombok on Software engineering and reverse</description>
+    <generator>Hugo</generator>
     <language>en</language>
-    <lastBuildDate>Sun, 11 Jun 2023 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sat, 27 Apr 2024 21:38:45 +0530</lastBuildDate>
     <atom:link href="https://example.com/tags/lombok/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>How lombok works</title>
       <link>https://example.com/posts/how-lombok-works/</link>
       <pubDate>Sun, 11 Jun 2023 00:00:00 +0000</pubDate>
       <guid>https://example.com/posts/how-lombok-works/</guid>
-      <description>Introduction # Project Lombok is a java library that automatically plugs into your editor and build tools, spicing up your java.
-Never write another getter or equals method again, with one annotation your class has a fully featured builder, Automate your logging variables, and much more. This post is not a guide to use lombok, you can find plenty of them with a search. This post is about how the lombok works internally.</description>
+      <description>Introduction # Project Lombok is a java library that automatically plugs into your editor and build tools, spicing up your java.&#xA;Never write another getter or equals method again, with one annotation your class has a fully featured builder, Automate your logging variables, and much more. This post is not a guide to use lombok, you can find plenty of them with a search. This post is about how the lombok works internally.</description>
+    </item>
+    <item>
+      <title>Reserving Ids ahead of time</title>
+      <link>https://example.com/posts/reserving-ids-ahead-of-time/</link>
+      <pubDate>Sun, 11 Jun 2023 00:00:00 +0000</pubDate>
+      <guid>https://example.com/posts/reserving-ids-ahead-of-time/</guid>
+      <description>Reserving entity IDs ahead of time can address a bunch of issues in software development and system design, particularly in distributed systems, databases, and applications requiring high concurrency or real-time processing. Here are some of the key benefits and problems that this approach can solve:&#xA;Avoiding Collisions and Ensuring Uniqueness In distributed systems where different nodes generate IDs independently, reserving IDs in batches can prevent collisions. Each node or service can reserve a block of IDs and use them without needing to coordinate with others in real time, ensuring uniqueness across the system.</description>
     </item>
   </channel>
 </rss>
