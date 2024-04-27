@@ -1,14 +1,14 @@
 +++
 author = "Parth Mudgal"
 title = "Reserving Ids ahead of time"
-date = "2023-06-11"
+date = "2024-04-27"
 draft = false
 description = "some benefits"
 tags = [
-    "maven",
-    "java",
-    "lombok",
-    "annotation processing"
+    "id",
+    "system-design",
+    "reservation",
+    "distributed"
 ]
 +++
 
