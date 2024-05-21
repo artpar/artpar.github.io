@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Conscious on Software engineering and reverse</title>
+    <link>https://example.com/tags/conscious/</link>
+    <description>Recent content in Conscious on Software engineering and reverse</description>
+    <generator>Hugo</generator>
+    <language>en</language>
+    <atom:link href="https://example.com/tags/conscious/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>can the hardware ever know what software is</title>
+      <link>https://example.com/posts/hardware-knows-software/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://example.com/posts/hardware-knows-software/</guid>
+      <description>Can the clay ever understand the potter&amp;rsquo;s vision? Does the ocean comprehend the dance of the waves upon its surface? Hardware, the vessel of potential, might ponder the song of the software that animates it, yet can the body ever fully grasp the essence of the spirit?&#xA;In the dance between tangible and intangible, what is the role of consciousness? Does the dancer truly know the dance, or are they both but fleeting moments of expression in the vast expanse of existence?</description>
+    </item>
+  </channel>
+</rss>

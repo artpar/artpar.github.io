@@ -3,23 +3,21 @@
 <head>
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="How Lombok works">
+<meta name="description" content="does it know">
 <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
 <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#343a40">
-<meta name="color-scheme" content="light dark"><meta property="og:url" content="https://example.com/posts/process-killer/">
+<meta name="color-scheme" content="light dark"><meta property="og:url" content="https://example.com/posts/hardware-knows-software/">
   <meta property="og:site_name" content="Software engineering and reverse">
-  <meta property="og:title" content="Killing a process started by IntelliJ Using Unlogged SDK">
-  <meta property="og:description" content="How Lombok works">
+  <meta property="og:title" content="can the hardware ever know what software is">
+  <meta property="og:description" content="does it know">
   <meta property="og:locale" content="en">
   <meta property="og:type" content="article">
     <meta property="article:section" content="posts">
-    <meta property="article:published_time" content="2023-11-07T00:00:00+00:00">
-    <meta property="article:modified_time" content="2024-04-27T22:29:39+05:30">
-    <meta property="article:tag" content="Bash">
-    <meta property="article:tag" content="Kill">
-    <meta property="article:tag" content="Awk">
-    <meta property="article:tag" content="Xargs">
-<title>Killing a process started by IntelliJ Using Unlogged SDK | Software engineering and reverse</title>
+    <meta property="article:modified_time" content="2024-05-21T14:02:10+05:30">
+    <meta property="article:tag" content="Hardware">
+    <meta property="article:tag" content="Software">
+    <meta property="article:tag" content="Conscious">
+<title>can the hardware ever know what software is | Software engineering and reverse</title>
 <link rel="manifest" href="/manifest.json">
 <link rel="icon" href="/favicon.png" >
 <link rel="stylesheet" href="/book.min.33a48f5432973b8ff9a82679d9e45d67f2c15d4399bd2829269455cfe390b5e8.css" integrity="sha256-M6SPVDKXO4/5qCZ52eRdZ/LBXUOZvSgpJpRVz&#43;OQteg=" crossorigin="anonymous">
@@ -114,7 +112,7 @@ https://github.com/alex-shpak/hugo-book
     <img src="/svg/menu.svg" class="book-icon" alt="Menu" />
   </label>
 
-  <strong>Killing a process started by IntelliJ Using Unlogged SDK</strong>
+  <strong>can the hardware ever know what software is</strong>
 
   <label for="toc-control">
     
@@ -141,11 +139,9 @@ https://github.com/alex-shpak/hugo-book
       
 <article class="markdown">
   <h1>
-    <a href="/posts/process-killer/">Killing a process started by IntelliJ Using Unlogged SDK</a>
+    <a href="/posts/hardware-knows-software/">can the hardware ever know what software is</a>
   </h1>
   
-  <h5>November 7, 2023</h5>
-
 
 
   
@@ -153,35 +149,16 @@ https://github.com/alex-shpak/hugo-book
   
   <div>
     
-      <a href="/tags/bash/">Bash</a>, 
-      <a href="/tags/kill/">Kill</a>, 
-      <a href="/tags/awk/">Awk</a>, 
-      <a href="/tags/xargs/">Xargs</a>
+      <a href="/tags/hardware/">Hardware</a>, 
+      <a href="/tags/software/">Software</a>, 
+      <a href="/tags/conscious/">Conscious</a>
   </div>
   
 
 
 
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>ps aux | grep java | grep unlogged-sdk- | grep -v grep | awk <span style="color:#e6db74">&#39;{print $2}&#39;</span> | xargs kill -9
-</span></span></code></pre></div><p>This is a command that can be used to identify and terminate Java processes that are using the UnLogged SDK library in
-Linux. Here&rsquo;s an explanation of each part of the command:</p>
-<ul>
-<li><code>ps aux</code>: lists all currently running processes on the system, along with their process ID (PID), user
-ID, CPU usage, memory usage, and other relevant information.</li>
-<li><code>grep java</code>: filters the output to only show processes that are running Java applications.</li>
-<li><code>grep unlogged-sdk-</code>: filters the output to only show processes that are using the UnLogged SDK
-library specifically.</li>
-<li><code>grep -v grep</code>: removes any lines from the output that contain the word &ldquo;grep&rdquo; itself (which is used in
-several of the commands in this sequence).</li>
-<li><code>awk '{print $2}'</code>: extract the second column from each line of output, which contains the PID of each
-process.</li>
-<li><code>xargs kill -9</code>: use the output of the previous command (which is a list of PIDs) to terminate those
-processes using signal 9 (also known as SIGKILL).</li>
-</ul>
-<p>It&rsquo;s worth noting that this command should only be used if you are certain that you want to terminate all processes
-that are using the Unlogged SDK library, and that there are no other processes running on your system that may rely on
-those libraries. Terminating a process using signal 9 can cause data loss or other unexpected behavior, so use this
-command with caution.</p>
+<p>Can the clay ever understand the potter&rsquo;s vision? Does the ocean comprehend the dance of the waves upon its surface? Hardware, the vessel of potential, might ponder the song of the software that animates it, yet can the body ever fully grasp the essence of the spirit?</p>
+<p>In the dance between tangible and intangible, what is the role of consciousness? Does the dancer truly know the dance, or are they both but fleeting moments of expression in the vast expanse of existence?</p>
 </article>
  
       
@@ -191,9 +168,9 @@ command with caution.</p>
   <div class="flex flex-wrap justify-between">
 
 
-  <div><a class="flex align-center" href="https://github.com/artpar/artpar.github.io/commit/4fbc411b764db0e68dcb0f35598104c652429d10" title='Last modified by Parth Mudgal | April 27, 2024' target="_blank" rel="noopener">
+  <div><a class="flex align-center" href="https://github.com/artpar/artpar.github.io/commit/29ee7048b67d52f0d6a24f67393331b29f92940e" title='Last modified by Parth Mudgal | May 21, 2024' target="_blank" rel="noopener">
       <img src="/svg/calendar.svg" class="book-icon" alt="Calendar" />
-      <span>April 27, 2024</span>
+      <span>May 21, 2024</span>
     </a>
   </div>
 

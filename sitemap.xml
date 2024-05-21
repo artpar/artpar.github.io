@@ -18,7 +18,7 @@
     <lastmod>2024-04-27T21:47:18+05:30</lastmod>
   </url><url>
     <loc>https://example.com/tags/</loc>
-    <lastmod>2024-04-27T22:29:39+05:30</lastmod>
+    <lastmod>2024-05-21T14:02:10+05:30</lastmod>
   </url><url>
     <loc>https://example.com/tags/awk/</loc>
     <lastmod>2024-04-27T22:29:39+05:30</lastmod>
@@ -53,9 +53,21 @@
     <loc>https://example.com/posts/</loc>
     <lastmod>2023-09-04T13:16:43+05:30</lastmod>
   </url><url>
+    <loc>https://example.com/posts/hardware-knows-software/</loc>
+    <lastmod>2024-05-21T14:02:10+05:30</lastmod>
+  </url><url>
     <loc>https://example.com/categories/</loc>
+  </url><url>
+    <loc>https://example.com/tags/conscious/</loc>
+    <lastmod>2024-05-21T14:02:10+05:30</lastmod>
+  </url><url>
+    <loc>https://example.com/tags/hardware/</loc>
+    <lastmod>2024-05-21T14:02:10+05:30</lastmod>
   </url><url>
     <loc>https://example.com/</loc>
     <lastmod>2023-09-04T13:23:06+05:30</lastmod>
+  </url><url>
+    <loc>https://example.com/tags/software/</loc>
+    <lastmod>2024-05-21T14:02:10+05:30</lastmod>
   </url>
 </urlset>
