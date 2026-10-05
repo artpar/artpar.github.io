@@ -6,20 +6,16 @@
 <meta name="description" content="">
 <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
 <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#343a40">
-<meta name="color-scheme" content="light dark"><meta property="og:url" content="https://example.com/posts/">
-  <meta property="og:site_name" content="Software engineering and reverse">
-  <meta property="og:title" content="Blog">
-  <meta property="og:locale" content="en">
-  <meta property="og:type" content="website">
+<meta name="color-scheme" content="light dark"><meta property="og:title" content="Blog" />
+<meta property="og:description" content="" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://example.com/posts/" />
 <title>Blog | Software engineering and reverse</title>
 <link rel="manifest" href="/manifest.json">
 <link rel="icon" href="/favicon.png" >
 <link rel="stylesheet" href="/book.min.33a48f5432973b8ff9a82679d9e45d67f2c15d4399bd2829269455cfe390b5e8.css" integrity="sha256-M6SPVDKXO4/5qCZ52eRdZ/LBXUOZvSgpJpRVz&#43;OQteg=" crossorigin="anonymous">
   <script defer src="/flexsearch.min.js"></script>
-  <script defer src="/en.search.min.73782d40776b966258fda9e26131217f11a6c6b9dfebc7abaaec42c62c6d9c9b.js" integrity="sha256-c3gtQHdrlmJY/aniYTEhfxGmxrnf68erquxCxixtnJs=" crossorigin="anonymous"></script>
-
-  
-
+  <script defer src="/en.search.min.ccc5dd8b688717ced5b0a5dcaee2b063ddd500a2bd6580468765c773980c2c12.js" integrity="sha256-zMXdi2iHF87VsKXcruKwY93VAKK9ZYBGh2XHc5gMLBI=" crossorigin="anonymous"></script>
 <link rel="alternate" type="application/rss+xml" href="https://example.com/posts/index.xml" title="Software engineering and reverse" />
 <!--
 Made with Book Theme
@@ -138,77 +134,82 @@ https://github.com/alex-shpak/hugo-book
       <ul>
       
         <li class="flex justify-between">
-          <a href="/tags/distributed/">Distributed</a>
+          <a href="/tags/android/">android</a>
           <span>1</span>
         </li>
       
         <li class="flex justify-between">
-          <a href="/tags/id/">Id</a>
+          <a href="/tags/malware-analysis/">malware analysis</a>
           <span>1</span>
         </li>
       
         <li class="flex justify-between">
-          <a href="/tags/reservation/">Reservation</a>
+          <a href="/tags/reverse-engineering/">reverse engineering</a>
           <span>1</span>
         </li>
       
         <li class="flex justify-between">
-          <a href="/tags/system-design/">System-Design</a>
+          <a href="/tags/smishing/">smishing</a>
           <span>1</span>
         </li>
       
         <li class="flex justify-between">
-          <a href="/tags/awk/">Awk</a>
+          <a href="/tags/distributed/">distributed</a>
           <span>1</span>
         </li>
       
         <li class="flex justify-between">
-          <a href="/tags/bash/">Bash</a>
+          <a href="/tags/id/">id</a>
           <span>1</span>
         </li>
       
         <li class="flex justify-between">
-          <a href="/tags/kill/">Kill</a>
+          <a href="/tags/reservation/">reservation</a>
           <span>1</span>
         </li>
       
         <li class="flex justify-between">
-          <a href="/tags/xargs/">Xargs</a>
+          <a href="/tags/system-design/">system-design</a>
           <span>1</span>
         </li>
       
         <li class="flex justify-between">
-          <a href="/tags/annotation-processing/">Annotation Processing</a>
+          <a href="/tags/awk/">awk</a>
           <span>1</span>
         </li>
       
         <li class="flex justify-between">
-          <a href="/tags/java/">Java</a>
+          <a href="/tags/bash/">bash</a>
           <span>1</span>
         </li>
       
         <li class="flex justify-between">
-          <a href="/tags/lombok/">Lombok</a>
+          <a href="/tags/kill/">kill</a>
           <span>1</span>
         </li>
       
         <li class="flex justify-between">
-          <a href="/tags/maven/">Maven</a>
+          <a href="/tags/xargs/">xargs</a>
           <span>1</span>
         </li>
       
         <li class="flex justify-between">
-          <a href="/tags/conscious/">Conscious</a>
+          <a href="/tags/annotation-processing/">annotation processing</a>
           <span>1</span>
         </li>
       
         <li class="flex justify-between">
-          <a href="/tags/hardware/">Hardware</a>
+          <a href="/tags/java/">java</a>
           <span>1</span>
         </li>
       
         <li class="flex justify-between">
-          <a href="/tags/software/">Software</a>
+          <a href="/tags/lombok/">lombok</a>
+          <span>1</span>
+        </li>
+      
+        <li class="flex justify-between">
+          <a href="/tags/maven/">maven</a>
           <span>1</span>
         </li>
       
@@ -230,6 +231,38 @@ https://github.com/alex-shpak/hugo-book
   
   <article class="markdown book-post">
     <h2>
+      <a href="/posts/how-a-challan-sms-delivered-an-android-payload/">How a challan SMS delivered an Android payload</a>
+    </h2>
+    
+  <h5>October 5, 2026</h5>
+
+
+
+  
+
+  
+  <div>
+    
+      <a href="/tags/android/">android</a>, 
+      <a href="/tags/malware-analysis/">malware analysis</a>, 
+      <a href="/tags/reverse-engineering/">reverse engineering</a>, 
+      <a href="/tags/smishing/">smishing</a>
+  </div>
+  
+
+
+
+
+    <p>Introduction # I received a message that claimed to come from the transport ministry:
+Airtel Warning: SPAM | RTO Notice: Your vehicle has an Over Speeding challan BH3969314321 issued on 04-10-2026. Check &amp; Download now: https://echallangovtok.live/app . MoRTH
+The sender shown on my phone was +91 9108627963. The message supplied a challan number, a date, and a link. I downloaded the response from /app with wget. It was an Android APK.
+        <a href="/posts/how-a-challan-sms-delivered-an-android-payload/">...</a>
+      
+    </p>
+  </article>
+  
+  <article class="markdown book-post">
+    <h2>
       <a href="/posts/reserving-ids-ahead-of-time/">Reserving Ids ahead of time</a>
     </h2>
     
@@ -242,10 +275,10 @@ https://github.com/alex-shpak/hugo-book
   
   <div>
     
-      <a href="/tags/id/">Id</a>, 
-      <a href="/tags/system-design/">System-Design</a>, 
-      <a href="/tags/reservation/">Reservation</a>, 
-      <a href="/tags/distributed/">Distributed</a>
+      <a href="/tags/id/">id</a>, 
+      <a href="/tags/system-design/">system-design</a>, 
+      <a href="/tags/reservation/">reservation</a>, 
+      <a href="/tags/distributed/">distributed</a>
   </div>
   
 
@@ -273,10 +306,10 @@ Avoiding Collisions and Ensuring Uniqueness In distributed systems where differe
   
   <div>
     
-      <a href="/tags/bash/">Bash</a>, 
-      <a href="/tags/kill/">Kill</a>, 
-      <a href="/tags/awk/">Awk</a>, 
-      <a href="/tags/xargs/">Xargs</a>
+      <a href="/tags/bash/">bash</a>, 
+      <a href="/tags/kill/">kill</a>, 
+      <a href="/tags/awk/">awk</a>, 
+      <a href="/tags/xargs/">xargs</a>
   </div>
   
 
@@ -304,10 +337,10 @@ ps aux: lists all currently running processes on the system, along with their pr
   
   <div>
     
-      <a href="/tags/maven/">Maven</a>, 
-      <a href="/tags/java/">Java</a>, 
-      <a href="/tags/lombok/">Lombok</a>, 
-      <a href="/tags/annotation-processing/">Annotation Processing</a>
+      <a href="/tags/maven/">maven</a>, 
+      <a href="/tags/java/">java</a>, 
+      <a href="/tags/lombok/">lombok</a>, 
+      <a href="/tags/annotation-processing/">annotation processing</a>
   </div>
   
 
@@ -317,34 +350,6 @@ ps aux: lists all currently running processes on the system, along with their pr
     <p>Introduction # Project Lombok is a java library that automatically plugs into your editor and build tools, spicing up your java.
 Never write another getter or equals method again, with one annotation your class has a fully featured builder, Automate your logging variables, and much more. This post is not a guide to use lombok, you can find plenty of them with a search. This post is about how the lombok works internally.
         <a href="/posts/how-lombok-works/">...</a>
-      
-    </p>
-  </article>
-  
-  <article class="markdown book-post">
-    <h2>
-      <a href="/posts/hardware-knows-software/">can the hardware ever know what software is</a>
-    </h2>
-    
-
-
-  
-
-  
-  <div>
-    
-      <a href="/tags/hardware/">Hardware</a>, 
-      <a href="/tags/software/">Software</a>, 
-      <a href="/tags/conscious/">Conscious</a>
-  </div>
-  
-
-
-
-
-    <p>Can the clay ever understand the potter&rsquo;s vision? Does the ocean comprehend the dance of the waves upon its surface? Hardware, the vessel of potential, might ponder the song of the software that animates it, yet can the body ever fully grasp the essence of the spirit?
-In the dance between tangible and intangible, what is the role of consciousness? Does the dancer truly know the dance, or are they both but fleeting moments of expression in the vast expanse of existence?
-        <a href="/posts/hardware-knows-software/">...</a>
       
     </p>
   </article>
@@ -408,77 +413,82 @@ In the dance between tangible and intangible, what is the role of consciousness?
       <ul>
       
         <li class="flex justify-between">
-          <a href="/tags/distributed/">Distributed</a>
+          <a href="/tags/android/">android</a>
           <span>1</span>
         </li>
       
         <li class="flex justify-between">
-          <a href="/tags/id/">Id</a>
+          <a href="/tags/malware-analysis/">malware analysis</a>
           <span>1</span>
         </li>
       
         <li class="flex justify-between">
-          <a href="/tags/reservation/">Reservation</a>
+          <a href="/tags/reverse-engineering/">reverse engineering</a>
           <span>1</span>
         </li>
       
         <li class="flex justify-between">
-          <a href="/tags/system-design/">System-Design</a>
+          <a href="/tags/smishing/">smishing</a>
           <span>1</span>
         </li>
       
         <li class="flex justify-between">
-          <a href="/tags/awk/">Awk</a>
+          <a href="/tags/distributed/">distributed</a>
           <span>1</span>
         </li>
       
         <li class="flex justify-between">
-          <a href="/tags/bash/">Bash</a>
+          <a href="/tags/id/">id</a>
           <span>1</span>
         </li>
       
         <li class="flex justify-between">
-          <a href="/tags/kill/">Kill</a>
+          <a href="/tags/reservation/">reservation</a>
           <span>1</span>
         </li>
       
         <li class="flex justify-between">
-          <a href="/tags/xargs/">Xargs</a>
+          <a href="/tags/system-design/">system-design</a>
           <span>1</span>
         </li>
       
         <li class="flex justify-between">
-          <a href="/tags/annotation-processing/">Annotation Processing</a>
+          <a href="/tags/awk/">awk</a>
           <span>1</span>
         </li>
       
         <li class="flex justify-between">
-          <a href="/tags/java/">Java</a>
+          <a href="/tags/bash/">bash</a>
           <span>1</span>
         </li>
       
         <li class="flex justify-between">
-          <a href="/tags/lombok/">Lombok</a>
+          <a href="/tags/kill/">kill</a>
           <span>1</span>
         </li>
       
         <li class="flex justify-between">
-          <a href="/tags/maven/">Maven</a>
+          <a href="/tags/xargs/">xargs</a>
           <span>1</span>
         </li>
       
         <li class="flex justify-between">
-          <a href="/tags/conscious/">Conscious</a>
+          <a href="/tags/annotation-processing/">annotation processing</a>
           <span>1</span>
         </li>
       
         <li class="flex justify-between">
-          <a href="/tags/hardware/">Hardware</a>
+          <a href="/tags/java/">java</a>
           <span>1</span>
         </li>
       
         <li class="flex justify-between">
-          <a href="/tags/software/">Software</a>
+          <a href="/tags/lombok/">lombok</a>
+          <span>1</span>
+        </li>
+      
+        <li class="flex justify-between">
+          <a href="/tags/maven/">maven</a>
           <span>1</span>
         </li>
       

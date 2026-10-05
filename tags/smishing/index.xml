@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>smishing on Software engineering and reverse</title>
+    <link>https://example.com/tags/smishing/</link>
+    <description>Recent content in smishing on Software engineering and reverse</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <lastBuildDate>Mon, 05 Oct 2026 00:00:00 +0000</lastBuildDate><atom:link href="https://example.com/tags/smishing/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>How a challan SMS delivered an Android payload</title>
+      <link>https://example.com/posts/how-a-challan-sms-delivered-an-android-payload/</link>
+      <pubDate>Mon, 05 Oct 2026 00:00:00 +0000</pubDate>
+      
+      <guid>https://example.com/posts/how-a-challan-sms-delivered-an-android-payload/</guid>
+      <description>Introduction # I received a message that claimed to come from the transport ministry:
+Airtel Warning: SPAM | RTO Notice: Your vehicle has an Over Speeding challan BH3969314321 issued on 04-10-2026. Check &amp;amp; Download now: https://echallangovtok.live/app . MoRTH
+The sender shown on my phone was +91 9108627963. The message supplied a challan number, a date, and a link. I downloaded the response from /app with wget. It was an Android APK.</description>
+    </item>
+    
+  </channel>
+</rss>

@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Tracing an RTO challan SMS through an APK loader, a payload, payment forms, and infrastructure records">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#343a40">
+<meta name="color-scheme" content="light dark"><meta property="og:title" content="How a challan SMS delivered an Android payload" />
+<meta property="og:description" content="Tracing an RTO challan SMS through an APK loader, a payload, payment forms, and infrastructure records" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://example.com/posts/how-a-challan-sms-delivered-an-android-payload/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2026-10-05T00:00:00+00:00" />
+<meta property="article:modified_time" content="2026-10-05T23:11:19+05:30" />
+<title>How a challan SMS delivered an Android payload | Software engineering and reverse</title>
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="/favicon.png" >
+<link rel="stylesheet" href="/book.min.33a48f5432973b8ff9a82679d9e45d67f2c15d4399bd2829269455cfe390b5e8.css" integrity="sha256-M6SPVDKXO4/5qCZ52eRdZ/LBXUOZvSgpJpRVz&#43;OQteg=" crossorigin="anonymous">
+  <script defer src="/flexsearch.min.js"></script>
+  <script defer src="/en.search.min.ccc5dd8b688717ced5b0a5dcaee2b063ddd500a2bd6580468765c773980c2c12.js" integrity="sha256-zMXdi2iHF87VsKXcruKwY93VAKK9ZYBGh2XHc5gMLBI=" crossorigin="anonymous"></script>
+<!--
+Made with Book Theme
+https://github.com/alex-shpak/hugo-book
+-->
+  
+</head>
+<body dir="ltr">
+  <input type="checkbox" class="hidden toggle" id="menu-control" />
+  <input type="checkbox" class="hidden toggle" id="toc-control" />
+  <main class="container flex">
+    <aside class="book-menu">
+      <div class="book-menu-content">
+        
+  <nav>
+<h2 class="book-brand">
+  <a class="flex align-center" href="/"><span>Software engineering and reverse</span>
+  </a>
+</h2>
+
+
+<div class="book-search">
+  <input type="text" id="book-search-input" placeholder="Search" aria-label="Search" maxlength="64" data-hotkeys="s/" />
+  <div class="book-search-spinner hidden"></div>
+  <ul id="book-search-results"></ul>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+<ul>
+  
+  <li>
+    <a href="/posts/"  >
+        Blog
+      </a>
+  </li>
+  
+</ul>
+
+
+
+
+
+
+</nav>
+
+
+
+
+  <script>(function(){var e=document.querySelector("aside .book-menu-content");addEventListener("beforeunload",function(){localStorage.setItem("menu.scrollTop",e.scrollTop)}),e.scrollTop=localStorage.getItem("menu.scrollTop")})()</script>
+
+
+ 
+      </div>
+    </aside>
+
+    <div class="book-page">
+      <header class="book-header">
+        
+  <div class="flex align-center justify-between">
+  <label for="menu-control">
+    <img src="/svg/menu.svg" class="book-icon" alt="Menu" />
+  </label>
+
+  <strong>How a challan SMS delivered an Android payload</strong>
+
+  <label for="toc-control">
+    
+    <img src="/svg/toc.svg" class="book-icon" alt="Table of Contents" />
+    
+  </label>
+</div>
+
+
+  
+  <aside class="hidden clearfix">
+    
+  
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="#introduction">Introduction</a></li>
+    <li><a href="#the-apk-behind-the-link">The APK behind the link</a>
+      <ul>
+        <li><a href="#how-android-handles-the-second-install">How Android handles the second install</a></li>
+      </ul>
+    </li>
+    <li><a href="#the-app-after-decryption">The app after decryption</a>
+      <ul>
+        <li><a href="#sms-access-and-commands">SMS access and commands</a></li>
+      </ul>
+    </li>
+    <li><a href="#where-the-infrastructure-points">Where the infrastructure points</a></li>
+    <li><a href="#following-the-sender-and-the-bot">Following the sender and the bot</a></li>
+    <li><a href="#what-the-files-establish">What the files establish</a>
+      <ul>
+        <li><a href="#indicators">Indicators</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+
+
+
+  </aside>
+  
+ 
+      </header>
+
+      
+      
+<article class="markdown">
+  <h1>
+    <a href="/posts/how-a-challan-sms-delivered-an-android-payload/">How a challan SMS delivered an Android payload</a>
+  </h1>
+  
+  <h5>October 5, 2026</h5>
+
+
+
+  
+
+  
+  <div>
+    
+      <a href="/tags/android/">android</a>, 
+      <a href="/tags/malware-analysis/">malware analysis</a>, 
+      <a href="/tags/reverse-engineering/">reverse engineering</a>, 
+      <a href="/tags/smishing/">smishing</a>
+  </div>
+  
+
+
+
+<h1 id="introduction">
+  Introduction
+  <a class="anchor" href="#introduction">#</a>
+</h1>
+<p>I received a message that claimed to come from the transport ministry:</p>
+<blockquote>
+<p>Airtel Warning: SPAM | RTO Notice: Your vehicle has an Over Speeding challan BH3969314321 issued on 04-10-2026. Check &amp; Download now: 
+  <a href="https://echallangovtok.live/app">https://echallangovtok.live/app</a> . MoRTH</p>
+</blockquote>
+<p>The sender shown on my phone was <code>+91 9108627963</code>. The message supplied a challan number, a date, and a link. I downloaded the response from <code>/app</code> with <code>wget</code>. It was an Android APK.</p>
+<p>I followed the files in that APK. The app downloaded a file from a server, decrypted it into another APK, and asked Android to install it. The second app displayed a challan flow, asked for card data and a UPI PIN, and sent those values to Firebase. It also contained code for reading SMS and receiving commands.</p>
+<p>This post follows the bytes, manifests, DEX instructions, and HTML assets. I used file inspection and decryption. The behavior of a phone after installation calls for device evidence.</p>
+<p>Here is the path through the sample:</p>
+
+
+<script src="/mermaid.min.js"></script>
+
+  <script>mermaid.initialize({
+  "flowchart": {
+    "useMaxWidth":true
+  },
+  "theme": "default"
+}
+)</script>
+
+
+
+
+<p class="mermaid">
+flowchart LR
+    A[SMS] --> B[Loader APK]
+    B --> C[base.enc]
+    C --> D[Payload APK]
+    D --> E[Forms]
+    E --> F[Firebase]
+    D --> G[SMS code]
+    D --> H[Telegram]
+</p>
+
+<h1 id="the-apk-behind-the-link">
+  The APK behind the link
+  <a class="anchor" href="#the-apk-behind-the-link">#</a>
+</h1>
+<p>The <code>/app</code> response has the package name <code>com.google.android.gmscore</code> and the app label <code>NxtGen mParivahan</code>. Those names borrow from Google services and India&rsquo;s vehicle portal. The APK has SHA-256 <code>eaf4d1df42537ff33078508d84c3b60ef6a8dee5f1d56504e35d220e28d30cec</code>.</p>
+<p>The app contacts <code>http://31.56.19.30/277015/verification.php</code>. I inspected the response during collection and found two fields:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>download_url = http://31.56.19.30/277015/enc/base.enc
+</span></span><span style="display:flex;"><span>package_name = com.veltrix.documents
+</span></span></code></pre></div><p>The first field tells the loader where to fetch its payload. The second tells it which package name to expect after decryption. This gives the server control over the file the loader will request. The SMS link uses HTTPS; these two requests use HTTP.</p>
+<p><code>base.enc</code> starts with 16 bytes of salt and 16 bytes of IV. The loader derives an AES key with <code>PBKDF2WithHmacSHA256</code>, 100,000 iterations, and a password embedded in its code: <code>e4515e1bfca2093f41116f4e0526d48e</code>. It decrypts the remainder with <code>AES/CBC/PKCS5Padding</code>. I applied that sequence to the downloaded file and obtained an APK with package name <code>com.veltrix.documents</code> and SHA-256 <code>4bcb211d67fee3cefbbc409efbf1403fbd820a0f615002f25a07fd573185ef41</code>.</p>
+<p>Both APKs carry a signer certificate with SHA-256 <code>465983f7791f2abeb43ea2cbdc7f21a8260b72bc08a55c839fc1a43bc741a81e</code>. The match links the loader and payload as signed artifacts.</p>
+<h2 id="how-android-handles-the-second-install">
+  How Android handles the second install
+  <a class="anchor" href="#how-android-handles-the-second-install">#</a>
+</h2>
+<p>The loader opens the Android setting for <code>MANAGE_UNKNOWN_APP_SOURCES</code>, creates a <code>PackageInstaller</code> session, writes the payload APK, and commits the session. Its <code>InstallReceiver</code> handles <code>STATUS_PENDING_USER_ACTION</code> by opening the intent supplied by Android. That status leads to an install prompt. 
+  <a href="https://developer.android.com/reference/android/content/pm/PackageInstaller.Session">Android documents this session flow</a>.</p>
+<p>The payload has its own package name and UID. It requests its own permissions after launch. An install grant for the loader leaves the payload to request SMS and phone access through Android&rsquo;s permission flow. 
+  <a href="https://developer.android.com/training/permissions/requesting">Android&rsquo;s permission guide</a> describes that grant process.</p>
+<p>The loader also calls <code>VpnService.prepare</code>, which asks for VPN consent. Its VPN code adds a route for <code>0.0.0.0/0</code>, reads packets from the VPN interface, and leaves its writer thread sleeping. For packets routed through that interface, the implementation acts as a sink. The service names <code>android-safebrowsing.google.com</code>, <code>sb.l.google.com</code>, and <code>play.googleapis.com</code>. I read this as an attempt to interfere with checks, subject to VPN consent and device behavior. 
+  <a href="https://developer.android.com/reference/android/net/VpnService">Android&rsquo;s VPN API</a> places that consent with the user.</p>
+<h1 id="the-app-after-decryption">
+  The app after decryption
+  <a class="anchor" href="#the-app-after-decryption">#</a>
+</h1>
+<p>The payload presents itself as <code>NxtGen mParivahan</code>. Its code opens <code>file:///android_asset/index.html</code> in a WebView, enables JavaScript, and exposes a Java object named <code>Android</code> to the page. The screens sit in the APK as <code>.enc</code> assets. The app decodes Base64 and decrypts them with AES-ECB and the key <code>k9Xm3Lr7Pq2Wn8Tz</code> from its code.</p>
+<p>After decryption, the assets contain pages for vehicle entry, payment choice, card entry, UPI PIN entry, processing, and completion. The entry page asks for a phone number, registration number, and captcha. It claims a ₹1 fee for record verification and a refund.</p>
+<p>The payment paths explain the purpose of that claim. On the UPI path, each PIN submission calls:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#a6e22e">Android</span>.<span style="color:#a6e22e">submitPin</span>(<span style="color:#a6e22e">pin</span>, <span style="color:#a6e22e">attempt</span>)
+</span></span></code></pre></div><p>The processing page then reports a PIN failure, asks for the PIN again, reports a UPI service problem, and sends the user to the card form. On the card path, the first submission produces a failure message. The retry calls:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#a6e22e">Android</span>.<span style="color:#a6e22e">submitCard</span>(<span style="color:#a6e22e">num</span>, <span style="color:#a6e22e">name</span>, <span style="color:#a6e22e">exp</span>, <span style="color:#a6e22e">cvv</span>, <span style="color:#a6e22e">cardType</span>)
+</span></span></code></pre></div><p>The card path then sends the user through the UPI PIN form. Both routes reach a completion screen after the forms have collected card data and PIN entries. The Java bridge writes fields such as <code>card_number</code>, <code>card_cvv</code>, <code>upipin</code>, and <code>upipin_&lt;attempt&gt;</code> under <code>clients/&lt;deviceId&gt;</code> in Firebase Realtime Database:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>https://sixthaugust26-default-rtdb.asia-southeast1.firebasedatabase.app
+</span></span></code></pre></div><p>The completion page draws a name, vehicle type, challan number, violation, place, and date from JavaScript arrays and <code>Math.random()</code>. After eight seconds it redirects the WebView to <code>https://echallan.parivahan.gov.in/</code>. The page acts as the end of the collection path; the values on it come from the bundled script.</p>
+<h2 id="sms-access-and-commands">
+  SMS access and commands
+  <a class="anchor" href="#sms-access-and-commands">#</a>
+</h2>
+<p>The payload manifest requests <code>READ_SMS</code>, <code>RECEIVE_SMS</code>, <code>SEND_SMS</code>, <code>CALL_PHONE</code>, <code>READ_PHONE_STATE</code>, and <code>READ_PHONE_NUMBERS</code>. The entry activity asks for SMS and phone grants on launch.</p>
+<p>With those grants, <code>SmsReceiver</code> can read an arriving SMS, join its parts, and write the sender, body, and time under <code>messages/&lt;deviceId&gt;/&lt;timestamp&gt;</code> in Firebase. Another path queries <code>content://sms/</code> for up to 1,000 messages. The code also contains a forwarding setting that sends arriving SMS text to a number through <code>SmsManager</code>.</p>
+<p>The service reads commands from Firebase. One command path, <code>webhookEvent/sendSms</code>, takes a SIM index, destination, and message and calls <code>SmsManager.sendTextMessage</code>. A <code>callForward</code> path forms a dial code such as <code>**21*&lt;number&gt;#</code> and starts an <code>ACTION_CALL</code> intent. That action depends on permissions and the carrier. Boot, alarm, job, foreground service, and watchdog paths try to restore the service after interruptions.</p>
+<h1 id="where-the-infrastructure-points">
+  Where the infrastructure points
+  <a class="anchor" href="#where-the-infrastructure-points">#</a>
+</h1>
+<p>I looked up the domain, the IP in the loader, and the certificate records. Each record answers a different question.</p>
+<p>The 
+  <a href="https://rdap.identitydigital.services/rdap/domain/echallangovtok.live">.live registry record</a> gives a creation time of <strong>4 October 2026, 16:50 UTC</strong> for <code>echallangovtok.live</code>. The SMS prints 4 October as the challan date. The record names Tucows as registrar. 
+  <a href="https://opensrs.rdap.tucows.com/domain/echallangovtok.live">Tucows&rsquo; RDAP response</a> redacts the registrant&rsquo;s name, organization, phone, and street. It lists <code>NY</code> and <code>US</code> in address fields and gives 
+  <a href="https://tieredaccess.com/contact/32b3766b-8871-4854-8069-26394e639bf5">a contact route</a>. The domain uses <code>ns1.systemdns.com</code>, <code>ns2.systemdns.com</code>, and <code>ns3.systemdns.com</code> for DNS.</p>
+<p>A 
+  <a href="https://dns.google/resolve?name=echallangovtok.live&amp;type=A">DNS lookup</a> on 5 October returned <code>13.248.148.104</code> and <code>76.223.20.46</code>. 
+  <a href="https://rdap.arin.net/registry/ip/13.248.148.104">ARIN&rsquo;s record for the first address</a> and 
+  <a href="https://rdap.arin.net/registry/ip/76.223.20.46">its record for the second</a> place them in Amazon address ranges. A DNS answer from the time of receipt would connect the SMS visit to an address at that time.</p>
+<p>The loader&rsquo;s configuration and payload URL point to <code>31.56.19.30</code>. 
+  <a href="https://rdap.db.ripe.net/ip/31.56.19.30">RIPE&rsquo;s record</a> places it in <code>31.56.19.0/24</code>, names the range <code>BLATANT-NET</code>, and associates it with Blatant Technologies, LLC. 
+  <a href="https://stat.ripe.net/data/prefix-overview/data.json?resource=31.56.19.0%2F24">RIPE routing data</a> lists AS403005, <code>BLATANTHOST</code>. Gold IP L.L.C-FZ appears as the address administrator, and <code>abuse@blatant.host</code> appears as the abuse contact. The RIPE country field contains <code>SC</code>, Seychelles; it describes the address allocation. Server location calls for hosting records or network measurements.</p>
+<p>I also searched 
+  <a href="https://api.certspotter.com/v1/issuances?domain=echallangovtok.live&amp;include_subdomains=true&amp;expand=dns_names&amp;expand=issuer">Certificate Transparency records for the domain</a>. The issuances I found list <code>echallangovtok.live</code> and <code>www.echallangovtok.live</code>. They share SPKI SHA-256 <code>a49e1f32dc76b0fb9522eb4557b80ce522eab8e</code>. A search for that key fingerprint could connect certificates that reuse the key. DNS and scan data can supply hosts absent from certificate name lists.</p>
+<p>Two scan records associate 
+  <a href="https://gridinsoft.com/online-virus-scanner/url/mparivahan_gov-ddns-net"><code>mparivahan-gov.ddns.net</code></a> and 
+  <a href="https://gridinsoft.com/online-virus-scanner/url/mparivahan-hopto-org"><code>mparivahan.hopto.org</code></a> with <code>31.56.19.30</code>. 
+  <a href="https://api.certspotter.com/v1/issuances?domain=mparivahan-gov.ddns.net&amp;expand=dns_names&amp;expand=issuer">Certificate records for the first name</a> and 
+  <a href="https://api.certspotter.com/v1/issuances?domain=mparivahan.hopto.org&amp;expand=dns_names&amp;expand=issuer">the second</a> place them in September 2026. Those names form search leads. A host can serve clients with different accounts, so the account link needs host records.</p>
+<h1 id="following-the-sender-and-the-bot">
+  Following the sender and the bot
+  <a class="anchor" href="#following-the-sender-and-the-bot">#</a>
+</h1>
+<p>The number <code>+91 9108627963</code> came from the sender field on my phone. A search for the number in several formats yielded unrelated pages. The message, sender field, receipt time, and phone record give the carrier a path to trace the originating SIM or SMS gateway. The 
+  <a href="https://sancharsaathi.gov.in/SancharSaathiDocuments/ImportantDocuments/DoT%20combats%20Cyber-frauds%3A%20Central%20system%20to%20stop%20spoofed%20calls%20to%20be%20commissioned%20shortly.pdf">Chakshu reporting guidance</a> asks for a screenshot and the time of receipt. The 
+  <a href="https://cybercrime.gov.in/webform/cyber_suspect.aspx">I4C Report Suspect portal</a> accepts phone numbers, SMS headers, and URLs.</p>
+<p>The payload contains a JSON entry at <code>META-INF////.</code> with a Telegram bot token and chat ID <code>5196490744</code>. The bot ID is <code>6751695148</code>. I compared the token from the APK with the token in 
+  <a href="https://cyble.com/blog/ghostbat-rat-inside-the-resurgence-of-rto-themed-android-malware/">Cyble&rsquo;s October 2025 GhostBat analysis</a>. They match. Cyble names the bot <code>GhostBatRat_bot</code> and describes its use in RTO malware from that period.</p>
+<p>The token appears in Cyble&rsquo;s report, which gives other builders access to it. The match ties this APK to a bot credential; Telegram records would tie use of that credential to an account or person. I use the token&rsquo;s SHA-256, <code>68bde4c20b7e17a845015fe338fb5cb54ebe04ff87f772c44139e31047dfbd6f</code>, as a comparison value in this post. 
+  <a href="https://core.telegram.org/bots/tutorial">Telegram describes bot tokens as credentials</a>.</p>
+<p>The same approach applies to the other services. Investigators can request the domain purchase and payment records from Tucows, the customer and access logs for <code>31.56.19.30</code> from the host, and the account records for Firebase project <code>sixthaugust26</code> from Google. The APK names Firebase application ID <code>1:752011164814:android:435839af48e5f17458dddf</code>. The sender, host customer, Firebase account holder, and bot controller may represent people with different roles.</p>
+<h1 id="what-the-files-establish">
+  What the files establish
+  <a class="anchor" href="#what-the-files-establish">#</a>
+</h1>
+<p>The loader fetched configuration, downloaded ciphertext, decrypted an APK, and entered Android&rsquo;s install flow. The payload&rsquo;s WebView collected card fields and UPI PIN entries and wrote them to a Firebase path. Its manifest and code requested SMS and phone access and supplied paths for SMS capture, SMS sending, and call forwarding. The two APKs share a signer.</p>
+<p>I reached those findings through file inspection. The APK archives use ZIP entries that imitate manifest and DEX paths, and the payload includes DEX data that caused JADX and baksmali errors. <code>dexdump</code> exposed the instructions behind the flows above. The WebView assets supplied the form behavior. Permission grants, network delivery, call forwarding, and outcomes on a phone require device or provider records.</p>
+<p>For anyone who installed these packages, the investigation also becomes a response task: remove the packages and VPN profile, contact the card issuer after card entry, reset a UPI PIN after PIN entry, and review SMS, carrier charges, and account recovery activity. India&rsquo;s 
+  <a href="https://cybercrime.gov.in/">cybercrime portal</a> and helpline <code>1930</code> accept reports of fraud.</p>
+<h2 id="indicators">
+  Indicators
+  <a class="anchor" href="#indicators">#</a>
+</h2>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SMS link</td>
+<td><code>https://echallangovtok.live/app</code></td>
+</tr>
+<tr>
+<td>Sender shown on my phone</td>
+<td><code>+91 9108627963</code></td>
+</tr>
+<tr>
+<td>Loader package</td>
+<td><code>com.google.android.gmscore</code></td>
+</tr>
+<tr>
+<td>Loader SHA-256</td>
+<td><code>eaf4d1df42537ff33078508d84c3b60ef6a8dee5f1d56504e35d220e28d30cec</code></td>
+</tr>
+<tr>
+<td>Configuration URL</td>
+<td><code>http://31.56.19.30/277015/verification.php</code></td>
+</tr>
+<tr>
+<td>Payload URL</td>
+<td><code>http://31.56.19.30/277015/enc/base.enc</code></td>
+</tr>
+<tr>
+<td>Payload package</td>
+<td><code>com.veltrix.documents</code></td>
+</tr>
+<tr>
+<td>Payload SHA-256</td>
+<td><code>4bcb211d67fee3cefbbc409efbf1403fbd820a0f615002f25a07fd573185ef41</code></td>
+</tr>
+<tr>
+<td>Signer certificate SHA-256</td>
+<td><code>465983f7791f2abeb43ea2cbdc7f21a8260b72bc08a55c839fc1a43bc741a81e</code></td>
+</tr>
+<tr>
+<td>Firebase database</td>
+<td><code>sixthaugust26-default-rtdb.asia-southeast1.firebasedatabase.app</code></td>
+</tr>
+<tr>
+<td>Firebase application ID</td>
+<td><code>1:752011164814:android:435839af48e5f17458dddf</code></td>
+</tr>
+<tr>
+<td>Telegram bot ID</td>
+<td><code>6751695148</code></td>
+</tr>
+<tr>
+<td>Telegram chat ID</td>
+<td><code>5196490744</code></td>
+</tr>
+<tr>
+<td>Telegram token SHA-256</td>
+<td><code>68bde4c20b7e17a845015fe338fb5cb54ebe04ff87f772c44139e31047dfbd6f</code></td>
+</tr>
+</tbody>
+</table>
+</article>
+ 
+      
+
+      <footer class="book-footer">
+        
+  <div class="flex flex-wrap justify-between">
+
+
+  <div><a class="flex align-center" href="https://github.com/artpar/artpar.github.io/commit/bd665f1dad8abe4d8d463b7ed7a10111cb4650b1" title='Last modified by Parth Mudgal | October 5, 2026' target="_blank" rel="noopener">
+      <img src="/svg/calendar.svg" class="book-icon" alt="Calendar" />
+      <span>October 5, 2026</span>
+    </a>
+  </div>
+
+
+
+
+</div>
+
+
+
+  <script>(function(){function e(e){const t=window.getSelection(),n=document.createRange();n.selectNodeContents(e),t.removeAllRanges(),t.addRange(n)}document.querySelectorAll("pre code").forEach(t=>{t.addEventListener("click",function(){if(window.getSelection().toString())return;e(t.parentElement),navigator.clipboard&&navigator.clipboard.writeText(t.parentElement.textContent)})})})()</script>
+
+
+ 
+        
+      </footer>
+
+      
+  
+ 
+
+      <label for="menu-control" class="hidden book-menu-overlay"></label>
+    </div>
+
+    
+    <aside class="book-toc">
+      <div class="book-toc-content">
+        
+  
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="#introduction">Introduction</a></li>
+    <li><a href="#the-apk-behind-the-link">The APK behind the link</a>
+      <ul>
+        <li><a href="#how-android-handles-the-second-install">How Android handles the second install</a></li>
+      </ul>
+    </li>
+    <li><a href="#the-app-after-decryption">The app after decryption</a>
+      <ul>
+        <li><a href="#sms-access-and-commands">SMS access and commands</a></li>
+      </ul>
+    </li>
+    <li><a href="#where-the-infrastructure-points">Where the infrastructure points</a></li>
+    <li><a href="#following-the-sender-and-the-bot">Following the sender and the bot</a></li>
+    <li><a href="#what-the-files-establish">What the files establish</a>
+      <ul>
+        <li><a href="#indicators">Indicators</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+
+
+ 
+      </div>
+    </aside>
+    
+  </main>
+
+  
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
